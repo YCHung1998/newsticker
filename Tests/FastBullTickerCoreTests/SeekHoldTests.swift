@@ -7,6 +7,7 @@ import Foundation
 @Suite struct SeekHoldTests {
     private func make(_ tweak: (inout SchedulerConfig) -> Void = { _ in }) -> (FakeClock, TickerScheduler) {
         var cfg = SchedulerConfig.test
+        cfg.seekHoldSeconds = 8          // 機制測試明確指定 8 秒（預設值於 nav-layout-tweaks 改為 1 秒；預設值另由下方 DefaultHold 測試覆蓋）
         tweak(&cfg)
         let clock = FakeClock()
         var s = makeScheduler(clock, config: cfg)
@@ -296,5 +297,44 @@ import Foundation
         var (_, s) = make { $0.retainPlacedCount = 1 }
         _ = s.rebase()
         #expect(s.placed.map(\.id) == ["8", "7"], "右緣 > 0 的仍保留，不因 retain 較小而多丟")
+    }
+}
+
+/// nav-layout-tweaks：左右切換後的停留預設 1 秒（使用者第二輪回饋）。這些測試不覆寫 `seekHoldSeconds`。
+@Suite struct DefaultSeekHoldTests {
+    private func makeDefault() -> (FakeClock, TickerScheduler) {
+        let clock = FakeClock()
+        var s = makeScheduler(clock, config: SchedulerConfig.test)
+        _ = s.receive(snap(Array(1...10)))
+        for t in 0...5 { clock.t = Double(t); _ = s.tick() }
+        return (clock, s)
+    }
+
+    @Test func defaultIsOneSecond() {
+        #expect(SchedulerConfig().seekHoldSeconds == 1)
+        var (_, s) = makeDefault()
+        _ = s.seek(.previous)
+        #expect(s.holdRemaining == 1)
+    }
+
+    @Test func holdsForOneSecondThenResumesWithoutJump() {
+        var (clock, s) = makeDefault()
+        _ = s.seek(.previous)
+        let off = s.scrollOffset
+        clock.t += 0.5; _ = s.tick()
+        #expect(s.scrollOffset == off && abs(s.holdRemaining - 0.5) < 1e-9)
+        clock.t += 0.5; _ = s.tick()
+        #expect(s.scrollOffset == off && s.holdRemaining == 0)
+        clock.t += 2; _ = s.tick()
+        #expect(s.scrollOffset == off + 2 * 100, "第 1 秒後從對齊位置接著走")
+    }
+
+    @Test func secondSeekResetsToOneSecondNotAccumulates() {
+        var (clock, s) = makeDefault()
+        _ = s.seek(.previous)
+        clock.t += 0.6; _ = s.tick()
+        #expect(abs(s.holdRemaining - 0.4) < 1e-9)
+        _ = s.seek(.next)
+        #expect(s.holdRemaining == 1)
     }
 }

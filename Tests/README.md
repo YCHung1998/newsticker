@@ -437,3 +437,48 @@ python3 Tests/s2-mutations.py                           # 36 組 mutation（約 
 
 ## 真機啟動驗證
 **未執行。** 開始前 `pgrep -fl "FastBullTicker|ticker-connect"` 找到已有一個實例在跑（`build/FastBullTicker.app` 的 `FastBullTicker`，pid 8721，00:52 啟動，及其 helper pid 8788；不是我啟動的），依規則不啟動第二個實例（兩個實例共用 helper pid 檔會互相回收 helper）。改以 headless 煙霧測試（`AppSmokeStyleTests`）涵蓋啟動載入、熱重載、損壞檔案、選單變更的路徑；`AppDelegate` 本身（正式監看器 `DispatchSourceStyleWatcher`、`WorkspaceFileOpener`、選單列圖示）**沒有被任何自動測試或真機日誌執行過**。注意：我重新建置了 `build/FastBullTicker.app`（`make helper app sign`），那個已在跑的實例仍是舊二進位檔，需要重新啟動才會是新版。
+
+
+---
+
+# nav-layout-tweaks（停留 1 秒、控制列移到標籤右側、符號垂直對齊）的驗證與重現（2026-10-25）
+
+不開視窗、不連網、不寫使用者的 `style.json`、未啟動 App。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                          # 481 個（原 471 + 新增 10），全綠
+swift test --filter StripAlignmentTests             # 符號對齊：離屏渲染＋像素墨跡外框量測
+swift test --filter "DefaultSeekHoldTests|HitTestingTests|ControlStripLayoutTests|StyleApplyTests"
+python3 Tests/t1-mutations.py > Tests/evidence/t1-mutations.log   # 10 組 mutation（約 1 分鐘）
+N3_SNAPSHOT_DIR=<目錄> S2_SNAPSHOT_DIR=<目錄> swift test --filter "PanelSnapshotTests|StyleSnapshotTests"   # 重新輸出離屏 PNG
+openspec validate nav-layout-tweaks --strict
+```
+
+## 對齊量測與 fail-then-pass（`Tests/FastBullTickerAppTests/StripAlignmentTests.swift`）
+標準：離屏 `CALayer.render`（@2x，控制列高 84 px、中線 42），取與控制列底色最大通道差 > 64 的像素之最小外接矩形（墨跡外框），垂直中心 = (minRow + maxRow + 1) / 2；`<`、`(n/N)`、`>` 兩兩相差 ≤ 1 px 且各自相對中線 ≤ 1 px。
+- **紅（舊實作，CATextLayer）**：`<`、`>` 中心 47.5 px（低於中線 5.5 px）、`(4/10)` 中心 40.5 px（高於中線 1.5 px），`<` 與 `(n/N)` 差 7 px。`Tests/evidence/nav-layout-align-red.log`（9 個 issue）。
+- **綠（chevron 路徑 + 墨跡置中位圖）**：`<`、`>` 中心 42.0 px、`(n/N)` 42.5 px（各 4 組文字、`showLabel` 開／關＋圓角 21 皆同）。`Tests/evidence/nav-layout-align-green.log`。
+
+## 停留 1 秒的紅
+把 `SchedulerConfig.seekHoldSeconds` 預設改為 1 之後、尚未改測試前，`swift test` 共 34 個 issue（其中 9 個是當時仍紅的對齊測試，其餘 25 個為：`previousAlignsTargetToLeftEdgeAndStartsHold`、`holdFreezesThenResumesWithoutJump`、`arrowButtonsChangePositionAndHoldTimer`、`newConfigDefaultsDoNotChangeExistingBehaviour` 等硬編 8 秒的斷言）；改測試後綠（見 mutation T1 反向驗證：預設改回 8 → 5 個測試紅）。
+
+## mutation（`Tests/t1-mutations.py`，輸出 `Tests/evidence/t1-mutations.log`）
+| 破壞 | 偵測到的測試（摘要） |
+|---|---|
+| T1 停留預設退回 8 | `defaultIsOneSecond`、`holdsForOneSecondThenResumesWithoutJump`、`secondSeekResetsToOneSecondNotAccumulates`、`newConfigDefaultsDoNotChangeExistingBehaviour`、`arrowButtonsChangePositionAndHoldTimer` |
+| T2 可視寬度忘了扣控制列左側占用寬 | `tapeViewportWidthFormula`、`gearSlotCanBeInsertedByShiftingTheSingleOffset`、`hidingTheLabelWidens…` 等 9 個 |
+| T3 控制列範圍退回貼面板左緣 | `buttonsAreInTheControlStripRightOfTheLabel`、`rangesTileTheStripRightOfTheLabel` 等 9 個 |
+| T4 `>` 命中範圍少 4pt | `buttonsAreInTheControlStripRightOfTheLabel`、`rangesTileTheStripRightOfTheLabel` 等 6 個 |
+| T5 迴紋針命中區沿用舊座標 | `linkZoneIncludingHitSlop`、`clickingPaperclipOpens…` 等 12 個 |
+| T6 `showLabel` 切換不更新命中幾何 | `hidingTheLabelWidensViewportAndKeepsTapePositions` |
+| T7 clip 左緣寫死標籤寬（`showLabel=false` 座標） | `hidingTheLabelWidens…`、`startupLoadsTheFileAndAppliesThroughTheSamePath` |
+| T8 控制列底不延伸到標籤斜切下方 | `viewLayoutMatchesControlStripLayoutAndHitTesting` |
+| T9 chevron 垂直偏離中心 3pt | `threeGlyphsShareOneVerticalCenter`、`alignmentHoldsForOtherTexts`、`alignmentHoldsWithoutLabelAndWithRoundedCorners` |
+| T10 位置指示以基線置中（不依墨跡外框） | 同 T9 的三個對齊測試 |
+
+10 組全紅、還原後 481 個全綠、存活 0。誠實註記：T10 第一版（`size.height / 2 - 4`，與正確值只差約 0.3pt）**存活**——差距在 1 px 容差之內，不是測試漏洞；改成差距明顯的版本（基線置於中線）後被抓到。
+
+## 既有斷言的改動（皆為規格改變，沒有刪除斷言）
+- 8 秒 → 1 秒：`ListIdentityTests.newConfigDefaultsDoNotChangeExistingBehaviour`（預設 1）、`AppSmokeTests.arrowButtonsChangePositionAndHoldTimer`（保持 1 秒／0.5 秒仍不動／1.5 秒後恢復／重設為 1）。`SeekHoldTests` 與 `ReconfigureTests.holdIsUnaffectedBySpeedChange` 是「機制」測試，改為在 `make` 內明確指定 `seekHoldSeconds = 8`（原斷言一字不動，仍檢查 8 秒下的機制）；預設值為 1 的行為由新增 `DefaultSeekHoldTests`（3 個）覆蓋。
+- 控制列在右端 → 標籤右側：`HitTestingTests`（整組座標重寫為 150..<250 的版面，並新增 `showLabel=false`、齒輪槽偏移場景）、`ControlStripLayoutTests`、`NavigationViewTests`（座標 530→160、610→240、430→540、570→200）、`AppSmokeTests`（點擊座標與迴紋針座標基準 `tapeLeft`）、`TickerRendererTests.viewLayoutMatchesControlStripLayoutAndHitTesting`／`tapeViewportIsDerivedFromControlStripNotHardCoded`、`StyleApplyTests`（clip 與 scroll 原點、`showLabel=false` 時控制列貼左、標籤回來後回到標籤右側）。

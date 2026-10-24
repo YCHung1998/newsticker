@@ -1,0 +1,8 @@
+前置：本 change 為使用者第二輪目視回饋，已視為確認。apply 順序 1 → 2 → 3 → 4 → 5 → 6。總計 6 項（≤ 12）。通則：每項先寫測試並記錄紅，再實作並記錄綠；自動測試不得開視窗、不得連網、不得寫使用者真實的 `style.json`；不得啟動 App。
+
+- [x] 1. 【自動】Core：`SchedulerConfig.seekHoldSeconds` 預設 1。驗證：`swift test --filter SeekHoldTests`、`--filter ListIdentityTests`、`--filter SchedulerInvariantTests`（既有「8 秒」斷言改為 1 秒，不刪）；mutation 把預設改回 8 → 紅。
+- [x] 2. 【自動】`ControlStripLayout` 改以 `labelWidth`（控制列左緣）推導範圍；`HitTesting` 座標、迴紋針命中區（右緣 = 標籤寬 + 控制列寬 + visualLeft + width）同步。驗證：`swift test --filter HitTestingTests`（含 620／150 與 `showLabel=false` 兩組座標、齒輪槽偏移的純函式場景）。
+- [x] 3. 【自動】新增 `StripAlignmentTests`：離屏渲染量測墨跡外框，先對現況紅（實測偏差寫入 `Tests/evidence/nav-layout-align-red.log`）。驗證：`swift test --filter StripAlignmentTests`。
+- [x] 4. 【自動＋需人工目視】`ControlStripGlyphs.swift`（chevron 路徑、`(n/N)` 位圖）與 `TickerView` 圖層版面：標籤→控制列→帶子、控制列背景延伸到斜切下方、clip／scroll 原點隨可視區左緣；`StyleApplier`／`showLabel` 切換同步。驗證：`swift test --filter StripAlignmentTests`（綠）、`--filter TickerRendererTests`、`--filter StyleApplyTests`、`--filter NavigationViewTests`；離屏 PNG 存 `Tests/evidence/nav-layout-*.png`（非實機畫面）；實機觀感【需人工目視】。
+- [x] 5. 【自動】mutation：`Tests/t1-mutations.py`（hold 預設值、控制列座標、命中範圍、對齊量測、`showLabel=false` 座標）破壞→紅→還原→綠；輸出摘要追加到 `Tests/README.md`。驗證：`python3 Tests/t1-mutations.py`。
+- [x] 6. 【自動＋需人工目視】README 第 5／7／8 節與 `docs/preview/ticker-modes.svg` 同步；全量驗證：`swift build`、`make helper app sign test`、`swift test`、`codesign --verify --strict build/FastBullTicker.app`、`sh Tests/app-packaging-check.sh`、`cd ticker-connect && cargo test`、`python3 -m unittest discover -s protocol/tests`、`cd spikes && swift build && tests/run_script_tests.sh`、`openspec validate --all --strict`。預覽圖外觀【需人工目視】。

@@ -1,0 +1,36 @@
+Building for debugging...
+[0/5] Write sources
+[1/5] Write swift-version--58304C5D6DBC2206.txt
+[3/5] Emitting module FastBullTickerAppTests
+[4/5] Compiling FastBullTickerAppTests StripAlignmentTests.swift
+[4/6] Write Objects.LinkFileList
+[5/6] Linking FastBullTickerPackageTests
+Build complete! (2.80s)
+Test Suite 'Selected tests' started at 2026-10-25 01:31:27.697.
+Test Suite 'FastBullTickerPackageTests.xctest' started at 2026-10-25 01:31:27.701.
+Test Suite 'FastBullTickerPackageTests.xctest' passed at 2026-10-25 01:31:27.701.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 01:31:27.701.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.004) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StripAlignmentTests started.
+◇ Test printMeasuredNumbers() started.
+◇ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() started.
+◇ Test alignmentHoldsForOtherTexts() started.
+◇ Test threeGlyphsShareOneVerticalCenter() started.
+ALIGN-REPORT [showLabel] (4/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (1/1): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (10/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (2/30): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (4/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (1/1): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (10/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (2/30): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+✔ Test printMeasuredNumbers() passed after 0.114 seconds.
+✔ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() passed after 0.114 seconds.
+✔ Test threeGlyphsShareOneVerticalCenter() passed after 0.134 seconds.
+✔ Test alignmentHoldsForOtherTexts() passed after 0.134 seconds.
+✔ Suite StripAlignmentTests passed after 0.134 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.134 seconds.

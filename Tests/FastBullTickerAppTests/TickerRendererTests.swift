@@ -372,15 +372,17 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
         let cfg = ShellConfig.provisional
         let v = TickerView(config: cfg)
         let l = v.layoutSnapshot
-        let w = Double(cfg.panelSize.width)
-        #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
-        #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+        let inset = Double(cfg.labelWidth)          // 控制列在標籤右側（nav-layout-tweaks）
+        let labelSlant = 12.0                       // 控制列底延伸到標籤斜切邊下方
+        #expect(Double(l.stripFrame.minX) == inset - labelSlant && Double(l.stripFrame.maxX) == inset + cfg.controlStripWidth)
+        #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(leftInset: inset).lowerBound)
         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
-        #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+        #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(leftInset: inset).lowerBound)
         #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
-        #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(panelWidth: w).lowerBound)
-        #expect(Double(l.clipFrame.maxX) <= Double(l.stripFrame.minX), "帶子裁切在控制列之外")
-        #expect(Double(l.clipFrame.maxX) == Double(cfg.labelWidth) + cfg.tapeViewportWidth)
+        #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(leftInset: inset).lowerBound)
+        #expect(Double(l.clipFrame.minX) >= Double(l.stripFrame.maxX), "帶子裁切在控制列之外（帶子在控制列右側）")
+        #expect(Double(l.clipFrame.minX) == inset + cfg.controlStripWidth && Double(l.clipFrame.maxX) == Double(cfg.panelSize.width))
+        #expect(Double(l.clipFrame.width) == cfg.tapeViewportWidth && l.scrollOriginX == 0, "帶子座標 0 ＝ 可視區左緣")
         // 版面中心點經 HitTesting 必為對應動作（版面與命中測試一致）。
         let g = cfg.hitGeometry
         func hit(_ r: CGRect) -> HitTarget { HitTesting.target(at: CGPoint(x: r.midX, y: r.midY), in: g, items: []) }
@@ -407,6 +409,6 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
         #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
         let l = TickerView(config: cfg).layoutSnapshot
-        #expect(Double(l.clipFrame.maxX) == 150 + 350)
+        #expect(Double(l.clipFrame.minX) == 150 + 120 && Double(l.clipFrame.width) == 350 && Double(l.clipFrame.maxX) == 620)
     }
 }

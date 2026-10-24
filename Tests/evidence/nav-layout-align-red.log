@@ -1,0 +1,39 @@
+Building for debugging...
+[0/4] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.14s)
+Test Suite 'Selected tests' started at 2026-10-25 01:25:32.191.
+Test Suite 'FastBullTickerPackageTests.xctest' started at 2026-10-25 01:25:32.193.
+Test Suite 'FastBullTickerPackageTests.xctest' passed at 2026-10-25 01:25:32.193.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 01:25:32.193.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StripAlignmentTests started.
+◇ Test threeGlyphsShareOneVerticalCenter() started.
+◇ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() started.
+◇ Test alignmentHoldsForOtherTexts() started.
+✘ Test threeGlyphsShareOneVerticalCenter() recorded an issue at StripAlignmentTests.swift:82:9: Expectation failed: (abs(m.prev.centerY - m.ind.centerY) → 7.0) <= (1 → 1.0)
+↳ centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test threeGlyphsShareOneVerticalCenter() recorded an issue at StripAlignmentTests.swift:83:9: Expectation failed: (abs(m.next.centerY - m.ind.centerY) → 7.0) <= (1 → 1.0)
+↳ centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test threeGlyphsShareOneVerticalCenter() recorded an issue at StripAlignmentTests.swift:86:13: Expectation failed: (abs(c - mid) → 5.5) <= (1 → 1.0)
+↳ < 相對控制列垂直置中偏差 5.5 px；centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test threeGlyphsShareOneVerticalCenter() recorded an issue at StripAlignmentTests.swift:86:13: Expectation failed: (abs(c - mid) → 1.5) <= (1 → 1.0)
+↳ (n/N) 相對控制列垂直置中偏差 -1.5 px；centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test threeGlyphsShareOneVerticalCenter() recorded an issue at StripAlignmentTests.swift:86:13: Expectation failed: (abs(c - mid) → 5.5) <= (1 → 1.0)
+↳ > 相對控制列垂直置中偏差 5.5 px；centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() recorded an issue at StripAlignmentTests.swift:103:9: Expectation failed: (abs(m.prev.centerY - m.ind.centerY) <= 1 && abs(m.next.centerY - m.ind.centerY) <= 1 → false) && (abs(m.ind.centerY - mid) <= 1 → <not evaluated>)
+↳ centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test alignmentHoldsForOtherTexts() recorded an issue at StripAlignmentTests.swift:94:13: Expectation failed: (abs(m.prev.centerY - m.ind.centerY) <= 1 && abs(m.next.centerY - m.ind.centerY) <= 1 → false) && (abs(m.ind.centerY - mid) <= 1 → <not evaluated>)
+↳ (1/1): centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test alignmentHoldsForOtherTexts() recorded an issue at StripAlignmentTests.swift:94:13: Expectation failed: (abs(m.prev.centerY - m.ind.centerY) <= 1 && abs(m.next.centerY - m.ind.centerY) <= 1 → false) && (abs(m.ind.centerY - mid) <= 1 → <not evaluated>)
+↳ (10/10): centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test alignmentHoldsForOtherTexts() recorded an issue at StripAlignmentTests.swift:94:13: Expectation failed: (abs(m.prev.centerY - m.ind.centerY) <= 1 && abs(m.next.centerY - m.ind.centerY) <= 1 → false) && (abs(m.ind.centerY - mid) <= 1 → <not evaluated>)
+↳ (2/30): centerY(px) <=47.5 ind=40.5 >=47.5 stripMid=42.0 rows <[39,55] ind[28,52] >[39,55]
+✘ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() failed after 0.092 seconds with 1 issue.
+✘ Test threeGlyphsShareOneVerticalCenter() failed after 0.092 seconds with 5 issues.
+✘ Test alignmentHoldsForOtherTexts() failed after 0.092 seconds with 3 issues.
+✘ Suite StripAlignmentTests failed after 0.092 seconds with 9 issues.
+✘ Test run with 3 tests in 1 suite failed after 0.092 seconds with 9 issues.

@@ -142,8 +142,8 @@ final class StyleRig {
         #expect(close(rgbComponents(l.labelFill), Self.prototypeLabelRed), "標籤紅 \(rgbComponents(l.labelFill))")
         #expect(rgbComponents(l.labelTextColor).prefix(3).allSatisfy { $0 == 1 })
         #expect(l.cornerRadius == 0)
-        #expect(Double(l.clipFrame.maxX) == 520 && Double(l.clipFrame.minX) == 150 - 12)
-        #expect(l.scrollOriginX == 12)
+        #expect(Double(l.clipFrame.maxX) == 620 && Double(l.clipFrame.minX) == 150 + 100, "帶子可視區在標籤與控制列之後（nav-layout-tweaks）")
+        #expect(l.scrollOriginX == 0)
         // 色彩空間也與原型相同（Generic RGB），否則顯示出來的紅色不一樣
         let space = TickerView(config: .provisional).layoutSnapshot.labelFill?.colorSpace?.name as String?
         #expect(space == CGColor(red: 0, green: 0, blue: 0, alpha: 1).colorSpace?.name as String?)
@@ -334,15 +334,17 @@ final class StyleRig {
         rig.applier.apply(s, source: "test")
         let l = rig.view.layoutSnapshot
         #expect(l.labelHidden)
-        #expect(Double(l.clipFrame.minX) == 0 && Double(l.clipFrame.maxX) == 520, "帶子從面板左緣起顯示，右緣仍在控制列之前")
-        #expect(l.scrollOriginX + rig.driver.scheduler.scrollOffset == 0, "捲動圖層原點在面板左緣（位置＝原點 − 位移）")
+        #expect(Double(l.clipFrame.minX) == 100 && Double(l.clipFrame.maxX) == 620, "標籤隱藏：控制列貼面板左緣，帶子從控制列右緣（x=100）顯示到面板右緣")
+        #expect(l.scrollOriginX + rig.driver.scheduler.scrollOffset == 0, "捲動圖層原點在可視區左緣（位置＝原點 − 位移）")
         #expect(rig.driver.scheduler.config.viewportWidth == 520, "可視寬度增加標籤寬 150")
         #expect(rig.view.router.geometry.labelWidth == 0)
         #expect(seqs.map { rig.view.layerTapeX(seq: $0) } == xs, "已排入訊息的 tapeX 不變")
-        #expect(Double(l.stripFrame.minX) == 520, "控制列不受影響")
+        #expect(Double(l.stripFrame.minX) == 0 && Double(l.stripFrame.maxX) == 100, "控制列貼面板左緣")
+        #expect(Double(l.previousFrame.minX) == 0 && Double(l.nextFrame.maxX) == 100)
         s.showLabel = true
         rig.applier.apply(s, source: "test")
         #expect(!rig.view.layoutSnapshot.labelHidden && rig.driver.scheduler.config.viewportWidth == 370 && rig.view.router.geometry.labelWidth == 150)
+        #expect(Double(rig.view.layoutSnapshot.previousFrame.minX) == 150 && Double(rig.view.layoutSnapshot.clipFrame.minX) == 250, "標籤回來：控制列回到標籤右側")
     }
 
     @Test func labelTextAndColorsApplyImmediately() {

@@ -13,8 +13,8 @@ public struct SchedulerConfig: Sendable {
     public var historyLimit: Int = 200
     public var timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
     public var rebaseThreshold: Double = 500_000
-    /// `seek` 成功後捲動保持的秒數（0 = 不保持）【假設：8】。
-    public var seekHoldSeconds: Double = 8
+    /// `seek` 成功後捲動保持的秒數（0 = 不保持）【假設：1；原 8，使用者第二輪回饋改】。
+    public var seekHoldSeconds: Double = 1
     /// 閱讀位置內縮：右緣必須大於此值才算「閱讀中」。須小於任何訊息的 `width`【假設：24pt】。
     public var readingInset: Double = 24
     /// 連結欄位寬度；只套用於有 `url` 的訊息。0 = 不保留欄位（實際值由 App 層設定）。
