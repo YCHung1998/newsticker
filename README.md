@@ -63,18 +63,31 @@ cargo build --release
 
 - 服務條款我們**沒有逐條閱讀**，自用低頻輪詢是否可接受，請你自己確認。
 
-### 4.2 現在就能跑：人工可行性實驗
+### 4.2 可行性實驗 `spikes/`（給你做人工驗證，**不是產品**）
 
-這是整個專案最關鍵的一步：實測「蓋過全螢幕」「不搶鍵盤焦點」等行為是否真的做得到。
+**它是什麼**：4 支丟棄式的小程式，只用來回答「macOS 到底做不做得到」：視窗能不能蓋過全螢幕 App、點它會不會搶走你正在打字的 App 的鍵盤焦點、選單展開時動畫會不會斷、兩種渲染方式哪個比較省。答案會決定正式 App 的視窗設定。
+
+**`swift build` 做了什麼**：只是編譯，**不會顯示任何東西**。產出是 `spikes/.build/debug/` 下的 4 個執行檔：
+
+| 執行檔 | 回答的問題 | 會開視窗嗎 |
+|---|---|---|
+| `spike-s1` | 視窗蓋不蓋得過全螢幕 Safari、Keynote 等（S1） | 會 |
+| `spike-focus` | 點擊或拖曳它時，會不會搶走別的 App 的鍵盤焦點（S2、S5） | 會 |
+| `spike-s3` | 展開選單時，補料計時器會不會停擺（S3） | 會 |
+| `spike-render` | 兩種渲染方式的 CPU／記憶體差多少（S4） | 會 |
+
+**想先安全地看一眼（不開視窗、不用任何權限）**：
 
 ```sh
-cd spikes
-swift build
+cd spikes && swift build
+.build/debug/spike-s1 --dry-run --level statusBar --join-all-apps on
 ```
 
-之後依 `spikes/README.md` 最後一節的操作清單逐項執行（共 7 項，其中 2 項需要外接螢幕、插電連續 1 小時各一次）。**實驗程式會在螢幕上顯示視窗**，請在你不被打擾的時段操作。
+它只會印出「將會套用的視窗設定」（例如 level、collectionBehavior）後就結束。
 
-### 4.3 【規劃】App 本體
+**真正的實驗**（會開視窗，請在不被打擾的時段）：依 `spikes/README.md` 最後一節逐項執行，結果填進 `spikes/RESULTS.md`。共 7 項，其中 2 項需要外接螢幕、2 項需要插電連續跑 1 小時。**其中最重要的是第 1 項（S1，全螢幕可見性）**。
+
+### 4.3 【規劃】App 本體（`app-shell`，開發中）
 
 ```sh
 make helper && make app && make sign     # 【規劃】app-shell 完成後才有
@@ -180,7 +193,6 @@ flowchart LR
 | `spikes/` | 丟棄式的可行性實驗與結果紀錄（`RESULTS.md`） |
 | `openspec/` | 規格（5 個 change）；`docs/superpowers/specs/` 是設計文件，**與舊文件衝突時以它為準** |
 | `docs/fixtures/` | FastBull 頁面快照（解析測試用） |
-| `Newsticker/` | 一個用 Xcode 建立的專案，**尚未納入版控**（見第 9 節） |
 
 ### 7.3 開發進度（OpenSpec，循序執行）
 
@@ -232,12 +244,11 @@ flowchart LR
 
 ### 9.2 待你確認或決定
 
-1. **`Newsticker/` Xcode 專案**：專案裡出現了你用 Xcode 建立的 `Newsticker/`。目前規劃是 SwiftPM 加 Makefile 組裝 `.app`，不依賴 Xcode 專案。這個目錄要用在哪裡？要納入版控、搬走、還是刪除？在你決定之前，我不會 commit 它。
-2. FastBull 解析範圍：目前取側欄的 20 則；主內容區有 50 則（前 20 則相同）。ticker 只需要 10 則，建議維持現狀。
-3. 服務條款是否接受自用低頻輪詢。
-4. VPN／Proxy 環境下抓取是否正常。
-5. 實驗證據（截圖、日誌）目前放在被 `.gitignore` 排除的 `spikes/out/`；建議改放可版控的 `spikes/evidence/`。
-6. 所有標【假設】的暫定值（最低 macOS 14、即時佇列上限 30、記憶體門檻、視窗大小約 620×42、自用 ad-hoc 簽名等）請在實驗後一併確認。
+1. FastBull 解析範圍：目前取側欄的 20 則；主內容區有 50 則（前 20 則相同）。ticker 只需要 10 則，建議維持現狀。
+2. 服務條款是否接受自用低頻輪詢。
+3. VPN／Proxy 環境下抓取是否正常。
+4. 實驗證據（截圖、日誌）目前放在被 `.gitignore` 排除的 `spikes/out/`；建議改放可版控的 `spikes/evidence/`。
+5. 所有標【假設】的暫定值（最低 macOS 14、即時佇列上限 30、記憶體門檻、視窗大小約 620×42、自用 ad-hoc 簽名等）請在實驗後一併確認。
 
 ### 9.3 更多文件
 
