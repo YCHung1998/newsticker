@@ -1,0 +1,212 @@
+[0/1] Planning build
+Building for debugging...
+[0/6] Write sources
+[1/6] Write swift-version--58304C5D6DBC2206.txt
+[3/9] Emitting module FastBullTickerApp
+[4/9] Compiling FastBullTickerApp StyleStore.swift
+[5/9] Compiling FastBullTickerApp StyleFileWatching.swift
+[6/30] Emitting module FastBullTicker
+[7/30] Compiling FastBullTicker main.swift
+[7/30] Write Objects.LinkFileList
+[8/30] Linking FastBullTicker
+[9/30] Applying FastBullTicker
+[11/30] Compiling FastBullTickerAppTests PanelSnapshotTests.swift
+[12/30] Compiling FastBullTickerAppTests PersistenceTests.swift
+[13/32] Compiling FastBullTickerAppTests StatusMenuTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/StatusMenuTests.swift:15:49: warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+13 |         #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .quit])
+14 |         #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "結束"])
+15 |         #expect(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true })
+   |                                                 `- warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+16 |     }
+17 | 
+
+macro expansion #expect:1:54: warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/StatusMenuTests.swift:15:118: note: expanded code originates here
+13 |         #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .quit])
+14 |         #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "結束"])
+15 |         #expect(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true })
+   |         `- note: in expansion of macro 'expect' here
+   +--- macro expansion #expect ----------------------------------------
+   |1 | Testing.__checkValue(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true },expression: .__fromSyntaxNode("m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true }"),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+   |  |                                                      `- warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+   +--------------------------------------------------------------------
+16 |     }
+17 | 
+[14/32] Compiling FastBullTickerAppTests StyleParserTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/StatusMenuTests.swift:15:49: warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+13 |         #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .quit])
+14 |         #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "結束"])
+15 |         #expect(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true })
+   |                                                 `- warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+16 |     }
+17 | 
+
+macro expansion #expect:1:54: warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/StatusMenuTests.swift:15:118: note: expanded code originates here
+13 |         #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .quit])
+14 |         #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "結束"])
+15 |         #expect(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true })
+   |         `- note: in expansion of macro 'expect' here
+   +--- macro expansion #expect ----------------------------------------
+   |1 | Testing.__checkValue(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true },expression: .__fromSyntaxNode("m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true }"),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+   |  |                                                      `- warning: checking a value with optional type 'NSView?' against type 'NSView' succeeds whenever the value is non-nil; did you mean to use '!= nil'?
+   +--------------------------------------------------------------------
+16 |     }
+17 | 
+[15/32] Compiling FastBullTickerAppTests FeedClientTests.swift
+[16/32] Compiling FastBullTickerAppTests HitTestingTests.swift
+[17/32] Compiling FastBullTickerAppTests PointerHoverTests.swift
+[18/32] Compiling FastBullTickerAppTests PositionIndicatorTests.swift
+[19/32] Compiling FastBullTickerAppTests LinkPolicyTests.swift
+[20/32] Compiling FastBullTickerAppTests LinkTestSupport.swift
+[21/32] Compiling FastBullTickerAppTests StyleStoreTests.swift
+[22/32] Compiling FastBullTickerAppTests Support.swift
+[23/32] Compiling FastBullTickerAppTests OcclusionDebouncerTests.swift
+[24/32] Compiling FastBullTickerAppTests PanelShellTests.swift
+[25/32] Compiling FastBullTickerAppTests AppSmokeTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:143:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+141 | 
+142 |     @Test func itemsWithoutURLShowNoPaperclipAndCannotOpen() throws {
+143 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+144 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+145 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:175:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+173 | 
+174 |     @Test func arrowButtonsChangePositionAndHoldTimer() throws {
+175 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+176 |         r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+177 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:196:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+194 | 
+195 |     @Test func previousAtListStartDoesNothing() throws {
+196 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+197 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+198 |         r.driver.step()
+[26/32] Compiling FastBullTickerAppTests FeedClientResilienceTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:143:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+141 | 
+142 |     @Test func itemsWithoutURLShowNoPaperclipAndCannotOpen() throws {
+143 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+144 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+145 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:175:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+173 | 
+174 |     @Test func arrowButtonsChangePositionAndHoldTimer() throws {
+175 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+176 |         r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+177 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:196:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+194 | 
+195 |     @Test func previousAtListStartDoesNothing() throws {
+196 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+197 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+198 |         r.driver.step()
+[27/32] Emitting module FastBullTickerAppTests
+[28/32] Compiling FastBullTickerAppTests NavigationLinkOpenerTests.swift
+[29/32] Compiling FastBullTickerAppTests NavigationViewTests.swift
+[30/32] Compiling FastBullTickerAppTests TickerRendererTests.swift
+[31/32] Compiling FastBullTickerAppTests TickerStyleTests.swift
+[31/33] Write Objects.LinkFileList
+[32/33] Linking FastBullTickerPackageTests
+Build complete! (7.73s)
+Test Suite 'Selected tests' started at 2026-10-25 00:36:03.467.
+Test Suite 'FastBullTickerPackageTests.xctest' started at 2026-10-25 00:36:03.468.
+Test Suite 'FastBullTickerPackageTests.xctest' passed at 2026-10-25 00:36:03.468.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 00:36:03.468.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StyleStoreWriteBackTests started.
+◇ Suite StyleStoreHotReloadTests started.
+◇ Suite DispatchSourceWatcherTests started.
+◇ Suite StyleStoreLoadTests started.
+◇ Test editAppliesAfterDebounceExactlyOnce() started.
+◇ Test stopWatchingCancelsPendingReload() started.
+◇ Test atomicReplaceByRenameIsStillDetected() started.
+◇ Test identicalBytesAreNotReparsedOrReapplied() started.
+◇ Test deletedFileKeepsEffectiveStyleAndLogs() started.
+◇ Test fieldLevelErrorUsesFieldDefaultAndAppliesRest() started.
+◇ Test writeFailureKeepsStyleAndDoesNotCrash() started.
+◇ Test realWatcherFiresOnCreateAndOnRenameReplace() started.
+◇ Test burstOfFiftyEventsCoalescesToOneRead() started.
+◇ Test resetToDefaultBacksUpThenWritesDefault() started.
+◇ Test unwritableDirectoryDoesNotCrash() started.
+◇ Test updateClampsToValidRange() started.
+◇ Test sliderBurstAppliesEveryTimeButWritesOnce() started.
+◇ Test ensureFileExistsCreatesOnlyWhenMissing() started.
+◇ Test storeWithRealWatcherReloadsEditInTempDirectory() started.
+◇ Test wholeFileFailureKindsAllKeepOldValue() started.
+◇ Test backupsFileWithUnknownKeysAndDropsThemFromNewFile() started.
+◇ Test differentBytesButEqualStyleParsesButDoesNotNotify() started.
+◇ Test writeIsAtomicTempThenReplaceAndLeavesNoTemp() started.
+◇ Test backupsFileWhoseFieldsWouldBeRewrittenByClamping() started.
+◇ Test outputIsNormalizedJSON() started.
+◇ Test partialOutOfRangeFieldsAreClampedAndLogged() started.
+◇ Test backupsUnreadableOriginalBeforeOverwriting() started.
+◇ Test overriddenPathIsTheOnlyFileTouched() started.
+◇ Test externalEditWinsOverPendingMenuWrite() started.
+◇ Test noBackupWhenOriginalWasCleanOrMissing() started.
+◇ Test ownWriteIsNotReappliedAndNotEvenReparsed() started.
+◇ Test syntaxErrorKeepsOldValueThenRecovers() started.
+◇ Test allLogLinesStartWithStylePrefix() started.
+◇ Test startOnMissingDirectoryReturnsFalse() started.
+◇ Test corruptFileGivesDefaultKeepsFileAndFlagsProblem() started.
+◇ Test noFileGivesDefaultAndDoesNotCreateFile() started.
+◇ Test environmentVariableOverridesPath() started.
+◇ Test oversizeFileIsTreatedAsUnreadable() started.
+◇ Test noOpUpdateDoesNothing() started.
+◇ Test resetWhenNoFileMakesNoBackup() started.
+✔ Test identicalBytesAreNotReparsedOrReapplied() passed after 0.020 seconds.
+✔ Test stopWatchingCancelsPendingReload() passed after 0.020 seconds.
+✔ Test editAppliesAfterDebounceExactlyOnce() passed after 0.020 seconds.
+✔ Test fieldLevelErrorUsesFieldDefaultAndAppliesRest() passed after 0.020 seconds.
+✔ Test burstOfFiftyEventsCoalescesToOneRead() passed after 0.020 seconds.
+✔ Test deletedFileKeepsEffectiveStyleAndLogs() passed after 0.020 seconds.
+✔ Test updateClampsToValidRange() passed after 0.020 seconds.
+✔ Test sliderBurstAppliesEveryTimeButWritesOnce() passed after 0.020 seconds.
+✔ Test differentBytesButEqualStyleParsesButDoesNotNotify() passed after 0.020 seconds.
+✔ Test writeFailureKeepsStyleAndDoesNotCrash() passed after 0.020 seconds.
+✔ Test ensureFileExistsCreatesOnlyWhenMissing() passed after 0.020 seconds.
+✔ Test unwritableDirectoryDoesNotCrash() passed after 0.020 seconds.
+✔ Test atomicReplaceByRenameIsStillDetected() passed after 0.021 seconds.
+✔ Test backupsFileWithUnknownKeysAndDropsThemFromNewFile() passed after 0.020 seconds.
+✔ Test resetToDefaultBacksUpThenWritesDefault() passed after 0.020 seconds.
+✔ Test writeIsAtomicTempThenReplaceAndLeavesNoTemp() passed after 0.020 seconds.
+✔ Test outputIsNormalizedJSON() passed after 0.020 seconds.
+✔ Test partialOutOfRangeFieldsAreClampedAndLogged() passed after 0.020 seconds.
+✔ Test overriddenPathIsTheOnlyFileTouched() passed after 0.020 seconds.
+✔ Test ownWriteIsNotReappliedAndNotEvenReparsed() passed after 0.020 seconds.
+✔ Test startOnMissingDirectoryReturnsFalse() passed after 0.020 seconds.
+✔ Test backupsFileWhoseFieldsWouldBeRewrittenByClamping() passed after 0.020 seconds.
+✔ Test externalEditWinsOverPendingMenuWrite() passed after 0.020 seconds.
+✔ Test environmentVariableOverridesPath() passed after 0.020 seconds.
+✔ Test syntaxErrorKeepsOldValueThenRecovers() passed after 0.020 seconds.
+✔ Test noFileGivesDefaultAndDoesNotCreateFile() passed after 0.020 seconds.
+✔ Test backupsUnreadableOriginalBeforeOverwriting() passed after 0.020 seconds.
+✔ Test corruptFileGivesDefaultKeepsFileAndFlagsProblem() passed after 0.020 seconds.
+✔ Test noOpUpdateDoesNothing() passed after 0.020 seconds.
+✔ Test oversizeFileIsTreatedAsUnreadable() passed after 0.020 seconds.
+✔ Test wholeFileFailureKindsAllKeepOldValue() passed after 0.021 seconds.
+✔ Suite StyleStoreHotReloadTests passed after 0.021 seconds.
+✔ Test resetWhenNoFileMakesNoBackup() passed after 0.021 seconds.
+✔ Test allLogLinesStartWithStylePrefix() passed after 0.022 seconds.
+✔ Suite StyleStoreLoadTests passed after 0.022 seconds.
+✔ Test noBackupWhenOriginalWasCleanOrMissing() passed after 0.022 seconds.
+✔ Suite StyleStoreWriteBackTests passed after 0.023 seconds.
+✔ Test realWatcherFiresOnCreateAndOnRenameReplace() passed after 0.320 seconds.
+✔ Test storeWithRealWatcherReloadsEditInTempDirectory() passed after 0.336 seconds.
+✔ Suite DispatchSourceWatcherTests passed after 0.337 seconds.
+✔ Test run with 36 tests in 4 suites passed after 0.337 seconds.

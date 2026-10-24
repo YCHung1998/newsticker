@@ -1,0 +1,146 @@
+[T1 預設 fontSize 被改成 17]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['defaultsAgreeWithShellConfigPrototypeConstants', 'defaultsAreExactlyThePrototypeValues', 'noOpUpdateDoesNothing', 'stopWatchingCancelsPendingReload', 'wrongTypesFallBackToFieldDefaultsOnly']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.662 seconds with 5 issues.']
+[T2 放寬 fontSize 上限到 40]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['extremeNumbersClampWithoutTrapping', 'partialOutOfRangeFieldsAreClampedAndLogged', 'rangesAreTheSpecifiedOnes', 'updateClampsToValidRange']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.114 seconds with 4 issues.']
+[T3 色碼接受 8 位數（含 alpha）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['invalidColorsFallBackToFieldDefault', 'invalidHexForms']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.416 seconds with 4 issues.']
+[T4 非法色碼不取預設而取洋紅]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['fieldLevelErrorUsesFieldDefaultAndAppliesRest', 'invalidColorsFallBackToFieldDefault']
+  ['✘ Test run with 410 tests in 55 suites failed after 3.959 seconds with 6 issues.']
+[T5 相對亮度係數 R／B 對調]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['contrastRatioMatchesWCAGReferenceValues', 'lowContrastWarnsButKeepsValues', 'threeLivePresetsAllMeetAA']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.608 seconds with 3 issues.']
+[T6 低對比度時不照用（重設為預設）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['lowContrastWarnsButKeepsValues']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.352 seconds with 1 issue.']
+[T7 未知鍵不警告]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backupsFileWithUnknownKeysAndDropsThemFromNewFile', 'missingAndUnknownKeys', 'wrongTypesFallBackToFieldDefaultsOnly']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.142 seconds with 4 issues.']
+[T8 replayCount 接受小數（取整）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['replayCountMustBeInteger']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.858 seconds with 2 issues.']
+[T9 version 大於 1 也接受]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['wholeFileFailureKindsAllKeepOldValue', 'wholeFileFailures']
+  ['✘ Test run with 410 tests in 55 suites failed after 3.582 seconds with 3 issues.']
+[T10 檔案大小上限放寬 10 倍]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['oversizeFileIsTreatedAsUnreadable', 'sizeLimit64KB']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.322 seconds with 2 issues.']
+[T11 labelText 超長不截斷]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['labelLengthCountsCharactersNotUTF16Units', 'labelTextRules', 'randomInputsAlwaysYieldValidStyle']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.954 seconds with 24 issues.']
+[T12 正規化輸出鍵不排序]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline', 'resetToDefaultBacksUpThenWritesDefault']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.489 seconds with 2 issues.']
+[T13 寫出小寫色碼]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['defaultsAreExactlyThePrototypeValues', 'fieldLevelErrorUsesFieldDefaultAndAppliesRest', 'hexParsingAndNormalization', 'invalidColorsFallBackToFieldDefault', 'lowContrastWarnsButKeepsValues', 'normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline', 'outputIsNormalizedJSON', 'threeLivePresetsAllMeetAA']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.502 seconds with 20 issues.']
+[C1 改速度不調整 baseOffset（視覺跳動）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['holdIsUnaffectedBySpeedChange', 'invariantsHoldWithRuntimeReconfigure', 'reconfigureSeedsAlsoHold', 'reconfigureWhileHiddenIsLegalAndKeepsFrozenTime', 'seekAfterSpeedChangeAlignsTargetToLeftEdge', 'speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed', 'speedToZeroAndBackIsContinuous', 'timeElapsedBeforeReconfigureIsCountedAtOldSpeed']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.380 seconds with 22 issues.']
+[C2 reconfigure 前不結算舊速度的流逝時間]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['timeElapsedBeforeReconfigureIsCountedAtOldSpeed']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.804 seconds with 2 issues.']
+[C3 reconfigure 重新量測已排入訊息]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['enlargingViewportFillsToNewRightEdgeWithGap', 'identicalTunablesChangeNothing', 'invariantsHoldWithRuntimeReconfigure', 'placedItemsUnchangedAndNewOnesUseNewTunables', 'reconfigureSeedsAlsoHold', 'reconfigureTogglesShowTimeForLaterItemsOnly', 'shrinkingViewportDoesNotRemoveOrMove', 'timeZoneAffectsOnlyLaterItems']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.044 seconds with 19 issues.']
+[C4 排入時沒帶 showTime]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['placedItemsUnchangedAndNewOnesUseNewTunables', 'reconfigureTogglesShowTimeForLaterItemsOnly', 'showTimeFalseInConfigPlacesTextOnly']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.457 seconds with 3 issues.']
+[C5 layoutItem 的 showTime=false 仍含時間]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['placedItemsUnchangedAndNewOnesUseNewTunables', 'reconfigureTogglesShowTimeForLaterItemsOnly', 'showTimeFalseDisplaysOnlyText', 'showTimeFalseInConfigPlacesTextOnly', 'showTimeFalseTruncationHasNoTimePrefix', 'showTimeFalseWithLinkSlotStillReservesSlot']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.064 seconds with 6 issues.']
+[C6 replayCount 不更新]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['growingReplayCountUsesMoreHistoryLater', 'shrinkingReplayCountMidRoundDoesNotCrashAndCyclesOnlyLatest']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.531 seconds with 3 issues.']
+[C7 viewportWidth 不更新]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['enlargingViewportFillsToNewRightEdgeWithGap']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.903 seconds with 2 issues.']
+[C8 reconfigure 解除隱藏凍結]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['invariantsHoldWithRuntimeReconfigure', 'reconfigureSeedsAlsoHold', 'reconfigureWhileHiddenIsLegalAndKeepsFrozenTime']
+  ['✘ Test run with 410 tests in 55 suites failed after 8.326 seconds with 8 issues.']
+[C9 displayString 恆含空白前綴]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['showTimeFalseDisplaysOnlyText', 'showTimeFalseWithLinkSlotStillReservesSlot']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.012 seconds with 2 issues.']
+[S1 移除自寫入辨識（寫完不記住內容）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['ownWriteIsNotReappliedAndNotEvenReparsed']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.241 seconds with 1 issue.']
+[S2 載入時改寫檔案]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['editAppliesAfterDebounceExactlyOnce', 'partialOutOfRangeFieldsAreClampedAndLogged', 'resetToDefaultBacksUpThenWritesDefault']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.684 seconds with 4 issues.']
+[S3 熱重載失敗時覆蓋舊值（重設為預設）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['snapshotThenItemsDriveSchedulerReplayToLiveToReplay', 'syntaxErrorKeepsOldValueThenRecovers', 'wholeFileFailureKindsAllKeepOldValue']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.652 seconds with 7 issues.']
+[S4 熱重載沒有 debounce]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['editAppliesAfterDebounceExactlyOnce']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.175 seconds with 1 issue.']
+[S5 寫回前不備份]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backupsFileWhoseFieldsWouldBeRewrittenByClamping', 'backupsFileWithUnknownKeysAndDropsThemFromNewFile', 'backupsUnreadableOriginalBeforeOverwriting']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.211 seconds with 4 issues.']
+[S6 寫回沒有 debounce]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['externalEditWinsOverPendingMenuWrite', 'sliderBurstAppliesEveryTimeButWritesOnce']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.233 seconds with 5 issues.']
+[S7 檔案被刪除時重設為預設]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['deletedFileKeepsEffectiveStyleAndLogs']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.507 seconds with 2 issues.']
+[S8 檔案較新時不丟棄待寫的選單變更]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['externalEditWinsOverPendingMenuWrite']
+  ['✘ Test run with 410 tests in 55 suites failed after 6.607 seconds with 2 issues.']
+[S9 update 不夾制]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['updateClampsToValidRange']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.532 seconds with 2 issues.']
+[S10 重設為預設不備份]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['resetToDefaultBacksUpThenWritesDefault']
+  ['✘ Test run with 410 tests in 55 suites failed after 5.392 seconds with 1 issue.']
+[S11 忽略環境變數 FASTBULL_TICKER_STYLE]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['environmentVariableOverridesPath']
+  ['✘ Test run with 410 tests in 55 suites failed after 3.330 seconds with 1 issue.']
+[S12 無檔案時自動建立]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['ensureFileExistsCreatesOnlyWhenMissing', 'externalEditWinsOverPendingMenuWrite', 'noBackupWhenOriginalWasCleanOrMissing', 'noFileGivesDefaultAndDoesNotCreateFile', 'ownWriteIsNotReappliedAndNotEvenReparsed', 'resetWhenNoFileMakesNoBackup', 'sliderBurstAppliesEveryTimeButWritesOnce', 'storeWithRealWatcherReloadsEditInTempDirectory']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.050 seconds with 14 issues.']
+[S13 DispatchSource 不訂閱任何事件]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=[]
+  ["error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 6"]
+[S14 損壞檔案不設「設定檔有誤」]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backupsUnreadableOriginalBeforeOverwriting', 'corruptFileGivesDefaultKeepsFileAndFlagsProblem', 'oversizeFileIsTreatedAsUnreadable']
+  ['✘ Test run with 410 tests in 55 suites failed after 7.395 seconds with 3 issues.']
+
+還原後 rc=0 ['✔ Test run with 410 tests in 55 suites passed after 6.004 seconds.']  存活的 mutation 數=0

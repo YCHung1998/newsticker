@@ -1,0 +1,237 @@
+Building for debugging...
+[0/5] Write sources
+[1/5] Write swift-version--58304C5D6DBC2206.txt
+[3/7] Compiling FastBullTickerApp TickerStyle.swift
+[4/7] Emitting module FastBullTickerApp
+[4/9] Write Objects.LinkFileList
+[6/9] Linking FastBullTicker
+[7/9] Applying FastBullTicker
+[8/9] Linking FastBullTickerPackageTests
+Build complete! (1.95s)
+Test Suite 'Selected tests' started at 2026-10-25 00:30:52.340.
+Test Suite 'FastBullTickerPackageTests.xctest' started at 2026-10-25 00:30:52.342.
+Test Suite 'FastBullTickerPackageTests.xctest' passed at 2026-10-25 00:30:52.342.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 00:30:52.342.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite TickerStyleTests started.
+◇ Suite StyleParserTests started.
+◇ Test isValidRejectsOutOfRangeFields() started.
+◇ Test prototypeColorLiteralsStillInTickerViewSource() started.
+◇ Test roundTripThroughCodable() started.
+◇ Test invalidHexForms() started.
+◇ Test normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline() started.
+◇ Test defaultStyleHasNoContrastWarning() started.
+◇ Test encodedKeysMatchSpecTableExactly() started.
+◇ Test defaultsAreExactlyThePrototypeValues() started.
+◇ Test defaultColorsMatchPrototypeWithinOneOver255() started.
+◇ Test lowContrastWarnsButKeepsValues() started.
+◇ Test hexParsingAndNormalization() started.
+◇ Test versionAcceptsOneAndOnePointZero() started.
+◇ Test randomGarbageBytesNeverCrash() started.
+◇ Test contrastRatioMatchesWCAGReferenceValues() started.
+◇ Test sizeLimit64KB() started.
+◇ Test presetsProduceNoWarning() started.
+◇ Test emptyObjectGivesDefaultsWithoutWarnings() started.
+◇ Test sourceFileImportsOnlyFoundation() started.
+◇ Test defaultsAgreeWithShellConfigPrototypeConstants() started.
+◇ Test randomInputsAlwaysYieldValidStyle() started.
+◇ Test outOfRangeNumbersAreClampedWithOneWarningEach() started.
+◇ Test validColorsAreNormalized() started.
+◇ Test versionMissingMeansOne() started.
+◇ Test missingAndUnknownKeys() started.
+◇ Test wrongTypesFallBackToFieldDefaultsOnly() started.
+◇ Test parseIsPureAndRepeatable() started.
+◇ Test extremeNumbersClampWithoutTrapping() started.
+◇ Test threeLivePresetsAllMeetAA() started.
+◇ Test labelTextRules() started.
+◇ Test rangesAreTheSpecifiedOnes() started.
+◇ Test replayCountMustBeInteger() started.
+◇ Test labelLengthCountsCharactersNotUTF16Units() started.
+◇ Test utf8BOMIsTolerated() started.
+◇ Test wholeFileFailures() started.
+◇ Test invalidColorsFallBackToFieldDefault() started.
+◇ Test duplicateKeysDoNotCrashAndStayValid() started.
+◇ Test writtenNormalizedFormReparsesToSameStyleWithoutWarnings() started.
+◇ Test threeGroupsAreCheckedIndependently() started.
+◇ Test boundariesThemselvesAreAcceptedWithoutWarning() started.
+◇ Test wrongTypeDoesNotAffectOtherFields() started.
+✘ Test defaultsAreExactlyThePrototypeValues() recorded an issue at TickerStyleTests.swift:56:9: Expectation failed: (d.liveBackground.hex == "#FFFFFF" → false) && (d.liveText.hex == "#000000" → <not evaluated>)
+✘ Test lowContrastWarnsButKeepsValues() recorded an issue at StyleParserTests.swift:130:9: Expectation failed: (r.style.liveBackground.hex == "#FFFF00" → false) && (r.style.liveText.hex == "#FFFFFF" → <not evaluated>)
+↳ 照用，不夾制
+✘ Test contrastRatioMatchesWCAGReferenceValues() recorded an issue at TickerStyleTests.swift:135:9: Expectation failed: (abs(ContrastRatio.ratio(black, white) - 21) → 20.0) < (1e-9 → 1e-09)
+✘ Test defaultsAreExactlyThePrototypeValues() recorded an issue at TickerStyleTests.swift:57:9: Expectation failed: (d.replayBackground.hex == "#000000" → true) && (d.replayText.hex == "#FFFFFF" → false)
+✘ Test contrastRatioMatchesWCAGReferenceValues() recorded an issue at TickerStyleTests.swift:136:9: Expectation failed: (abs(ContrastRatio.ratio(white, black) - 21) → 20.0) < (1e-9 → 1e-09)
+↳ 與順序無關
+✘ Test lowContrastWarnsButKeepsValues() recorded an issue at StyleParserTests.swift:132:9: Expectation failed: (w.count == 1 && w[0].key == "live" → false) && (w[0].message.contains("1.07") → <not evaluated>)
+✘ Test hexParsingAndNormalization() recorded an issue at TickerStyleTests.swift:120:9: Expectation failed: (c?.hex → "#000000") == "#FFE45C"
+✘ Test defaultsAreExactlyThePrototypeValues() recorded an issue at TickerStyleTests.swift:58:9: Expectation failed: (d.labelBackground.hex == "#D91A21" && d.labelColor.hex == "#FFFFFF" → false) && (d.tapeBackground.hex == "#17171A" → <not evaluated>)
+✘ Test contrastRatioMatchesWCAGReferenceValues() recorded an issue at TickerStyleTests.swift:139:9: Expectation failed: (abs(ContrastRatio.ratio(RGBColor(hex: "#777777")!, white) - 4.48) → 3.4800000000000004) < 0.01
+↳ // #777777 對白色是 WCAG 常見參考值 4.48
+✘ Test hexParsingAndNormalization() recorded an issue at TickerStyleTests.swift:122:78: Expectation failed: (RGBColor(hex: hex)?.hex → "#000000") == (hex → "#FFFFFF")
+✘ Test contrastRatioMatchesWCAGReferenceValues() recorded an issue at TickerStyleTests.swift:140:9: Expectation failed: (abs(ContrastRatio.ratio(RGBColor(hex: "#FFFF00")!, white) - 1.07) → 0.07000000000000006) < 0.01
+✘ Test hexParsingAndNormalization() recorded an issue at TickerStyleTests.swift:122:78: Expectation failed: (RGBColor(hex: hex)?.hex → "#000000") == (hex → "#17171A")
+✘ Test normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline() recorded an issue at TickerStyleTests.swift:32:9: Expectation failed: (text → "{
+  "cornerRadius" : 0,
+  "fontSize" : 16,
+  "labelBackground" : "#000000",
+  "labelColor" : "#000000",
+  "labelText" : "即時財經快訊",
+  "liveBackground" : "#000000",
+  "liveText" : "#000000",
+  "replayBackground" : "#000000",
+  "replayCount" : 10,
+  "replayText" : "#000000",
+  "scrollSpeed" : 90,
+  "showLabel" : true,
+  "showTime" : true,
+  "tapeBackground" : "#000000",
+  "version" : 1
+}
+").contains("\"liveBackground\" : \"#FFE45C\"" → ""liveBackground" : "#FFE45C"")
+✘ Test hexParsingAndNormalization() recorded an issue at TickerStyleTests.swift:122:78: Expectation failed: (RGBColor(hex: hex)?.hex → "#000000") == (hex → "#D91A21")
+✘ Test outOfRangeNumbersAreClampedWithOneWarningEach() recorded an issue at StyleParserTests.swift:43:9: Expectation failed: (r.style.fontSize == 10 && r.style.scrollSpeed == 300 && r.style.cornerRadius == 0 → false) && (r.style.replayCount == 30 → <not evaluated>)
+✘ Test hexParsingAndNormalization() recorded an issue at TickerStyleTests.swift:122:78: Expectation failed: (RGBColor(hex: hex)?.hex → "#000000") == (hex → "#010203")
+✘ Test validColorsAreNormalized() recorded an issue at StyleParserTests.swift:93:9: Expectation failed: (r.style.liveBackground.hex == "#FFE45C" → false) && (r.warnings.isEmpty → <not evaluated>)
+✘ Test extremeNumbersClampWithoutTrapping() recorded an issue at StyleParserTests.swift:59:9: Expectation failed: (ok(##"{"replayCount": 1e30}"##)?.style.replayCount → 10) == 30
+✘ Test labelTextRules() recorded an issue at StyleParserTests.swift:111:9: Expectation failed: (r.style.labelText == String(repeating: "字", count: 16) → false) && (kinds(r) == [.labelTruncated] → <not evaluated>)
+✘ Test labelTextRules() recorded an issue at StyleParserTests.swift:113:9: Expectation failed: (r2.style.labelText == "即時財經快訊" → true) && (kinds(r2) == [.invalidLabel] → false)
+✘ Test extremeNumbersClampWithoutTrapping() recorded an issue at StyleParserTests.swift:60:9: Expectation failed: (ok(##"{"replayCount": -1e30}"##)?.style.replayCount → 10) == 3
+✘ Test labelTextRules() recorded an issue at StyleParserTests.swift:115:9: Expectation failed: (ok(##"{"labelText": "  快訊  "}"##)?.style.labelText → "即時財經快訊") == "快訊"
+↳ 前後空白修剪
+✘ Test extremeNumbersClampWithoutTrapping() recorded an issue at StyleParserTests.swift:61:9: Expectation failed: (ok(##"{"fontSize": 1e300}"##)?.style.fontSize → 16.0) == (26 → 26.0)
+✘ Test outOfRangeNumbersAreClampedWithOneWarningEach() recorded an issue at StyleParserTests.swift:44:9: Expectation failed: (kinds(r) → []) == ([.clamped, .clamped, .clamped, .clamped] → [FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped])
+± removed [FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped, FastBullTickerApp.StyleWarning.Kind.clamped]
+✘ Test wrongTypesFallBackToFieldDefaultsOnly() recorded an issue at StyleParserTests.swift:70:9: Expectation failed: (kinds(r).filter { $0 == .invalidType }.count → 0) == 7
+✘ Test labelTextRules() recorded an issue at StyleParserTests.swift:116:9: Expectation failed: (ok(##"{"labelText": 5}"##).map { kinds($0) } → []) == ([.invalidType] → [FastBullTickerApp.StyleWarning.Kind.invalidType])
+✘ Test threeLivePresetsAllMeetAA() recorded an issue at TickerStyleTests.swift:146:9: Expectation failed: (abs(ratios[0] - 21) < 0.01 && abs(ratios[1] - 16.5) < 0.2 → false) && (abs(ratios[2] - 5.3) < 0.2 → <not evaluated>)
+↳ [1.0, 1.0, 1.0]
+✘ Test wrongTypesFallBackToFieldDefaultsOnly() recorded an issue at StyleParserTests.swift:71:9: Expectation failed: (kinds(r) → []).contains(.unknownKey)
+✘ Test threeLivePresetsAllMeetAA() recorded an issue at TickerStyleTests.swift:147:9: Expectation failed: ratios.allSatisfy { $0 >= ContrastRatio.threshold }
+✘ Test replayCountMustBeInteger() recorded an issue at StyleParserTests.swift:84:9: Expectation failed: (r.style.replayCount == 10 → true) && (kinds(r) == [.invalidType] → false)
+✘ Test utf8BOMIsTolerated() recorded an issue at StyleParserTests.swift:173:58: Expectation failed: (r.style.fontSize → 16.0) == (12 → 12.0)
+✘ Test labelLengthCountsCharactersNotUTF16Units() recorded an issue at StyleParserTests.swift:123:9: Expectation failed: (ok("{\"labelText\": \"\(sixteen)\(family)\"}")?.style.labelText → "即時財經快訊") == (sixteen → "👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦👨‍👩‍👧‍👦")
+✘ Test threeLivePresetsAllMeetAA() recorded an issue at TickerStyleTests.swift:148:9: Expectation failed: (LiveColorPreset.all.map { $0.background.hex } → ["#000000", "#000000", "#000000"]) == ["#FFFFFF", "#FFE45C", "#1E7B3C"]
+± inserted ["#000000", "#000000", "#000000"], removed ["#FFFFFF", "#FFE45C", "#1E7B3C"]
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:99:13: Expectation failed: (r.style.liveBackground.hex → "#000000") == "#FFFFFF"
+↳ red → 預設
+✘ Test duplicateKeysDoNotCrashAndStayValid() recorded an issue at StyleParserTests.swift:179:9: Expectation failed: (f == 12 → false) || (f == 14 → false)
+✘ Test writtenNormalizedFormReparsesToSameStyleWithoutWarnings() recorded an issue at StyleParserTests.swift:192:9: Expectation failed: (r.style == s → false) && (r.warnings.isEmpty → <not evaluated>)
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:100:13: Expectation failed: (r.style.liveText.hex → "#000000") == "#102030"
+↳ 其他欄位不受影響
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:102:13: Expectation failed: (w?.key == "liveBackground" → false) && (w?.message.contains(bad) == true → <not evaluated>)
+↳ 警告含鍵名與原字串
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:99:13: Expectation failed: (r.style.liveBackground.hex → "#000000") == "#FFFFFF"
+↳ #FFF → 預設
+✔ Test invalidHexForms() passed after 0.002 seconds.
+✘ Test roundTripThroughCodable() recorded an issue at TickerStyleTests.swift:23:9: Expectation failed: (back → TickerStyle(version: 1, cornerRadius: 7.5, fontSize: 20.0, scrollSpeed: 150.0, replayCount: 5, showTime: false, showLabel: false, labelText: "快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), labelColor: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), liveBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0))) == (s → TickerStyle(version: 1, cornerRadius: 7.5, fontSize: 20.0, scrollSpeed: 150.0, replayCount: 5, showTime: false, showLabel: false, labelText: "快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.8509803921568627, g: 0.10196078431372549, b: 0.12941176470588237), labelColor: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.09019607843137255, g: 0.09019607843137255, b: 0.10196078431372549), liveBackground: FastBullTickerApp.RGBColor(r: 1.0, g: 0.8941176470588236, b: 0.3607843137254902), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 0.6705882352941176, g: 0.803921568627451, b: 0.9372549019607843)))
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:100:13: Expectation failed: (r.style.liveText.hex → "#000000") == "#102030"
+↳ 其他欄位不受影響
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:102:13: Expectation failed: (w?.key == "liveBackground" → false) && (w?.message.contains(bad) == true → <not evaluated>)
+↳ 警告含鍵名與原字串
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:99:13: Expectation failed: (r.style.liveBackground.hex → "#000000") == "#FFFFFF"
+↳ #FFE45C80 → 預設
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:100:13: Expectation failed: (r.style.liveText.hex → "#000000") == "#102030"
+↳ 其他欄位不受影響
+✘ Test roundTripThroughCodable() recorded an issue at TickerStyleTests.swift:24:9: Expectation failed: try JSONDecoder().decode(TickerStyle.self, from: TickerStyle.default.normalizedJSON()) == .default
+✘ Test boundariesThemselvesAreAcceptedWithoutWarning() recorded an issue at StyleParserTests.swift:54:9: Expectation failed: (ok(##"{"cornerRadius": 100}"##)?.style.cornerRadius → 0.0) == (21 → 21.0)
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:102:13: Expectation failed: (w?.key == "liveBackground" → false) && (w?.message.contains(bad) == true → <not evaluated>)
+↳ 警告含鍵名與原字串
+✘ Test threeGroupsAreCheckedIndependently() recorded an issue at StyleParserTests.swift:137:9: Expectation failed: (Set(r.warnings.filter { $0.kind == .lowContrast }.map(\.key)) → []) == ["replay", "label"]
+✘ Test boundariesThemselvesAreAcceptedWithoutWarning() recorded an issue at StyleParserTests.swift:55:9: Expectation failed: (ok(##"{"cornerRadius": 21.5}"##)?.style.cornerRadius → 0.0) == (21 → 21.0)
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:150:9: Expectation failed: (failure("{ \"fontSize\": ") → nil) != nil
+✘ Test outOfRangeNumbersAreClampedWithOneWarningEach() recorded an issue at StyleParserTests.swift:45:9: Expectation failed: (Set(r.warnings.map(\.key)) → []) == (["fontSize", "scrollSpeed", "cornerRadius", "replayCount"] → ["replayCount", "fontSize", "scrollSpeed", "cornerRadius"])
+✘ Test missingAndUnknownKeys() recorded an issue at StyleParserTests.swift:27:9: Expectation failed: (r.style → TickerStyle(version: 1, cornerRadius: 0.0, fontSize: 16.0, scrollSpeed: 90.0, replayCount: 10, showTime: true, showLabel: true, labelText: "即時財經快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.8509803921568627, g: 0.10196078431372549, b: 0.12941176470588237), labelColor: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.09019607843137255, g: 0.09019607843137255, b: 0.10196078431372549), liveBackground: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0))) == (expected → TickerStyle(version: 1, cornerRadius: 0.0, fontSize: 20.0, scrollSpeed: 90.0, replayCount: 10, showTime: true, showLabel: true, labelText: "即時財經快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.8509803921568627, g: 0.10196078431372549, b: 0.12941176470588237), labelColor: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.09019607843137255, g: 0.09019607843137255, b: 0.10196078431372549), liveBackground: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0)))
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:151:78: Issue recorded
+↳ 語法錯誤應為 notJSON
+✘ Test wrongTypeDoesNotAffectOtherFields() recorded an issue at StyleParserTests.swift:76:9: Expectation failed: (r.style.scrollSpeed == 150 → false) && (r.style.liveBackground.hex == "#FFE45C" → <not evaluated>)
+✘ Test outOfRangeNumbersAreClampedWithOneWarningEach() recorded an issue at StyleParserTests.swift:46:9: Expectation failed: (r.warnings.first { $0.key == "fontSize" }?.message.contains("5") → nil) == true
+↳ 警告含原值
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:99:13: Expectation failed: (r.style.liveBackground.hex → "#000000") == "#FFFFFF"
+↳ FFE45C → 預設
+✔ Test versionAcceptsOneAndOnePointZero() passed after 0.002 seconds.
+✔ Test defaultColorsMatchPrototypeWithinOneOver255() passed after 0.002 seconds.
+✔ Test isValidRejectsOutOfRangeFields() passed after 0.002 seconds.
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:100:13: Expectation failed: (r.style.liveText.hex → "#000000") == "#102030"
+↳ 其他欄位不受影響
+✘ Test missingAndUnknownKeys() recorded an issue at StyleParserTests.swift:28:9: Expectation failed: (r.warnings.count == 1 && r.warnings[0].kind == .unknownKey → false) && (r.warnings[0].key == "colour" → <not evaluated>)
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:152:9: Expectation failed: (failure("[]") → nil) == (.notObject → 頂層不是 JSON 物件)
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:102:13: Expectation failed: (w?.key == "liveBackground" → false) && (w?.message.contains(bad) == true → <not evaluated>)
+↳ 警告含鍵名與原字串
+✘ Test wrongTypeDoesNotAffectOtherFields() recorded an issue at StyleParserTests.swift:77:9: Expectation failed: (r.warnings.count → 0) == 2
+✔ Test defaultStyleHasNoContrastWarning() passed after 0.002 seconds.
+✘ Test missingAndUnknownKeys() recorded an issue at StyleParserTests.swift:29:9: Expectation failed: (r.unknownKeys → []) == ["colour"]
+± removed ["colour"]
+✘ Test defaultsAreExactlyThePrototypeValues() failed after 0.002 seconds with 3 issues.
+✘ Test lowContrastWarnsButKeepsValues() failed after 0.002 seconds with 2 issues.
+✔ Test emptyObjectGivesDefaultsWithoutWarnings() passed after 0.002 seconds.
+✔ Test prototypeColorLiteralsStillInTickerViewSource() passed after 0.002 seconds.
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:153:9: Expectation failed: (failure("42") → nil) == (.notObject → 頂層不是 JSON 物件)
+✘ Test contrastRatioMatchesWCAGReferenceValues() failed after 0.002 seconds with 4 issues.
+✔ Test presetsProduceNoWarning() passed after 0.002 seconds.
+✔ Test encodedKeysMatchSpecTableExactly() passed after 0.002 seconds.
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:99:13: Expectation failed: (r.style.liveBackground.hex → "#000000") == "#FFFFFF"
+↳ #GGGGGG → 預設
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:154:9: Expectation failed: (failure("\"x\"") → nil) == (.notObject → 頂層不是 JSON 物件)
+✔ Test defaultsAgreeWithShellConfigPrototypeConstants() passed after 0.002 seconds.
+✘ Test hexParsingAndNormalization() failed after 0.002 seconds with 5 issues.
+✘ Test validColorsAreNormalized() failed after 0.002 seconds with 1 issue.
+✔ Test parseIsPureAndRepeatable() passed after 0.002 seconds.
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:155:9: Expectation failed: (failure("null") → nil) == (.notObject → 頂層不是 JSON 物件)
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:100:13: Expectation failed: (r.style.liveText.hex → "#000000") == "#102030"
+↳ 其他欄位不受影響
+✔ Test versionMissingMeansOne() passed after 0.002 seconds.
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:156:62: Issue recorded
+↳ 空檔應為 notJSON
+✘ Test normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline() failed after 0.002 seconds with 1 issue.
+✘ Test invalidColorsFallBackToFieldDefault() recorded an issue at StyleParserTests.swift:102:13: Expectation failed: (w?.key == "liveBackground" → false) && (w?.message.contains(bad) == true → <not evaluated>)
+↳ 警告含鍵名與原字串
+✘ Test extremeNumbersClampWithoutTrapping() failed after 0.002 seconds with 3 issues.
+✘ Test replayCountMustBeInteger() failed after 0.002 seconds with 1 issue.
+✘ Test labelTextRules() failed after 0.002 seconds with 4 issues.
+✔ Test rangesAreTheSpecifiedOnes() passed after 0.002 seconds.
+✔ Test sourceFileImportsOnlyFoundation() passed after 0.002 seconds.
+✘ Test wrongTypesFallBackToFieldDefaultsOnly() failed after 0.002 seconds with 2 issues.
+✘ Test utf8BOMIsTolerated() failed after 0.002 seconds with 1 issue.
+✘ Test labelLengthCountsCharactersNotUTF16Units() failed after 0.002 seconds with 1 issue.
+✘ Test duplicateKeysDoNotCrashAndStayValid() failed after 0.002 seconds with 1 issue.
+✘ Test threeLivePresetsAllMeetAA() failed after 0.002 seconds with 3 issues.
+✘ Test writtenNormalizedFormReparsesToSameStyleWithoutWarnings() failed after 0.002 seconds with 1 issue.
+✘ Test roundTripThroughCodable() failed after 0.003 seconds with 2 issues.
+✘ Test boundariesThemselvesAreAcceptedWithoutWarning() failed after 0.002 seconds with 2 issues.
+✘ Test threeGroupsAreCheckedIndependently() failed after 0.002 seconds with 1 issue.
+✘ Test outOfRangeNumbersAreClampedWithOneWarningEach() failed after 0.002 seconds with 4 issues.
+✘ Test wrongTypeDoesNotAffectOtherFields() failed after 0.002 seconds with 2 issues.
+✘ Test invalidColorsFallBackToFieldDefault() failed after 0.002 seconds with 15 issues.
+✘ Test missingAndUnknownKeys() failed after 0.002 seconds with 3 issues.
+✘ Suite TickerStyleTests failed after 0.003 seconds with 18 issues.
+↳ /// ticker-style-settings 1.1：`TickerStyle` 欄位、預設值與原型一致、色碼、對比度。
+↳ /// 注意：此檔刻意不 import FastBullTickerCore（Core 另有同名列舉 `TickerStyle`，見 TickerStyle.swift 檔頭註解）。
+✘ Test sizeLimit64KB() recorded an issue at StyleParserTests.swift:168:9: Expectation failed: (StyleParser.parse(over) → success(FastBullTickerApp.StyleParseResult(style: FastBullTickerApp.TickerStyle(version: 1, cornerRadius: 0.0, fontSize: 16.0, scrollSpeed: 90.0, replayCount: 10, showTime: true, showLabel: true, labelText: "即時財經快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.8509803921568627, g: 0.10196078431372549, b: 0.12941176470588237), labelColor: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.09019607843137255, g: 0.09019607843137255, b: 0.10196078431372549), liveBackground: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0)), warnings: []))) == (.failure(.tooLarge(bytes: StyleRanges.maxFileBytes + 1)) → failure(檔案過大（65537 位元組，上限 65536）))
+✘ Test sizeLimit64KB() failed after 0.003 seconds with 1 issue.
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:157:9: Expectation failed: (StyleParser.parse(Data([0xFF, 0xFE, 0x7B, 0x7D])) → success(FastBullTickerApp.StyleParseResult(style: FastBullTickerApp.TickerStyle(version: 1, cornerRadius: 0.0, fontSize: 16.0, scrollSpeed: 90.0, replayCount: 10, showTime: true, showLabel: true, labelText: "即時財經快訊", labelBackground: FastBullTickerApp.RGBColor(r: 0.8509803921568627, g: 0.10196078431372549, b: 0.12941176470588237), labelColor: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), tapeBackground: FastBullTickerApp.RGBColor(r: 0.09019607843137255, g: 0.09019607843137255, b: 0.10196078431372549), liveBackground: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0), liveText: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayBackground: FastBullTickerApp.RGBColor(r: 0.0, g: 0.0, b: 0.0), replayText: FastBullTickerApp.RGBColor(r: 1.0, g: 1.0, b: 1.0)), warnings: []))) == (.failure(.notUTF8) → failure(不是 UTF-8))
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version 2 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version 0 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version "1" 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version 1.5 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version true 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version null 應整份失敗
+✘ Test wholeFileFailures() recorded an issue at StyleParserTests.swift:159:96: Issue recorded
+↳ version [1] 應整份失敗
+✘ Test wholeFileFailures() failed after 0.003 seconds with 15 issues.
+✔ Test randomGarbageBytesNeverCrash() passed after 0.021 seconds.
+✘ Test randomInputsAlwaysYieldValidStyle() recorded an issue at StyleParserTests.swift:239:9: Expectation failed: (successes > 2000 && failures > 10 → false) && (warningsSeen > 1000 → <not evaluated>)
+↳ 場景有涵蓋各路徑：3000 0 0
+✘ Test randomInputsAlwaysYieldValidStyle() failed after 0.033 seconds with 1 issue.
+✘ Suite StyleParserTests failed after 0.034 seconds with 61 issues.
+↳ /// ticker-style-settings 1.1：`StyleParser.parse`（整份失敗 vs 欄位層級）。純函式、固定輸入與固定種子。
+✘ Test run with 40 tests in 2 suites failed after 0.034 seconds with 79 issues.

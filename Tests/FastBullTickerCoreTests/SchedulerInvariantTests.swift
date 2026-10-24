@@ -19,6 +19,7 @@ struct Transcript: Equatable {
     var violations: [String] = []
     var rebases = 0, hides = 0, liveArrivals = 0, droppedTotal = 0, overflowEvents = 0
     // ticker-navigation-link 5.1：seek／指標停留相關的涵蓋計數（避免空轉通過）
+    var reconfigures = 0
     var seeks = 0, movedSeeks = 0, forcedPlacements = 0, pointerEnters = 0, holdTicks = 0, frozenTicks = 0
 }
 
@@ -36,7 +37,7 @@ private func outcomeLabel(_ o: SeekOutcome) -> String {
 /// 以固定種子驅動「有 rebase 的 A」與「無 rebase 的對照 B」，逐步斷言不變量。
 /// 兩者收到完全相同的 tick／items／hide／show／seek／指標進出；只有 A 會 rebase。
 /// 斷言 design.md 決定 4 的八條不變量（見各處註解標號）。
-func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
+func runInvariantScenario(seed: UInt64, steps: Int, withReconfigure: Bool = false) -> Transcript {
     var rng = SplitMix64(state: seed)
     let clock = FakeClock()
     var cfg = SchedulerConfig.test
@@ -48,10 +49,10 @@ func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
     var liveSeen: [String] = []
     var cumulativeDelta = 0.0
     var seq = 0
+    var tunableSeeds = SplitMix64(state: seed ^ 0xABCD)   // reconfigure 參數用獨立亂數流，不擾動主亂數流
     var lastB: PlacedItem?
     var hidden = false
     var pointer = false
-    let speed = a.config.speed
 
     func notePlacement(_ x: PlacedItem, _ y: PlacedItem) {
         seq += 1
@@ -75,7 +76,7 @@ func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
     _ = a.receive(first); _ = b.receive(first)
 
     for _ in 0..<steps {
-        switch rng.int(140) {
+        switch rng.int(withReconfigure ? 150 : 140) {
         case 0..<55:   // tick（可見時 dt 為 1/16 的倍數、≤ 1 秒）
             let dt = Double(rng.int(17)) / 16
             if !hidden { clock.t += dt }
@@ -91,7 +92,7 @@ func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
             if frozen { tr.frozenTicks += 1; if a.scrollOffset != off0 || a.holdRemaining != h0 { tr.violations.append("凍結中位置／保持改變") } }
             if !frozen && h0 > 0 { tr.holdTicks += 1 }
             // 3：兩次 seek／rebase 之間，位置是 tape 時間的純函數
-            if abs((a.scrollOffset - off0) - speed * (a.tapeTime - t0)) > 1e-6 { tr.violations.append("scrollOffset 非 tape 時間純函數") }
+            if abs((a.scrollOffset - off0) - a.config.speed * (a.tapeTime - t0)) > 1e-6 { tr.violations.append("scrollOffset 非 tape 時間純函數") }
         case 55..<70:  // 新的 items（1~3 則，id 遞增 → 舊到新）；三分之一機率實際送出，讓場景中仍有重播階段
             guard rng.int(3) == 0 else { break }
             let n = 1 + rng.int(3)
@@ -158,6 +159,20 @@ func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
         case 103..<106: // 指標進入
             if !pointer { tr.pointerEnters += 1 }
             a.setPointerInside(true); b.setPointerInside(true); pointer = true
+        case 140..<150: // reconfigure（只在 withReconfigure 時出現）：A、B 套用同一組可變欄位，量測不變 → 寬度仍為 130
+            let off = a.scrollOffset, tt = a.tapeTime, hold = a.holdRemaining
+            let before = a.placed.suffix(100).map { [$0.tapeX, $0.width] }
+            let visual = a.placed.suffix(100).map { a.visualX(of: $0) }
+            var t = SchedulerTunables(config: a.config)
+            t.speed = [0, 40, 70, 100][tunableSeeds.int(4)]   // ≤ 100：每步 ≤ 1 秒時尾端不會被甩出左緣（否則依既有規則改排到右緣，間距不再是 gap）
+            t.viewportWidth = [120, 200, 320, 500][tunableSeeds.int(4)]
+            t.replayCount = [1, 3, 5, 10][tunableSeeds.int(4)]
+            a.reconfigure(t, measurer: flatMeasure); b.reconfigure(t, measurer: flatMeasure)
+            tr.reconfigures += 1
+            if a.scrollOffset != off { tr.violations.append("reconfigure 改變 scrollOffset") }        // 3：視覺連續
+            if a.tapeTime != tt || a.holdRemaining != hold { tr.violations.append("reconfigure 改變 tape 時間／保持") }
+            if a.placed.suffix(100).map({ [$0.tapeX, $0.width] }) != before { tr.violations.append("reconfigure 改變已排入訊息") }   // 1
+            if a.placed.suffix(100).map({ a.visualX(of: $0) }) != visual { tr.violations.append("reconfigure 改變視覺位置") }
         default:        // 指標離開（機率較高，使指標在內的時間佔少數）
             a.setPointerInside(false); b.setPointerInside(false); pointer = false
         }
@@ -208,5 +223,19 @@ func runInvariantScenario(seed: UInt64, steps: Int) -> Transcript {
         #expect(t1 == t2)
         let t3 = runInvariantScenario(seed: 8, steps: 5_000)
         #expect(t1 != t3)
+    }
+
+    @Test func invariantsHoldWithRuntimeReconfigure() {
+        let tr = runInvariantScenario(seed: 20261025, steps: 30_000, withReconfigure: true)
+        #expect(tr.violations.isEmpty, "不變量違反（前 5 筆）：\(tr.violations.prefix(5))")
+        #expect(tr.reconfigures > 1000 && tr.placements.count > 300)   // speed 0 的時段不補料，門檻低於無 reconfigure 版
+        #expect(tr.movedSeeks > 300 && tr.rebases > 100 && tr.hides > 100 && tr.frozenTicks > 1000 && tr.holdTicks > 100)
+    }
+
+    @Test func reconfigureSeedsAlsoHold() {
+        for seed: UInt64 in [1, 2, 3, 42, 99999] {
+            let tr = runInvariantScenario(seed: seed, steps: 8_000, withReconfigure: true)
+            #expect(tr.violations.isEmpty, "seed \(seed): \(tr.violations.prefix(3))")
+        }
     }
 }

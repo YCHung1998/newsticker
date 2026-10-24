@@ -325,3 +325,115 @@ feed: items count=1 withUrl=1      mode -> live
 final stats: … withUrl=25/37 badLines=0 placed=3 …     quit: helper shutdown completed     terminate
 ```
 注意（環境因素，不是本段程式缺陷）：這台機器在我啟動前已有一個舊的 `FastBullTicker`（pid 39445，22:38 啟動，使用者或協調者開的）與其 helper 在執行，兩個實例共用同一個 pid file（`~/Library/Application Support/FastBullTicker/helper.pid`）。我的實例啟動時依既有「回收殘留 helper」邏輯**終止了該舊實例的 helper**（日誌 `reclaimed stale helper pid=39512`），雙方因此互相回收、日誌中 helper 反覆 `exited`／重啟（`snapshots=3`）。舊實例（39445）及其新 helper 在我結束後仍在執行，我沒有動它。**我自己啟動的行程已全部結束**。
+
+
+---
+
+# ticker-style-settings 第 S1 段（1.1、2.1、3.1）的驗證與重現（2026-10-25）
+
+全部不開真實視窗、不連網、不開瀏覽器、不碰真實 `~/Library/Application Support/FastBullTicker/style.json`（StyleStore 測試一律用 `FileManager.default.temporaryDirectory` 下的暫存目錄，`StyleEnv` 以 `precondition` 強制）。熱重載用假監看器（`FakeStyleWatcher`）＋假時鐘（`FakeClock`）；另有 3 個用真實 `DispatchSource` 的測試，但同樣只在暫存目錄。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                              # 410 tests in 55 suites（基準 309 + 101）
+swift test --filter TickerStyleTests                    # 1.1  15 個
+swift test --filter StyleParserTests                    # 1.1  25 個
+swift test --filter ReconfigureTests                    # 2.1  19 個
+swift test --filter TickerLayoutTests                   # 2.1  含新增 4 個 showTime
+swift test --filter SchedulerInvariantTests             # 2.1  含 2 個 reconfigure 長序列（固定種子，30,000 步／5 個種子各 8,000 步）
+swift test --filter StyleStore                          # 3.1  StyleStoreLoadTests／HotReloadTests／WriteBackTests
+swift test --filter DispatchSourceWatcherTests          # 3.1  真實 DispatchSource（暫存目錄）
+python3 Tests/s1-mutations.py                           # 36 組 mutation（約 40 分鐘；每組破壞→紅→還原）
+```
+
+| task | 測試檔 | 內容 |
+|---|---|---|
+| 1.1 | `Tests/FastBullTickerAppTests/TickerStyleTests.swift` | 15 鍵齊全、往返、正規化輸出（鍵排序／大寫／結尾換行）、僅 import Foundation、預設值逐項、與原型常數（`ShellConfig.provisional`、`TickerView` 內色彩字面值）一致且 ≤ 1/255、範圍、色碼合法／非法、WCAG 參考值（21、4.48、1.07）、三組預設配色 ≥ 4.5 |
+| 1.1 | `Tests/FastBullTickerAppTests/StyleParserTests.swift` | 缺鍵／未知鍵、越界夾制（含 `1e30`）、型別錯誤、`replayCount` 整數規則、非法色碼、`labelText`（修剪／截斷／grapheme）、對比度警告但照用、整份失敗（語法／非物件／非 UTF-8／version／64KB）、BOM、固定種子 3,000 組隨機輸入永遠得到合法樣式、2,000 組隨機位元組不崩潰 |
+| 2.1 | `Tests/FastBullTickerCoreTests/ReconfigureTests.swift`、`TickerLayoutTests.swift`、`SchedulerInvariantTests.swift` | 改速度視覺連續（含「流逝但未 tick 的時間以舊速度結算」、速度 0 往返）、已排入不變、新設定只影響之後排入且間距仍為 gap、縮小／放大 `replayCount`、放大可視寬度補料、隱藏中呼叫、保持不受速度影響、seek／rebase 與 reconfigure 交錯、六欄位限制、`showTime` 與 `layoutItem` |
+| 3.1 | `Tests/FastBullTickerAppTests/StyleStoreTests.swift` | 載入（無檔案不建立／損壞保留／越界夾制／過大／環境變數）、熱重載（debounce、50 次觸發合併、位元組相同不解析、樣式相等不通知、改名取代、刪檔保留、語法錯誤保留再恢復、欄位層級錯誤）、寫回（滑桿連發只寫一次、暫存檔→取代的順序、正規化輸出、`.bak` 三種情況與兩種不備份、自寫入不重套也不重新解析、寫入失敗、重設為預設、`ensureFileExists`） |
+
+## fail-then-pass 證據（誠實說明）
+| task | 紅 | 綠 | 檔案 |
+|---|---|---|---|
+| 1.1 | 先寫完整實作才補測試，故紅是**對 stub**：把 `parse` 改成恆回預設、`hex` 恆回 `#000000`、`ratio` 恆回 1 → TickerStyleTests／StyleParserTests 多項斷言失敗；還原後綠 | 40 tests passed | `Tests/evidence/s1-1.1-red.log`、`s1-1.1-green.log` |
+| 2.1 | 測試先於實作：`SchedulerTunables`／`reconfigure` 不存在 → **編譯失敗型**紅 | 實作後 50 tests（5 suites）passed | `s1-2.1-red.log`、`s1-2.1-green.log` |
+| 3.1 | 實作先於測試，故紅是**對移除 StyleStore.swift／StyleFileWatching.swift**：`cannot find 'StyleStore' in scope`（編譯失敗型）；還原後綠 | 36 tests passed（重跑 3 次皆綠） | `s1-3.1-red.log`、`s1-3.1-green.log` |
+
+## mutation（`Tests/s1-mutations.py`，輸出 `Tests/evidence/s1-mutations.log`）
+36 組破壞全部變紅（存活 0），還原後 `swift test` 410 個全綠。
+| 範圍 | mutation → 抓到它的測試（代表） |
+|---|---|
+| 1.1 | T1 預設 `fontSize` 17→`defaultsAreExactlyThePrototypeValues`；T2 放寬上限→`rangesAreTheSpecifiedOnes`；T3 接受 8 位色碼→`invalidHexForms`；T5 亮度係數對調→`contrastRatioMatchesWCAGReferenceValues`；T6 低對比度不照用→`lowContrastWarnsButKeepsValues`；T9 `version` 2 也接受→`wholeFileFailures`；T12 鍵不排序→`normalizedJSONIsSorted…`；其餘見 log |
+| 2.1 | C1 改速度不調整 `baseOffset`→`speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed`、`invariantsHoldWithRuntimeReconfigure` 等；C2 不結算舊速度流逝時間→`timeElapsedBeforeReconfigureIsCountedAtOldSpeed`；C3 重新量測已排入訊息→`placedItemsUnchangedAndNewOnesUseNewTunables`；C8 解除隱藏→`reconfigureWhileHiddenIsLegal…` |
+| 3.1 | S1 移除自寫入辨識→`ownWriteIsNotReappliedAndNotEvenReparsed`；S2 載入時改寫→`partialOutOfRangeFields…`；S3 失敗載入覆蓋舊值→`syntaxErrorKeepsOldValueThenRecovers`；S4 無 debounce→`editAppliesAfterDebounceExactlyOnce`；S5 不備份→`backups…`；S6 寫回無 debounce→`sliderBurstAppliesEveryTimeButWritesOnce`；S13 不訂閱事件→`realWatcherFiresOnCreateAndOnRenameReplace` |
+
+誠實註記：
+- S1 mutation 一開始設計時預期「S1 移除自寫入辨識」可能被「樣式相等不通知」遮蔽（兩層去重）；因此測試額外斷言 `parseCount` 不增加（內容比對先於解析），mutation 才能被咬到。
+- 測試過程中我方測試的 bug（非實作問題）：`#"…"#` 原始字串遇到 `"#FF0000"` 提前結束（改 `##"…"##`）；`URL` 比較因結尾斜線不同（改比 `.path`）；真實 watcher 測試的 `afterReplace` 計數有競態（先睡 0.3 秒再取值）；`gap` 不變量在 `reconfigure` 速度 ≥ 160 時會被「尾端已捲出左緣就改排到右緣」的既有規則打破，故隨機序列速度限制 ≤ 100（單元測試另以 250 測保持）。
+- 以上均未改動任何實作行為；309 個既有測試未減少、未放寬（唯一的既有測試檔改動：`TickerRendererTests.swift` 一處 `TickerStyle` 改寫為 `FastBullTickerCore.TickerStyle`，因 App 新增同名型別造成型別查找歧義）。
+- 仍為【需人工】：正式 `DispatchSource` 監看器對 TextEdit／vim 儲存方式的相容性（自動測試只證明改名取代式更新在暫存目錄中有事件）。
+
+---
+
+# ticker-style-settings 第 S2 段（4.1、5.1、6.1、7.1、9.1）的驗證與重現（2026-10-25）
+
+全部不開真實視窗（`TickerView` 不放進視窗、不呼叫 `orderFront`）、不連網、不開瀏覽器或編輯器（「開啟樣式設定檔…」只經 `RecordingFileOpener`）、不碰真實 `style.json`（一律 `StyleEnv` 的暫存目錄）。守衛 `LinkOpenerGuardTests`／`StyleMenuGuardTests` 掃描：`Tests/` 不得出現真實的 `open` 呼叫；`Sources/` 只有 `WorkspaceURLOpener.swift` 與 `WorkspaceFileOpener.swift` 兩個檔案出現；樣式相關原始碼（去掉註解後）不含 `NSAlert`、`NSWindow(`、`NSApp.activate`。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                              # 471 tests in 65 suites（S1 後 410，S2 新增 61、10 個 suite）；見下方「基準線上的 1 個紅」
+swift test --filter StyleApply                          # 4.1  StyleApplyViewTests／StyleApplySchedulerTests／StyleApplyBoldTimeTests
+swift test --filter DefaultStyleRendersLikePrototypeTests   # 4.1  預設樣式渲染＝原型（取代過渡性斷言）
+swift test --filter StyleMenu                           # 5.1  StyleMenuModelTests／StyleMenuControllerTests／StyleMenuGuardTests
+swift test --filter StyleAction                         # 5.1  StyleActionRunnerTests（假 opener）
+swift test --filter StatusMenu                          # 5.1  項目斷言由四項改為五項
+swift test --filter AppSmokeStyle                       # 6.1  headless 煙霧測試（假 helper＋暫存 StyleStore＋假 opener）
+S2_SNAPSHOT_DIR=$PWD/Tests/evidence swift test --filter StyleSnapshotTests   # 離屏 PNG（非實機畫面）
+python3 Tests/s2-mutations.py                           # 36 組 mutation（約 10 分鐘；只跑樣式相關 suite，最後一輪跑完整 swift test）
+```
+
+| task | 測試檔 | 內容 |
+|---|---|---|
+| 4.1 | `Tests/FastBullTickerAppTests/StyleApplyTests.swift` | **預設渲染＝原型**：字級 16 與粗體時間、量測寬度等於原型公式、速度 90 實際每秒捲 90、標籤文字／空隙底色／標籤紅（≤1/255 且同為 Generic RGB 色彩空間）、live 白底黑字／replay 黑底白字的像素；**時間粗體**：`showTime=false` 時內文以 `12:34:56` 開頭不被誤判為粗體（量測端與繪製端各一）、繪製端用 `timeString` 長度而非偵測；**套用語意**：改顏色位置與寬度不變且 bitmap 就地重繪（即時改色、重播不變）、非顏色變更不重繪、改字級只影響之後排入的訊息（舊訊息位元組不變、新訊息以 20pt 量測、間距仍為 gap）、字級改變後再改色舊訊息仍用舊字級重繪、被清除的訊息在字級改變後重建仍用原字級、圓角夾制 21 與圖層裁切、圓角不改命中幾何、`showLabel` 隱藏時可視寬度 370→520 且 `tapeX` 不變且命中幾何同步、標籤文字／顏色／空隙色、相同樣式不重套；**排程器**：速度改變視覺連續、`replayCount`／`showTime` 傳到 Core、`ShellConfig.schedulerConfig(style:)`、套用不重建任何已排入訊息 |
+| 5.1 | `Tests/FastBullTickerAppTests/StyleMenuTests.swift` | 純資料 `StyleMenuModel`：項目清單與順序（含「設定檔有誤」提示行為第一項且停用）、字級 13／16／20／24 與 17 時皆不打勾、訊息量 5／10／20、速度 20–300 與圓角 0–21 的滑桿範圍＝`StyleRanges`、即時配色三組可讀且需兩個色碼都相同才打勾、動作只改自己的欄位（預設配色不動重播色）、任何動作結果夾制後合法；`NSMenu` 組裝（打勾狀態、展開前重建、動作與滑桿呼叫 `onAction`、滑桿旁整數值、不建立視窗）；`StatusMenu` 五項；`StyleActionRunner`：選單動作→`StyleStore`→去抖寫回、檔案不存在先建立再呼叫 opener 恰一次、存在不改寫、opener 失敗只記日誌、重設備份、熱重載後選單同步；守衛 |
+| 6.1 | `Tests/FastBullTickerAppTests/AppSmokeTests.swift`（`AppSmokeStyleTests`） | 啟動載入並經同一路徑套用（檔案不被改寫）、無檔案＝預設且不套用、改檔→生效樣式改變且畫面端只收到一次套用（含 `changed=[…]` 日誌）、同內容事件不重套、損壞檔案→樣式不變＋日誌 `style: error`＋選單出現提示行＋恢復、選單改字級→立即套用＋去抖後寫回＋自寫入不重套、滑桿連續拖動只寫一次檔、開啟設定檔只用假 opener、重設→預設＋`.bak`、假 helper 餵 snapshot 後連續變更樣式不使圖層位置跳動 |
+| 4.1 | `Tests/FastBullTickerAppTests/StyleSnapshotTests.swift` | 離屏渲染＋像素斷言（圓角外露出底色、黃底面積、標籤隱藏後沒有標籤紅）；`S2_SNAPSHOT_DIR` 設定時輸出 PNG |
+| 7.1 | `Tests/FastBullTickerAppTests/TickerStyleTests.swift`（`readmeFieldTableListsExactlyTheStyleKeys`） | 讀 `README.md` 第 5.5 節欄位表的鍵名，與 `TickerStyle.keys` 比對（缺漏或多出都紅；已手動把表中 `replayText` 改成 `replayTextX` 驗證會紅、還原後綠）；`README` 含 `style.json` |
+
+## fail-then-pass 證據（誠實說明）
+**4.1／5.1／6.1 是先寫完實作再補測試**（新型別的測試在實作之前無法編譯），所以沒有「對舊程式先紅」的紀錄；紅的證據是下方的 mutation：36 組逐一破壞實作、對應測試確實變紅，還原後回到基準線。這與 S1 的 1.1、3.1 相同的誠實程度。另外，過渡性測試的改寫見「過渡性測試如何改寫」。
+
+## mutation（`Tests/s2-mutations.py`，輸出 `Tests/evidence/s2-mutations.log`）
+36 組破壞全部變紅（存活 0），還原後完整 `swift test` 只剩「基準線上的 1 個紅」（見下）。
+| 範圍 | mutation → 抓到它的測試（代表） |
+|---|---|
+| 時間粗體 | B1 `showTime=false` 仍偵測→`showTimeFalseBodyThatLooksLikeATimeIsNeverBold`；B2 繪製端回到偵測字串內容→同；B3 `showTime=false` 多一個前導空白→同（`parts.text == body`） |
+| 渲染 | B4 配色寫死→`colorChangeKeepsPositionsAndRedrawsBitmapsInPlace`；B5 色碼改用 sRGB 建構→`viewLayersMatchPrototypeConstants`（色彩空間與預設的紅）、`defaultStyle` 快照像素 |
+| 視圖 | V1 顏色變更不重繪→`colorChangeKeepsPositionsAndRedrawsBitmapsInPlace`；V2 重繪一律用目前字級→`colorChangeAfterFontChangeStillUsesTheOldFontForOldItems`；V3 不記錄舊字級世代→`prunedItemReaddedAfterFontChangeIsRebuiltWithItsOriginalFont`；V4 圓角不夾制、V5 不裁切→`cornerRadiusIsClampedToHalfPanelHeightAndMasksAllLayers`；V6 命中幾何不更新、V7 裁切範圍不隨 `showLabel`、V10 不隱藏標籤→`hidingTheLabelWidensViewportAndKeepsTapePositions`；V8 空隙色、V9 標籤文字不套用→`labelTextAndColorsApplyImmediately`；V11 改色時位置跳動→`colorChangeKeepsPositionsAndRedrawsBitmapsInPlace` |
+| 套用端 | A1 不呼叫 `reconfigure`、A4 `replayCount` 沒傳、A5 舊 measurer、A6 速度沒傳→`speedChangeKeepsVisualPositionsThenAdvancesAtNewSpeed`、`replayCountAndShowTimeReachTheScheduler`、`fontSizeOnlyAffectsItemsPlacedAfterTheChange`；A2 可視寬度不隨 `showLabel`→`hidingTheLabelWidens…`；A3 相同樣式也重套→`applyingTheSameStyleTwiceIsANoOp`；**D1** `ShellConfig.schedulerConfig` 忽略 `style.scrollSpeed`：**第一輪存活**（套用端另外呼叫 `reconfigure`，遮蔽了它），補 `shellConfigBuildsTheSchedulerConfigFromTheStyle` 後補跑變紅 |
+| 選單 | M1 檔位 20→21、M2 不打勾、M6 訊息量 40（超出範圍）、M4 速度範圍放寬、M5 提示行可點→`StyleMenuModelTests`；M3 預設配色連重播色一起改→`actionsChangeOnlyTheirOwnFieldsAndStayValidAfterClamp`；M7 不先建立檔案、M8 opener 呼叫兩次→`openFileWhenMissingCreatesItFirstThenOpensExactlyOnce`；M9 重設不備份→`resetBacksUpThenWritesDefault`；M10 展開前不重建→`menuNeedsUpdateRefreshesFromTheLatestStyle`；M11 少了「樣式」項目→**測試行程崩潰**（`StatusMenuTests` 強制解包 nil，exit signal；仍判為偵測到，但不是漂亮的斷言失敗）；M12 熱重載／選單沒接到套用端→`AppSmokeStyleTests` 多項；M13 滑桿不寫回→`actionItemsAndSlidersCallOnAction` |
+
+## 基準線上的 1 個紅（不是本 change 的程式問題；需要你決定）
+工作樹的 `Sources/FastBullTickerApp/ShellConfig.swift` 有**不屬於我的未提交修改**（我開工時只有 `level: .screenSaver → .statusBar` 一行；工作過程中又出現 `itemPadding: 14 → 10`，我沒有動過它們，重新套用我的 ShellConfig 修改時保留了它們）。`itemPadding` 的原型值是 14，`TickerStyleTests.defaultsAgreeWithShellConfigPrototypeConstants` 會斷言它，因此該測試紅：`Expectation failed: (p.labelWidth == 150 && p.itemPadding == 14 → false)`。這正是這條斷言存在的目的（原型常數被改了）。要不要保留留白 10（若是你調的，則需同步改測試與 spec `ticker-style` 的「單則左右留白 14pt」）或還原成 14，請你決定。其餘 468 個全綠（含 S2 新增的 61 個）。
+
+## 過渡性測試如何改寫（S1 → S2）
+- `TickerStyleTests.defaultsAgreeWithShellConfigPrototypeConstants`：原本有一行 `Double(p.fontSize) == d.fontSize && p.scrollSpeed == d.scrollSpeed && p.labelText == d.labelText`（讀 `ShellConfig.provisional`）。`ShellConfig` 不再有這三個欄位，所以該行移除，**語意由 `DefaultStyleRendersLikePrototypeTests` 接手且更強**：字級 16 看的是實際 CTFont 大小與 Semibold 粗體時間；速度 90 看的是 `schedulerConfig(style:.default)` 與實際捲動每秒 90；標籤文字看的是圖層上實際的字串。仍留在 `ShellConfig` 的值（面板尺寸、標籤寬、留白、透明度範圍／預設）維持原斷言不動。
+- `TickerStyleTests.prototypeColorLiteralsStillInTickerViewSource`（grep `TickerView.swift` 的 `red: 0.09, green: 0.09, blue: 0.10` 等字面值）：字面值已不在該檔，改為 `DefaultStyleRendersLikePrototypeTests.viewLayersMatchPrototypeConstants`：斷言實際圖層的空隙底色、標籤紅、標籤字色與原型常數（0.09/0.09/0.10、0.85/0.10/0.13）差 ≤ 1/255，**且色彩空間同為 Generic RGB**；另以 `liveIsWhiteOnBlackTextAndReplayIsBlackOnWhiteTextPixels` 驗證 bitmap 像素。沒有為了讓測試過關而刪除任何斷言；被移除的只是「讀來源字面值」這種實作細節的斷言。
+- 其他既有測試的改動：`TickerRendererTests.swift` 的 `DemoCadenceTests` 一行（`ItemBitmapRenderer(fontSize: cfg.fontSize …)` → `ItemBitmapRenderer(style: .default, config: cfg)`）；`StatusMenuTests.swift` 四項→五項；`StyleStoreTests.swift` 新增 `InlineFakeClock` 與 `StyleEnv(inline:)`（既有測試不受影響）。309＋101 個既有測試未減少、未放寬。
+
+## 色彩空間的發現（影響預設值的解讀）
+原型以 `CGColor(red:green:blue:alpha:)`（Generic RGB）建構標籤紅與空隙底色。實測（`CGColor.converted(to: sRGB)`）：Generic RGB (0.09, 0.09, 0.10) 顯示時等於 sRGB 位元組 (30, 30, 34)，而 S1 的預設色碼 `#17171A` 當作 sRGB 是 (23, 23, 26)；標籤紅 (0.85, 0.10, 0.13) 等於 sRGB (227, 49, 43)，`#D91A21` 當 sRGB 是 (217, 26, 33)——**紅色的綠通道差 23，肉眼可辨**。為了「不改設定時畫面與原型一致」，S2 的 `RGBColor.cgColor` 刻意用同樣的 `CGColor(red:green:blue:alpha:)`（Generic RGB），也就是**色碼以 Generic RGB 解讀**；離屏快照的標籤紅像素斷言為 (227, 49, 43)。代價：`style.json` 中的 `#FFE45C` 與網頁上的 `#FFE45C`（sRGB）在螢幕上略有不同（bitmap 內為 (255, 231, 110)），這個差異是否可接受、以及 S1 spec 中「色碼為不透明 sRGB」的敘述是否要改，**需要你決定**（未改任何 spec）。
+
+## 離屏渲染（`Tests/evidence/s2-*.png`；CALayer.render，**不是實機畫面**）
+我用 Read 看過這 6 張圖（1240×84，2x）：
+- `s2-default.png`：左側紅色斜切標籤、白字「即時財經快訊」；中間黑底白字「**08:00:00** 快訊內容第 12 則：美股盤前走勢」（時間粗體）；之後是深灰空隙；右端控制列深灰底，`<` 淡化、`(1/10)`、`>`；四個外角都是直角。
+- `s2-corner21.png`：同一畫面，面板四個外角（標籤左側兩角、控制列右側兩角）都成半圓，外面露出我刻意鋪的藍灰底色；標籤與控制列沒有被破壞，文字完整。
+- `s2-live-yellow.png`：即時訊息為黃底（`#FFE45C`）黑字「**08:00:10** 即時：布蘭特原油突然拉升逾 2%」，標籤紅不變。這張是「先以預設色跑起來，再套用黃色」，所以也是就地重繪的離屏證據。
+- `s2-font24.png`：套用 24pt 後再跑 10 秒；新排入的訊息字明顯變大（時間粗體），標籤不變；較早排入的訊息此時已捲出。
+- `s2-no-label.png`：沒有標籤，訊息從面板最左緣起顯示（左側可見前一則被截斷的訊息尾端），右端控制列仍在。
+- `s2-combo.png`：圓角 12、標籤綠底文字「快訊」、重播訊息為深藍底、新排入的訊息不含時間、20pt。
+這些圖證明圖層樹與 bitmap 的結果，**不證明**螢幕上的實際觀感（字體平滑、透明度、視窗合成、捲動時的視覺連續）。
+
+## 真機啟動驗證
+**未執行。** 開始前 `pgrep -fl "FastBullTicker|ticker-connect"` 找到已有一個實例在跑（`build/FastBullTicker.app` 的 `FastBullTicker`，pid 8721，00:52 啟動，及其 helper pid 8788；不是我啟動的），依規則不啟動第二個實例（兩個實例共用 helper pid 檔會互相回收 helper）。改以 headless 煙霧測試（`AppSmokeStyleTests`）涵蓋啟動載入、熱重載、損壞檔案、選單變更的路徑；`AppDelegate` 本身（正式監看器 `DispatchSourceStyleWatcher`、`WorkspaceFileOpener`、選單列圖示）**沒有被任何自動測試或真機日誌執行過**。注意：我重新建置了 `build/FastBullTicker.app`（`make helper app sign`），那個已在跑的實例仍是舊二進位檔，需要重新啟動才會是新版。

@@ -172,7 +172,7 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
     /// 驗證佇列會播完而回到重播（否則使用者永遠看不到「重播→即時→重播」）。
     @Test func eightSecondCadenceCyclesReplayLiveReplayRepeatedly() {
         let cfg = ShellConfig.provisional
-        let bitmap = ItemBitmapRenderer(fontSize: cfg.fontSize, padding: cfg.itemPadding, heightPt: cfg.panelSize.height, textureLimitPx: cfg.textureLimitPx)
+        let bitmap = ItemBitmapRenderer(style: .default, config: cfg)
         let clock = ManualClock()
         let sched = TickerScheduler(config: cfg.schedulerConfig(timeZone: TimeZone(secondsFromGMT: 0)!), clock: { clock.t }, measurer: bitmap.measurer)
         let r = RecordingRenderer()
@@ -233,7 +233,7 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
 
 @Suite struct TickerRendererLinkSlotTests {
     private let scale: CGFloat = 2
-    private func item(url: String?, slot: Bool, style: TickerStyle = .replay, width: Double = 0) -> PlacedItem {
+    private func item(url: String?, slot: Bool, style: FastBullTickerCore.TickerStyle = .replay, width: Double = 0) -> PlacedItem {
         PlacedItem(source: "t", id: "1", style: style, timeString: "12:34:56", text: "美股盤前", truncated: false,
                    tapeX: 0, width: width, url: url, seq: 1, listID: 1, listIndex: 1, hasLinkSlot: slot)
     }

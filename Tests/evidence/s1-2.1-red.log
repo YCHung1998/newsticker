@@ -1,0 +1,8 @@
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerCoreTests/ReconfigureTests.swift:17:96: error: cannot find type 'SchedulerTunables' in scope
+    |                                                                                                `- error: cannot find type 'SchedulerTunables' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerCoreTests/ReconfigureTests.swift:17:65: error: cannot find type 'SchedulerTunables' in scope
+    |                                                                 `- error: cannot find type 'SchedulerTunables' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerCoreTests/ReconfigureTests.swift:18:17: error: cannot find 'SchedulerTunables' in scope
+    |                 `- error: cannot find 'SchedulerTunables' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerCoreTests/ReconfigureTests.swift:29:11: error: value of type 'TickerScheduler' has no member 'reconfigure'
+    |           `- error: value of type 'TickerScheduler' has no member 'reconfigure'

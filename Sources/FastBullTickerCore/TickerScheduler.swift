@@ -21,7 +21,31 @@ public struct SchedulerConfig: Sendable {
     public var linkSlotWidth: Double = 0
     /// rebase 後至少保留的已排入訊息數，使 `<` 仍可回溯【假設：64】。
     public var retainPlacedCount: Int = 64
+    /// false 時顯示字串只有 `text`（不含時間字串）；預設 true，行為與加入此欄位之前完全相同。
+    public var showTime: Bool = true
     public init() {}
+}
+
+/// 執行期可變更的欄位（`TickerScheduler.reconfigure`）。刻意只含六個欄位：`gap`、`liveQueueLimit`、`historyLimit`、
+/// `rebaseThreshold` 等維持建構時的值，縮小風險面。
+public struct SchedulerTunables: Sendable, Equatable {
+    public var speed: Double
+    public var viewportWidth: Double
+    public var maxItemWidth: Double
+    public var replayCount: Int
+    public var showTime: Bool
+    public var timeZone: TimeZone
+
+    public init(speed: Double, viewportWidth: Double, maxItemWidth: Double, replayCount: Int, showTime: Bool, timeZone: TimeZone) {
+        self.speed = speed; self.viewportWidth = viewportWidth; self.maxItemWidth = maxItemWidth
+        self.replayCount = replayCount; self.showTime = showTime; self.timeZone = timeZone
+    }
+
+    /// 取目前設定的六個欄位（呼叫端改幾個欄位再傳回 `reconfigure`）。
+    public init(config: SchedulerConfig) {
+        self.init(speed: config.speed, viewportWidth: config.viewportWidth, maxItemWidth: config.maxItemWidth,
+                  replayCount: config.replayCount, showTime: config.showTime, timeZone: config.timeZone)
+    }
 }
 
 public struct PlacedItem: Equatable, Sendable {
@@ -80,9 +104,10 @@ public enum SchedulerEvent: Equatable, Sendable {
 /// - `visualX = tapeX − scrollOffset(tapeTime)`，`scrollOffset = baseOffset + speed × tapeTime`。
 /// - Core 不擁有計時器：呼叫端定期呼叫 `tick()`（pull 模式）。
 public struct TickerScheduler {
-    public let config: SchedulerConfig
+    /// 只有 `reconfigure` 會改變（且只改 `SchedulerTunables` 的六個欄位）。
+    public private(set) var config: SchedulerConfig
     private let clock: () -> Double
-    private let measurer: TextMeasurer
+    private var measurer: TextMeasurer
 
     public private(set) var mode: TickerMode = .replay
     public private(set) var tapeTime: Double = 0
@@ -159,6 +184,27 @@ public struct TickerScheduler {
         guard let item = readingItem else { return nil }
         let total = max(listTotal(of: item.listID) ?? item.listIndex, 1)
         return ReadingPosition(item: item, index: min(item.listIndex, total), total: total)
+    }
+
+    // MARK: 執行期重新設定
+
+    /// 套用 `SchedulerTunables`（不重建排程器）。前置條件同建構時：`speed ≥ 0`、`viewportWidth > 0`、`1 ≤ replayCount ≤ historyLimit`（呼叫端先夾制）。
+    /// - 速度改變保持視覺連續：先以舊速度結算到現在，再調整 `baseOffset`，使 `scrollOffset` 在呼叫前後相同。
+    /// - 已排入訊息的 `tapeX`／`width`／`seq`／文字完全不動；`viewportWidth`／`maxItemWidth`／`showTime`／`timeZone`／measurer
+    ///   只影響之後排入者；`replayCount` 只影響之後的重播取料（游標取模，進行中的一輪不重排）。
+    /// - 隱藏、保持、指標停留、即時佇列、歷史、模式不受影響；隱藏中呼叫合法且不解除凍結。
+    public mutating func reconfigure(_ t: SchedulerTunables, measurer newMeasurer: @escaping TextMeasurer) {
+        precondition(t.speed >= 0 && t.viewportWidth > 0)
+        precondition(t.replayCount > 0 && t.replayCount <= config.historyLimit)
+        advance()                                             // 呼叫之前流逝的時間屬於舊速度（隱藏／停留時不推進）
+        baseOffset += (config.speed - t.speed) * tapeTime     // scrollOffset = baseOffset + speed × tapeTime 前後相同
+        config.speed = t.speed
+        config.viewportWidth = t.viewportWidth
+        config.maxItemWidth = t.maxItemWidth
+        config.replayCount = t.replayCount
+        config.showTime = t.showTime
+        config.timeZone = t.timeZone
+        measurer = newMeasurer
     }
 
     // MARK: 輸入
@@ -265,7 +311,7 @@ public struct TickerScheduler {
     private mutating func place(_ pulled: Pulled, startX: Double) -> PlacedItem {
         let item = pulled.item
         let layout = layoutItem(item, timeZone: config.timeZone, maxWidth: config.maxItemWidth,
-                                linkSlotWidth: config.linkSlotWidth, measurer: measurer)
+                                linkSlotWidth: config.linkSlotWidth, showTime: config.showTime, measurer: measurer)
         let p = PlacedItem(source: item.source, id: item.id, style: pulled.style, timeString: layout.timeString,
                            text: layout.text, truncated: layout.truncated, tapeX: startX, width: layout.width,
                            url: item.url, seq: nextSeq, listID: pulled.listID, listIndex: pulled.listIndex,

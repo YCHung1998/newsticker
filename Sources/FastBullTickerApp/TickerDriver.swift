@@ -81,6 +81,11 @@ public final class TickerDriver {
         self.scheduler = scheduler; self.renderer = renderer
     }
 
+    /// 套用執行期可變設定（速度、可視寬度、訊息量、時間顯示、量測函式）。已排入的訊息不動。
+    public func reconfigure(_ tunables: SchedulerTunables, measurer: @escaping TextMeasurer) {
+        scheduler.reconfigure(tunables, measurer: measurer)
+    }
+
     public var mode: TickerMode { scheduler.mode }
     public var isFrozen: Bool { userHidden || occluded }
 

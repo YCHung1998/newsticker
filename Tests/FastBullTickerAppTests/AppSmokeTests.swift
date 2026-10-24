@@ -267,3 +267,144 @@ import FastBullTickerCore
         #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
     }
 }
+
+// MARK: ticker-style-settings 6.1：樣式的 headless 煙霧測試。執行：swift test --filter AppSmokeStyle
+// 假 helper（暫存目錄的腳本）＋暫存目錄的 StyleStore（假監看器、假時鐘）＋記錄用假 opener。
+// 不開視窗、不碰真實 style.json、不開編輯器。組裝用與 AppDelegate 相同的 `StyleWiring.connect`。
+
+@MainActor
+@Suite struct AppSmokeStyleTests {
+    private final class Rig {
+        let env: StyleEnv
+        let view: TickerView
+        let driver: TickerDriver
+        let applier: StyleApplier
+        let menu: StyleMenuController
+        let runner: StyleActionRunner
+        let opener = RecordingFileOpener()
+        let clock = ManualClock()
+        let log: AppLog
+        let coordinator: AppCoordinator
+
+        @MainActor init(startFile: String? = nil) {
+            env = StyleEnv(inline: true)
+            if let startFile { env.put(startFile) }
+            log = env.log
+            let cfg = ShellConfig.provisional
+            view = TickerView(config: cfg)
+            let clock = self.clock
+            let sched = TickerScheduler(config: cfg.schedulerConfig(timeZone: TimeZone(secondsFromGMT: 0)!), clock: { clock.t }, measurer: view.itemMeasurer)
+            driver = TickerDriver(scheduler: sched, renderer: view)
+            applier = StyleApplier(config: cfg, view: view, driver: driver, log: env.log, timeZone: TimeZone(secondsFromGMT: 0)!)
+            menu = StyleMenuController()
+            runner = StyleActionRunner(store: env.store, opener: opener, log: env.log)
+            coordinator = AppCoordinator(driver: driver, log: env.log)
+            // 與 AppDelegate 相同的順序：載入 → 啟動套用 → 接線 → 開始監看
+            env.store.load()
+            applier.apply(env.store.style, source: "startup")
+            StyleWiring.connect(store: env.store, applier: applier, menu: menu, runner: runner)
+            env.store.startWatching()
+        }
+        var applies: [String] { log.recorded.filter { $0.hasPrefix("style: applied") } }
+    }
+
+    @Test func startupLoadsTheFileAndAppliesThroughTheSamePath() {
+        let r = Rig(startFile: ##"{"fontSize": 20, "scrollSpeed": 150, "showLabel": false, "liveBackground": "#FFE45C", "cornerRadius": 8}"##)
+        #expect(r.env.store.style.fontSize == 20)
+        #expect(r.applier.current == r.env.store.style && r.applies.count == 1 && r.applies[0].contains("source=startup"))
+        let l = r.view.layoutSnapshot
+        #expect(l.labelHidden && l.cornerRadius == 8 && Double(l.clipFrame.maxX) == 520)
+        #expect(r.driver.scheduler.config.speed == 150 && r.driver.scheduler.config.viewportWidth == 520)
+        #expect(r.env.listing == ["style.json"], "啟動只讀不寫（沒有 .bak、沒有暫存檔）")
+    }
+
+    @Test func noFileMeansDefaultStyleAndNothingApplied() {
+        let r = Rig()
+        #expect(r.env.store.style == .default && r.applier.applyCount == 0 && r.applies.isEmpty)
+        #expect(r.driver.scheduler.config.speed == 90 && r.driver.scheduler.config.viewportWidth == 370)
+        #expect(r.env.listing.isEmpty)
+    }
+
+    @Test func editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply() {
+        let r = Rig(startFile: ##"{"fontSize": 16}"##)
+        let before = r.applier.applyCount
+        r.env.put(##"{"fontSize": 16, "liveBackground": "#1E7B3C", "liveText": "#FFFFFF", "scrollSpeed": 200}"##)
+        r.env.fireAndSettle()
+        #expect(r.env.store.style.scrollSpeed == 200 && r.applier.applyCount == before + 1)
+        #expect(r.driver.scheduler.config.speed == 200)
+        #expect(r.applies.last?.contains("source=file") == true && r.applies.last?.contains("changed=[scrollSpeed,liveBackground,liveText]") == true)
+        r.env.fireAndSettle()                               // 同樣內容再來一次事件
+        #expect(r.applier.applyCount == before + 1, "位元組相同不重套")
+    }
+
+    @Test func corruptFileKeepsTheEffectiveStyleAndLogsTheError() {
+        let r = Rig(startFile: ##"{"fontSize": 20}"##)
+        let applies = r.applier.applyCount, speed = r.driver.scheduler.config.speed
+        r.env.put("{ \"fontSize\": ")
+        r.env.fireAndSettle()
+        #expect(r.env.store.style.fontSize == 20 && r.env.store.hasConfigProblem)
+        #expect(r.applier.applyCount == applies && r.driver.scheduler.config.speed == speed && r.applier.current.fontSize == 20)
+        #expect(r.env.logs.contains { $0.hasPrefix("style: error") })
+        r.menu.rebuild()
+        #expect(r.menu.entries.first?.id == "notice", "選單出現提示行")
+        r.env.put(##"{"fontSize": 24}"##); r.env.fireAndSettle()
+        #expect(r.applier.current.fontSize == 24 && !r.env.store.hasConfigProblem)
+        r.menu.rebuild()
+        #expect(r.menu.entries.first?.id == "fontSize")
+    }
+
+    @Test func menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite() {
+        let r = Rig(startFile: ##"{"fontSize": 16}"##)
+        let before = r.applier.applyCount
+        r.runner.run(.setFontSize(24))
+        #expect(r.applier.current.fontSize == 24 && r.applier.applyCount == before + 1 && r.applies.last?.contains("source=menu") == true)
+        r.env.settleWrite()
+        #expect(String(decoding: r.env.bytes ?? Data(), as: UTF8.self).contains("\"fontSize\" : 24"))
+        r.env.fireAndSettle()                               // 自己寫檔觸發的目錄事件
+        #expect(r.applier.applyCount == before + 1, "自寫入不重套")
+        // 選單滑桿拖動：連續多次只寫一次檔
+        let writes = r.env.store.writeCount
+        for v in stride(from: 100.0, through: 160.0, by: 10.0) { r.menu.rebuild(); r.menu.simulateSlider(.scrollSpeed, to: v) }
+        #expect(r.driver.scheduler.config.speed == 160 && r.applier.applyCount == before + 1 + 7)
+        r.env.settleWrite()
+        #expect(r.env.store.writeCount == writes + 1)
+    }
+
+    @Test func menuOpenFileUsesOnlyTheRecordingOpener() {
+        let r = Rig()
+        r.menu.rebuild()
+        let open = r.menu.menu.items.first { $0.title == "開啟樣式設定檔…" }!
+        _ = open.target?.perform(open.action, with: open)
+        #expect(r.opener.opened == [r.env.file] && r.opener.existedAtOpen == [true])
+    }
+
+    @Test func resetFromTheMenuRestoresDefaultsAndKeepsABackup() {
+        let r = Rig(startFile: ##"{"fontSize": 24, "scrollSpeed": 250, "showLabel": false}"##)
+        r.menu.rebuild()
+        let reset = r.menu.menu.items.first { $0.title == "重設為預設" }!
+        _ = reset.target?.perform(reset.action, with: reset)
+        r.env.settleWrite()
+        #expect(r.applier.current == .default && r.driver.scheduler.config.speed == 90 && r.driver.scheduler.config.viewportWidth == 370)
+        #expect(r.env.bakBytes != nil && r.env.bytes == TickerStyle.default.normalizedJSON())
+        #expect(!r.view.layoutSnapshot.labelHidden)
+    }
+
+    @Test func fakeHelperFeedThenStyleChangeKeepsLayersAndPositions() async throws {
+        let r = Rig()
+        let sb = Sandbox()
+        let helper = sb.script("style-helper.sh", "printf '%s\\n' '\(Lines.snapshot)'\nwhile read -r _; do :; done")
+        let client = FeedClient(config: FeedClientConfig(helperURL: helper, pidFileURL: nil), onEvent: AppCoordinator.bridge(to: r.coordinator))
+        client.start()
+        defer { client.shutdown() }
+        #expect(await AppSmokeTests().awaitCondition { r.coordinator.snapshots >= 1 })
+        r.driver.step()
+        for _ in 0..<12 { r.clock.t += 0.5; r.driver.step() }
+        let seqs = r.view.layerSeqs
+        #expect(!seqs.isEmpty)
+        let xs = seqs.map { r.view.layerTapeX(seq: $0) }
+        r.runner.run(.setLivePreset(1)); r.runner.run(.setReplayCount(5)); r.runner.run(.toggleShowTime)
+        #expect(r.view.layerSeqs == seqs && seqs.map { r.view.layerTapeX(seq: $0) } == xs, "樣式變更不使訊息位置跳動、不重建圖層")
+        #expect(r.driver.scheduler.config.replayCount == 5 && !r.driver.scheduler.config.showTime)
+        #expect(r.coordinator.badLines == 0)
+    }
+}

@@ -27,6 +27,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 | 可行性實驗 `spikes/` | **自動部分完成，等你手動操作** | 6 項需人工的實驗尚未執行，結果全是「未執行」 |
 | 建置與簽名、`FeedClient`（`app-shell` 第 A 段：1.1、2.1、2.2） | 已完成（2026-10-24，自動測試通過；尚未接上畫面） | `make helper && make app && make sign` 可產生 ad-hoc 簽名的 `build/FastBullTicker.app`；`FeedClient` 以假 helper 腳本測過，**沒有連正式網站** |
 | 導覽與連結（`ticker-navigation-link`：粗體時間、`(n/N)`、`<` `>`、迴紋針；分支 `change/ticker-navigation-link`，2026-10-25 實作完成） | 已實作，自動測試通過；**未目視驗證，9.1 人工驗收未做**（使用者尚未在機器前確認） | 協定 `url`、Rust 取 `data-href`、Core `seek`／閱讀位置、控制列與迴紋針渲染、命中測試、`WorkspaceURLOpener`；點迴紋針會真的開啟瀏覽器，**自動測試從未開過瀏覽器**；細節見第 5.4 節 |
+| 樣式設定（`ticker-style-settings`：圓角、即時／重播配色、字級、捲動速度、訊息量、時間／標籤顯示、標籤文字；`style.json` 熱重載＋選單列「樣式」子選單；分支 `change/ticker-style-settings`，2026-10-25 實作完成） | 已實作，自動測試通過；**未目視驗證，8.1 人工驗收未做**（圓角、配色、字級的實際觀感、滑桿手感、編輯器熱重載相容性都只有自動測試與離屏 PNG） | `TickerStyle`／`StyleParser`、Core `reconfigure`、`StyleStore`（原子寫回、`.bak`、目錄監看）、外觀套用、「樣式」子選單；不改設定時畫面與原型一致（以測試斷言，**未目視比對**）；細節見第 5.5 節 |
 | App 視窗、選單列、渲染（`app-shell` 第 B 段：3.1–4.2） | 已實作（2026-10-24，自動測試通過；**未目視驗證**） | 面板／選單／渲染的 level、collectionBehavior 等為**暫定值**，尚未通過全螢幕可見性實驗（S1）；離線示範 helper 見第 4.3 節 |
 
 ## 3. 環境需求
@@ -93,7 +94,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`main` 較少）
+make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段後為 410 個、S2 段後為 471 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
@@ -116,7 +117,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 - 螢幕上方中間出現一條約 620×42 的浮動帶子；最左邊是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，中間是由右向左捲動的訊息（可視寬度 370pt），**最右端是 100pt 的控制列：`<`、`(n/N)`、`>`**【假設，待你看實物後確認；替代方案為加寬面板】。每則訊息開頭的時間是**粗體**，有連結的訊息最右側有**迴紋針**。
 - 重播訊息：**黑底白字**；即時訊息：**白底黑字**；每則前面有 `HH:mm:ss`（本機時區）。
 - 剛啟動先是重播（最新 10 則循環）；示範 helper 約 8 秒後送來新訊息，輪到它時會以白底黑字出現；這些即時訊息播完後回到黑底白字的重播，如此循環。因為訊息要排隊接在前一則後面，所以即時訊息不會在到達的瞬間出現，要等前面已排上帶子的訊息讓出位置（未量測實際延遲）。
-- 選單列有報紙圖示：透明度滑桿（下限 30%【假設】）、隱藏／顯示、點穿模式、結束；在帶子上按右鍵是同一份選單。拖曳帶子移動位置；重啟後回到同一個螢幕位置與透明度。點穿模式每次啟動都是關。
+- 選單列有報紙圖示：透明度滑桿（下限 30%【假設】）、隱藏／顯示、點穿模式、**樣式**（子選單，見第 5.5 節）、結束；在帶子上按右鍵是同一份選單。拖曳帶子移動位置；重啟後回到同一個螢幕位置與透明度。點穿模式每次啟動都是關。
 
 | 項目 | 狀態 |
 |---|---|
@@ -137,11 +138,12 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 
 ```sh
 sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過
-swift test                               # 309 個（含 N3 段）
+swift test                               # 471 個（N3 段 309 個 + ticker-style-settings S1 段 101 個 + S2 段 61 個）
+python3 Tests/s2-mutations.py            # 樣式套用／選單／組裝的 mutation（約 36 組；日誌 Tests/evidence/s2-mutations*.log）
 python3 Tests/shell-mutations.py         # 15 組破壞→變紅→還原
 ```
 
-開發／除錯用環境變數（皆為 2026-10-24 自訂的**【假設】**，正式 bundle 不依賴）：`FASTBULL_TICKER_HELPER`（覆寫 helper 路徑）、`FASTBULL_TICKER_LOG`（日誌路徑，預設 `~/Library/Application Support/FastBullTicker/app.log`）、`FASTBULL_TICKER_AUTOQUIT_SECONDS`（N 秒後自動結束）。pid file 位於 `~/Library/Application Support/FastBullTicker/helper.pid`（**【假設】**）。
+開發／除錯用環境變數（皆為 2026-10-24 自訂的**【假設】**，正式 bundle 不依賴）：`FASTBULL_TICKER_HELPER`（覆寫 helper 路徑）、`FASTBULL_TICKER_LOG`（日誌路徑，預設 `~/Library/Application Support/FastBullTicker/app.log`）、`FASTBULL_TICKER_AUTOQUIT_SECONDS`（N 秒後自動結束）、`FASTBULL_TICKER_STYLE`（樣式檔的完整路徑，預設 `~/Library/Application Support/FastBullTicker/style.json`；測試與試用請指到暫存檔，不要動你真正的設定）。pid file 位於 `~/Library/Application Support/FastBullTicker/helper.pid`（**【假設】**）。
 
 ## 5. 操作（設計意圖；未目視驗證）
 
@@ -176,6 +178,60 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 
 離屏渲染檢查（**不是實機畫面**）：`Tests/evidence/n3-panel-offscreen.png` 是把 `TickerView` 的圖層樹畫成 PNG（`N3_SNAPSHOT_DIR=<目錄> swift test --filter PanelSnapshot` 可重新輸出），我看過該圖：時間為粗體、迴紋針出現在有連結訊息的右側、右端控制列顯示 `<`、`(4/10)`、`>`。
 
+### 5.5 樣式設定（`ticker-style-settings`，設計意圖；**未目視驗證**）
+
+兩條入口，改的是同一份資料：**選單列圖示 →「樣式」子選單**（快速），或**直接編輯 `style.json`**（完整）。操作立即生效、寫回檔案；用編輯器改檔存檔後約 0.3 秒熱重載。**不改設定時，畫面與原型一致**（`TickerStyle.default` 與原型逐項相同，以自動測試斷言；實機未目視比對）。
+
+| 「樣式」子選單項目 | 內容 | 生效方式 |
+|---|---|---|
+| 字級 | 小 13／標準 16（預設）／大 20／特大 24 pt【假設】；手動編輯成別的值（如 17）時四項都不打勾 | **只影響之後才排入的訊息**；畫面上已有的訊息維持舊字級直到捲出（約數秒到十數秒） |
+| 捲動速度 | 滑桿 20–300 px/s（預設 90），旁邊顯示整數值 | 即時，所有訊息位置在變更瞬間不跳動 |
+| 訊息量 | 5／10（預設）／20 則；即重播的 N，也是 `(n/N)` 的 N | 之後的重播取料；進行中的一輪不重排 |
+| 圓角 | 滑桿 0–21 pt（預設 0＝直角，與原型相同） | 即時；整個面板（含標籤與控制列）一起裁成圓角 |
+| 即時配色 | 白底黑字（預設）、黃底黑字 `#FFE45C`／`#000000`、綠底白字 `#1E7B3C`／`#FFFFFF`【假設，色碼待你看實物決定】；只改即時的兩個色，不動重播配色 | 即時；畫面上已有的訊息就地重繪（位置與寬度不變） |
+| 顯示時間／顯示標籤 | 勾選 | 顯示時間：只影響之後排入的訊息；顯示標籤：即時，**畫面上已有的訊息會整體左移一個標籤寬（150pt）**，帶子可視寬度由 370 增為 520 |
+| 開啟樣式設定檔… | 以系統預設應用程式開啟 `style.json`（不存在就先用目前樣式建立）；被開啟的是**編輯器**成為前景，本 App 不會被啟用 | — |
+| 重設為預設 | 先把現有檔案備份為 `style.json.bak`，再寫入預設值並套用；**沒有確認對話框，`.bak` 就是復原手段** | 即時 |
+| （設定檔有誤時）灰色提示行 | 「設定檔有誤，沿用上次有效值」 | — |
+
+選單操作不開任何視窗、不用對話框、不啟用 App。選單每次展開前都依目前生效的樣式更新勾選與滑桿位置（所以手動改檔、熱重載之後再展開，看到的是最新值）。
+
+**`style.json`**（`~/Library/Application Support/FastBullTicker/style.json`；啟動時**不會**自動建立，按「開啟樣式設定檔…」或操作選單後才會出現）。缺的鍵用預設值、未知鍵會被忽略（日誌有警告），所以可以只寫要改的欄位：
+
+| 鍵 | 型別 | 預設 | 合法範圍 | 說明 |
+|---|---|---|---|---|
+| `version` | 整數 | `1` | 僅 `1` | 其他值或非整數＝整份檔案無法解讀 |
+| `cornerRadius` | 數字（pt） | `0` | `0`–`21` | 越界夾到邊界 |
+| `fontSize` | 數字（pt） | `16` | `10`–`26` | 只影響之後排入的訊息 |
+| `scrollSpeed` | 數字（px/s） | `90` | `20`–`300` | |
+| `replayCount` | 整數 | `10` | `3`–`30` | `10.0` 視為 10，`10.5` 非法 |
+| `showTime` | 布林 | `true` | — | 只影響之後排入的訊息 |
+| `showLabel` | 布林 | `true` | — | |
+| `labelText` | 字串 | `即時財經快訊` | 1–16 個字 | 前後空白修剪；空則用預設；超過 16 字截斷；標籤寬 150pt 約容 8–9 個中文字，更長以「…」截尾（**未目視驗證**） |
+| `labelBackground` | 色彩 | `#D91A21` | `#RRGGBB` | 標籤底色 |
+| `labelColor` | 色彩 | `#FFFFFF` | `#RRGGBB` | 標籤文字色 |
+| `tapeBackground` | 色彩 | `#17171A` | `#RRGGBB` | 訊息之間空隙的底色 |
+| `liveBackground` | 色彩 | `#FFFFFF` | `#RRGGBB` | 即時訊息底色 |
+| `liveText` | 色彩 | `#000000` | `#RRGGBB` | 即時訊息文字色 |
+| `replayBackground` | 色彩 | `#000000` | `#RRGGBB` | 重播訊息底色 |
+| `replayText` | 色彩 | `#FFFFFF` | `#RRGGBB` | 重播訊息文字色 |
+
+```json
+{ "fontSize": 20, "scrollSpeed": 120, "cornerRadius": 10, "liveBackground": "#FFE45C", "liveText": "#000000", "replayCount": 20 }
+```
+
+規則：色彩只接受 `#` 加 6 個十六進位字元（大小寫皆可），`red`、`#FFF`、`#FFE45C80`、`FFE45C` 都算非法（該欄位用預設值並記警告）；欄位型別錯誤同樣用預設值並記警告（例如 `"fontSize": "16"`）；對比度低於 4.5 只記警告、照常套用。**色碼以 macOS 的 Generic RGB 色彩空間解讀**（原型的標籤紅與空隙底色就是這樣建構的；改用 sRGB 解讀時預設的紅色會明顯偏離原型，實測數字見 `Tests/README.md`）；視覺上與一般網頁色碼的差異未目視比對。
+
+- **熱重載**：監看 `style.json` 所在目錄，存檔後 0.3 秒內合併處理。位元組相同、或解析後與生效樣式相同都不重套；改檔後的暫時狀態（寫到一半的不合法 JSON）**整份保留舊樣式**，日誌寫 `style: error …`，選單出現提示行，下一次存成合法內容就恢復。檔案被刪除時保留目前樣式（要回預設請用「重設為預設」）。TextEdit、`vim`、VS Code 的存檔方式（寫暫存檔再改名取代）已用「改名取代」的自動測試涵蓋，**實際編輯器的行為未目視／未實測**。
+- **寫回**：選單操作立即套用，0.5 秒 debounce 後以「暫存檔＋取代」原子寫入，輸出為正規化格式（鍵排序、縮排、大寫色碼）。**限制**：寫回會丟掉檔案中的註解（JSON 本來就沒有）與未知鍵；因此磁碟上現有檔案「無法解讀」、含未知鍵、或有欄位會被改寫（夾制／型別錯誤／非法色碼）時，寫回前會先複製成 `style.json.bak`。
+- **重設**：選單「重設為預設」，或自己刪掉／改寫檔案。
+
+日誌（`FASTBULL_TICKER_LOG`）中以 `style:` 開頭的行：載入結果、`style: applied source=startup|file|menu changed=[…] viewport=… redrew=<重繪的訊息圖層數> redrawMs=<毫秒>`、警告與錯誤、寫回、備份。**重繪成本沒有在實機量測**，`redrawMs` 就是為了讓你看日誌時能判斷。
+
+離屏渲染檢查（**不是實機畫面**）：`Tests/evidence/s2-*.png`（`S2_SNAPSHOT_DIR=<目錄> swift test --filter StyleSnapshotTests` 可重新輸出）：預設、特大字級、圓角 21、黃底黑字、隱藏標籤、組合；我看過這些圖，內容見 `Tests/README.md` S2 段。
+
+已知限制與待確認：字級／顯示時間不重排畫面上已有的訊息（Core 不變量：排入後 `tapeX`／寬度不變），所以改字級後會有一段新舊字級並存；切換「顯示標籤」時畫面上已有的訊息會整體平移 150pt（一次性跳動，**未目視驗證**）；圓角外是透明的，**圓角外的區域不能拖曳／點擊**（視窗本身仍是矩形，這個行為未實測）；寫回會丟註解與未知鍵（見上）；預設圓角為 0（直角），若你想要預設就有圓角需另行決定；三組即時配色的色碼、字級與訊息量檔位、各欄位範圍、0.3／0.5 秒 debounce、Generic RGB 解讀色碼，皆為**【假設】**。
+
 ### 5.3 已知風險（尚未驗證）
 
 - **蓋過全螢幕 App 沒有官方保證**：Apple 文件只定義各視窗旗標的語意，沒有保證組合效果；開發者論壇有人回報類似設定在全螢幕 Space 看不到視窗（我們沒有核對那些回報）。必須先做第 4.2 節的實驗。
@@ -187,14 +243,16 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 
 ## 6. 驗證
 
-下表的數字是 2026-10-25 在分支 `change/ticker-navigation-link`（N3 段完成後）實際重跑的結果。你可以自己重現：
+下表的數字是 2026-10-25 在分支 `change/ticker-style-settings`（S2 段完成後）實際重跑的結果（協定、抓取程式與 Core 以外的數字見各列）。你可以自己重現：
 
 | 範圍 | 指令 | 結果 | 測試檔 |
 |---|---|---|---|
 | 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
 | 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
-| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N3 段後 `swift test` 全部 309 個通過、48 個 suite（Core + App；N2 為 269，N3 新增 40 個） | `Tests/FastBullTickerCoreTests/*.swift` |
-| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 309 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
+| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N3 段後 `swift test` 全部 309 個通過、48 個 suite（Core + App；N2 為 269，N3 新增 40 個）；`change/ticker-style-settings` S1 段後 410 個、55 個 suite（新增 101 個：Core 25〔`ReconfigureTests` 19 + `TickerLayoutTests` 4 + `SchedulerInvariantTests` 2〕、App 76〔`TickerStyleTests` 15 + `StyleParserTests` 25 + `StyleStoreTests` 檔 36〕） | `Tests/FastBullTickerCoreTests/*.swift` |
+| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
+| 樣式設定（`ticker-style-settings` S2 段） | `swift test`（全部）；`swift test --filter StyleApply`／`StyleMenu`／`StyleAction`／`AppSmokeStyle`／`StyleSnapshotTests` | 全部 **471 個、65 個 suite：470 個通過、1 個失敗**。失敗的是 `TickerStyleTests.defaultsAgreeWithShellConfigPrototypeConstants`：工作樹裡有不屬於本 change 的未提交修改 `ShellConfig.itemPadding` 14→10（原型值 14），這條斷言正是為此存在；S2 新增的 61 個全部通過。需你決定保留 10 還是還原 14 | `Tests/FastBullTickerAppTests/StyleApplyTests.swift`、`StyleMenuTests.swift`、`StyleSnapshotTests.swift`、`AppSmokeTests.swift`；細節見 `Tests/README.md` S2 段 |
+| 樣式 mutation | `python3 Tests/s2-mutations.py` | 36 組破壞全部變紅（D1 第一輪存活，補測試後補跑變紅；M11 以測試行程崩潰的形式被偵測到） | `Tests/evidence/s2-mutations.log` |
 | 示範 helper 協定 | `python3 Tests/demo-helper-protocol-check.py` | 實跑 6.5 秒，所有輸出行通過協定驗證（含 `url`）；snapshot 12 則中 8 則帶 `url` | `Tests/demo-helper-protocol-check.py` |
 | N3 mutation | `python3 Tests/n3-mutations.py` | 22 組破壞全部變紅（第一輪 A1 存活，加強測試後補跑變紅），還原後 309 個全綠 | `Tests/evidence/n3-mutations.log` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
@@ -217,6 +275,7 @@ Rust 與 Swift 兩端都讀同一份 `protocol/fixtures/manifest.json`：合法�
 
 - Swift 視窗行為（`NSPanel`、選單列、`performDrag`、`displayLink`）：**已實際啟動過（受控日誌，面板屬性值正確、不 crash），但沒有人目視過畫面**；全螢幕可見性、不搶焦點、選單展開不斷料皆未驗證。
 - 自動化測試**絕不連正式網站**；唯一一次連線是手動跑 35 秒，得到 1 則 snapshot（20 則）與 1 則心跳。當時沒有 VPN 或 Proxy。
+- 樣式設定的實際觀感（圓角、配色、字級、滑桿手感）、`style.json` 對 TextEdit／`vim`／VS Code 存檔方式的熱重載相容性、選單展開 60 秒不斷料、「開啟樣式設定檔…」開啟的編輯器、已在畫面上的訊息就地重繪的實際成本：**皆未驗證**（只有自動測試與離屏 PNG）；`AppDelegate` 裡的正式監看器與正式 opener 沒有被任何測試執行過。
 - 記憶體與 CPU 的目標（App ≤35MB、helper ≤15MB）是**【假設】**，還沒有量過基準。
 
 ---
@@ -272,6 +331,7 @@ flowchart LR
 | 4 | `show-engine-core` | 完成 |
 | 5 | `app-shell` | 第 A 段（1.1、2.1、2.2）與第 B 段（3.1–4.2）已實作，共 7／12；5.1–5.4 為人工驗收，未做 |
 | 6 | `ticker-navigation-link` | 1.1–8.1 與 10.1 已實作（9／10 項；N1–N3 三段）；**9.1 人工驗收未做**，未 archive；分支 `change/ticker-navigation-link`，尚未合併進 `main` |
+| 7 | `ticker-style-settings` | 1.1–7.1 與 9.1 已實作（8／9 項；S1、S2 兩段）；**8.1 人工驗收未做**，未 archive；分支 `change/ticker-style-settings` |
 
 版本控管規則見 `CLAUDE.md` 的「Git workflow」：一個 change 一條 `change/<名稱>` 分支，驗證後用 `--no-ff` 合併進 `main`，不 force-push。
 

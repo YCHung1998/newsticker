@@ -1,0 +1,123 @@
+Building for debugging...
+[0/4] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.17s)
+Test Suite 'Selected tests' started at 2026-10-25 00:36:04.653.
+Test Suite 'FastBullTickerPackageTests.xctest' started at 2026-10-25 00:36:04.655.
+Test Suite 'FastBullTickerPackageTests.xctest' passed at 2026-10-25 00:36:04.655.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-10-25 00:36:04.655.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite SchedulerInvariantTests started.
+◇ Suite TickerLayoutTests started.
+◇ Suite ReconfigureTests started.
+◇ Suite LinkSlotLayoutTests started.
+◇ Suite FreezeResumeTests started.
+◇ Test invariantsHoldWithRuntimeReconfigure() started.
+◇ Test invariantsHoldOverLongRandomRun() started.
+◇ Test differentSeedsAlsoHold() started.
+◇ Test utcFormat() started.
+◇ Test utc8Format() started.
+◇ Test negativeOffsetTimezone() started.
+◇ Test widthComesFromMeasurer() started.
+◇ Test enlargingViewportFillsToNewRightEdgeWithGap() started.
+◇ Test identicalTunablesChangeNothing() started.
+◇ Test widthAddsSlotAndFlagsIt() started.
+◇ Test sameSeedIsDeterministic() started.
+◇ Test tunablesExposeExactlySixFields() started.
+◇ Test showTimeFalseTruncationHasNoTimePrefix() started.
+◇ Test truncatesWithEllipsisKeepingLongestPrefix() started.
+◇ Test reconfigureSeedsAlsoHold() started.
+◇ Test hugeTextTruncatesWithFewMeasurements() started.
+◇ Test ellipsisDoesNotFitStillReturnsTimeAndEllipsis() started.
+◇ Test showTimeFalseWithLinkSlotStillReservesSlot() started.
+◇ Test holdIsUnaffectedBySpeedChange() started.
+◇ Test showTimeDefaultsToTrueAndIsIdentical() started.
+◇ Test timeZoneAffectsOnlyLaterItems() started.
+◇ Test showTimeFalseDisplaysOnlyText() started.
+◇ Test truncationBudgetSubtractsSlot() started.
+◇ Test zeroPaddedAnd24Hour() started.
+◇ Test placedItemsUnchangedAndNewOnesUseNewTunables() started.
+◇ Test cjkVersusLatinTruncateDifferently() started.
+◇ Test noTruncationAtExactlyMaxWidth() started.
+◇ Test shrinkingViewportDoesNotRemoveOrMove() started.
+◇ Test rebaseAfterReconfigureKeepsVisualPositions() started.
+◇ Test doesNotSplitGraphemeClusters() started.
+◇ Test reconfigureWhileHiddenIsLegalAndKeepsFrozenTime() started.
+◇ Test timeStringIsNeverTruncated() started.
+◇ Test timeElapsedBeforeReconfigureIsCountedAtOldSpeed() started.
+◇ Test speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed() started.
+◇ Test shrinkingReplayCountMidRoundDoesNotCrashAndCyclesOnlyLatest() started.
+◇ Test schedulerConfigShowTimeDefaultsTrue() started.
+◇ Test showTimeFalseInConfigPlacesTextOnly() started.
+◇ Test repeatedShowIsIdempotent() started.
+◇ Test withoutURLOrWithZeroSlotIsIdenticalToBefore() started.
+◇ Test reconfigureKeepsModeQueueAndFixedFields() started.
+◇ Test speedToZeroAndBackIsContinuous() started.
+◇ Test resumesFromFrozenTapeTime() started.
+◇ Test repeatedHideIsIdempotent() started.
+◇ Test hideAccruesTimeUpToHideMoment() started.
+◇ Test hiddenFlagFollowsHideShow() started.
+◇ Test hiddenDoesNotFillButQueueKeepsLiveItems() started.
+◇ Test seekAfterSpeedChangeAlignsTargetToLeftEdge() started.
+◇ Test hideForOneHourDoesNotJump() started.
+◇ Test growingReplayCountUsesMoreHistoryLater() started.
+◇ Test reconfigureTogglesShowTimeForLaterItemsOnly() started.
+✔ Test utcFormat() passed after 0.003 seconds.
+✔ Test negativeOffsetTimezone() passed after 0.003 seconds.
+✔ Test widthAddsSlotAndFlagsIt() passed after 0.003 seconds.
+✔ Test utc8Format() passed after 0.003 seconds.
+✔ Test widthComesFromMeasurer() passed after 0.003 seconds.
+✔ Test truncatesWithEllipsisKeepingLongestPrefix() passed after 0.003 seconds.
+✔ Test showTimeFalseTruncationHasNoTimePrefix() passed after 0.003 seconds.
+✔ Test tunablesExposeExactlySixFields() passed after 0.003 seconds.
+✔ Test showTimeFalseWithLinkSlotStillReservesSlot() passed after 0.003 seconds.
+✔ Test ellipsisDoesNotFitStillReturnsTimeAndEllipsis() passed after 0.003 seconds.
+✔ Test showTimeFalseDisplaysOnlyText() passed after 0.003 seconds.
+✔ Test identicalTunablesChangeNothing() passed after 0.003 seconds.
+✔ Test showTimeDefaultsToTrueAndIsIdentical() passed after 0.003 seconds.
+✔ Test holdIsUnaffectedBySpeedChange() passed after 0.003 seconds.
+✔ Test zeroPaddedAnd24Hour() passed after 0.003 seconds.
+✔ Test truncationBudgetSubtractsSlot() passed after 0.003 seconds.
+✔ Test timeZoneAffectsOnlyLaterItems() passed after 0.003 seconds.
+✔ Test noTruncationAtExactlyMaxWidth() passed after 0.003 seconds.
+✔ Test rebaseAfterReconfigureKeepsVisualPositions() passed after 0.003 seconds.
+✔ Test shrinkingViewportDoesNotRemoveOrMove() passed after 0.003 seconds.
+✔ Test doesNotSplitGraphemeClusters() passed after 0.003 seconds.
+✔ Test timeStringIsNeverTruncated() passed after 0.003 seconds.
+✔ Test speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed() passed after 0.003 seconds.
+✔ Test reconfigureWhileHiddenIsLegalAndKeepsFrozenTime() passed after 0.003 seconds.
+✔ Test timeElapsedBeforeReconfigureIsCountedAtOldSpeed() passed after 0.003 seconds.
+✔ Test shrinkingReplayCountMidRoundDoesNotCrashAndCyclesOnlyLatest() passed after 0.003 seconds.
+✔ Test schedulerConfigShowTimeDefaultsTrue() passed after 0.003 seconds.
+✔ Test showTimeFalseInConfigPlacesTextOnly() passed after 0.003 seconds.
+✔ Test repeatedShowIsIdempotent() passed after 0.003 seconds.
+✔ Test withoutURLOrWithZeroSlotIsIdenticalToBefore() passed after 0.003 seconds.
+✔ Test reconfigureKeepsModeQueueAndFixedFields() passed after 0.003 seconds.
+✔ Test speedToZeroAndBackIsContinuous() passed after 0.003 seconds.
+✔ Test resumesFromFrozenTapeTime() passed after 0.003 seconds.
+✔ Test repeatedHideIsIdempotent() passed after 0.003 seconds.
+✔ Test hiddenFlagFollowsHideShow() passed after 0.003 seconds.
+✔ Test hideAccruesTimeUpToHideMoment() passed after 0.003 seconds.
+✔ Test seekAfterSpeedChangeAlignsTargetToLeftEdge() passed after 0.003 seconds.
+✔ Test hiddenDoesNotFillButQueueKeepsLiveItems() passed after 0.003 seconds.
+✔ Test hideForOneHourDoesNotJump() passed after 0.003 seconds.
+✔ Test growingReplayCountUsesMoreHistoryLater() passed after 0.003 seconds.
+✔ Test reconfigureTogglesShowTimeForLaterItemsOnly() passed after 0.003 seconds.
+✔ Suite LinkSlotLayoutTests passed after 0.004 seconds.
+✔ Suite FreezeResumeTests passed after 0.004 seconds.
+✔ Test placedItemsUnchangedAndNewOnesUseNewTunables() passed after 0.005 seconds.
+✔ Test enlargingViewportFillsToNewRightEdgeWithGap() passed after 0.005 seconds.
+✔ Test cjkVersusLatinTruncateDifferently() passed after 0.005 seconds.
+✔ Suite ReconfigureTests passed after 0.006 seconds.
+✔ Test hugeTextTruncatesWithFewMeasurements() passed after 0.031 seconds.
+✔ Suite TickerLayoutTests passed after 0.031 seconds.
+✔ Test sameSeedIsDeterministic() passed after 0.452 seconds.
+✔ Test invariantsHoldOverLongRandomRun() passed after 1.045 seconds.
+✔ Test invariantsHoldWithRuntimeReconfigure() passed after 1.146 seconds.
+✔ Test differentSeedsAlsoHold() passed after 1.188 seconds.
+✔ Test reconfigureSeedsAlsoHold() passed after 1.263 seconds.
+✔ Suite SchedulerInvariantTests passed after 1.264 seconds.
+✔ Test run with 50 tests in 5 suites passed after 1.264 seconds.
