@@ -1,0 +1,5 @@
+$ swift test --filter TickerLayoutTests
+✘ Test run with 12 tests in 1 suite failed after 0.003 seconds with 23 issues.
+✘ Test cjkVersusLatinTruncateDifferently() recorded an issue at TickerLayoutTests.swift:66:9: Expectation failed: (a.truncated → false) && (c.truncated → <not evaluated>)
+✘ Test cjkVersusLatinTruncateDifferently() recorded an issue at TickerLayoutTests.swift:68:9: Expectation failed: (c.text.count → 0) < (a.text.count → 0)
+✘ Test cjkVersusLatinTruncateDifferently() recorded an issue at TickerLayoutTests.swift:69:9: Expectation failed: (a.text.count → 0) != (c.text.count → 0)

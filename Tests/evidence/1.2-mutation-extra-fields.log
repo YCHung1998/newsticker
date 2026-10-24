@@ -1,0 +1,4 @@
+$ swift test --filter ContractFixturesTests
+✘ Suite ContractFixturesTests failed after 0.038 seconds with 2 issues.
+✘ Test everySampleMatchesManifest() recorded an issue at ContractFixturesTests.swift:81:44: Issue recorded
+✘ Test run with 4 tests in 1 suite failed after 0.038 seconds with 2 issues.

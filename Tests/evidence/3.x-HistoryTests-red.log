@@ -1,0 +1,4 @@
+$ swift test --filter HistoryTests
+✘ Test run with 10 tests in 1 suite failed after 0.001 seconds with 15 issues.
+✘ Test duplicateKeyUpdatesHistoryButIsNotQueuedAgain() recorded an issue at HistoryTests.swift:24:9: Expectation failed: (ev → []) == ([.duplicatesSkipped(count: 1)] → [FastBullTickerCore.SchedulerEvent.duplicatesSkipped(count: 1)
+✘ Test duplicateKeyUpdatesHistoryButIsNotQueuedAgain() recorded an issue at HistoryTests.swift:27:9: Expectation failed: (s.latestItems.first?.text → nil) == "NEW!"

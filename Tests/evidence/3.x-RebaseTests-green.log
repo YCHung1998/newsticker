@@ -1,0 +1,2 @@
+$ swift test --filter RebaseTests
+✔ Test run with 5 tests in 1 suite passed after 0.033 seconds.

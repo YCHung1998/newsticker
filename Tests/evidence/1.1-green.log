@@ -1,0 +1,9 @@
+Build complete! (0.18s)
+◇ Test importCheckerDetectsBannedImports() started.
+◇ Test checkerFailsOnMissingDirectory() started.
+✔ Test coreReportsProtocolVersion() passed after 0.001 seconds.
+✔ Test checkerFailsOnMissingDirectory() passed after 0.001 seconds.
+✔ Test coreSourcesDoNotImportUIFrameworks() passed after 0.002 seconds.
+✔ Test importCheckerDetectsBannedImports() passed after 0.004 seconds.
+✔ Suite PackageSkeletonTests passed after 0.004 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.005 seconds.

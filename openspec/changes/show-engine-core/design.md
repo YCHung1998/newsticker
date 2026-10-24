@@ -18,10 +18,10 @@
 1. **tape 座標加純函數位移**。`visualX = tapeX − scrollOffset(tapeTime)`，`scrollOffset = baseOffset + speed × tapeTime`。替代：逐幀累加位置。選前者因為凍結／恢復／rebase 都只是改 `tapeTime` 或對 `baseOffset` 與 `tapeX` 同加 delta，沒有累積誤差，且同時相容 displayLink（每幀查位移）與線性 `CABasicAnimation`（以 `speed` 與起點建動畫）。
 2. **補料位置固定為「尾端 + gap」**，而非「補料當下的右緣」。使 tick 頻率不影響版面，測試可決定性重現。代價：tick 太晚時訊息可能已部分進入視窗（由 `app-shell` 保證 tick 夠密；Core 不處理）。
 3. **供料器 pull 模式**：`tick()` 讀時鐘、更新 tape 時間、補料並回傳新排入的訊息。替代：計時器推送。選前者因為 Core 不擁有計時器（選單展開時 timer 斷料問題屬 S3 與 `app-shell`）。
-4. **「佇列播完」＝佇列被取空**（最後一則即時訊息排入帶子）才回 REPLAY。替代：等最後一則捲出視窗。選前者因為尾端接續才符合「接在尾端已排入最後一則後面」且避免空白帶；列為【待確認】。
+4. **「佇列播完」＝佇列被取空**（最後一則即時訊息排入帶子）才回 REPLAY。替代：等最後一則捲出視窗。選前者因為尾端接續才符合「接在尾端已排入最後一則後面」且避免空白帶；列為【假設】（使用者 2026-10-24 維持暫定）。
 5. **歷史獨立於即時佇列**。即時訊息同時進歷史，故佇列溢出丟最舊（A7）不損失重播資料。去重鍵 `source`＋`id`。
 6. **時間與量測注入**：時鐘、時區、measurer 皆為協定／閉包注入，禁止 Core 讀系統狀態。
-7. **解碼嚴格性集中單一位置**：message-contract 的未決項（額外欄位、空 items、空 text、順序、1MB 位元組數）在 Swift 端各只有一個常數／開關，契約測試以 manifest 為唯一預期，確認後單點翻轉。
+7. **解碼嚴格性集中單一位置**：message-contract 的決定（額外欄位、空 items、空 text、順序、1MB 位元組數；2026-10-24 已決定）在 Swift 端集中於 `ProtocolRules`，契約測試以 manifest 為唯一預期。
 8. **Package.swift 放倉庫根目錄**【假設】，使測試以相對路徑定位 `protocol/fixtures/`；不複製 fixtures。
 9. **Core 內部用 Double**，渲染端自行轉 Float32；rebase 閾值判斷以純函數提供。
 
@@ -29,20 +29,18 @@
 
 - [message-contract 未決項導致 Swift 行為日後翻轉] → 單點常數加 manifest 驅動測試；tasks 要求在回報中列出依賴項。
 - [message-contract 尚未 apply，fixtures 不存在] → 契約測試 task 以其 apply 為前提，缺檔時測試失敗而非略過。
-- [「佇列播完」詮釋錯誤] → 列待確認；狀態機判定集中在一個函式，易改。
-- [LIVE 是否顯示時間未定，影響量測寬度] → Core 以含時間量測，列待確認；若最終不顯示時間，需調整顯示字串組裝並更新測試。
+- [「佇列播完」詮釋錯誤] → 列為假設；狀態機判定集中在一個函式，易改。
+- [LIVE 是否顯示時間] → 已決定（2026-10-24）顯示，LIVE 與 REPLAY 皆以含時間的顯示字串量測。
 - [最大訊息寬度來源未定] → 做成注入設定，不寫死。
 
-## Open Questions（待釐清）
+## Open Questions（2026-10-24 決定紀錄與剩餘假設）
 
-與 `message-contract` 未決項有關（Swift 解碼行為依賴，不在此拍板）：
-- 空 `items` 是否合法（暫定非法）。
-- 順序違規（snapshot 非新到舊／items 非舊到新）是拒絕、警告或不檢查；是否有 `order` 原因類別。
-- 發送端遇不合格 item 的警告 `status` 之 `state` 值（Swift 端只能接受 `ok`／`error`）。
-- `text` 是否可為空字串。
-- 「1MB」精確位元組數（暫定 1,048,576，以位元組計）。
-- 額外欄位是否允許（暫定不允許）。
-- 空行與 EOF 殘留半行的處置；非 UTF-8 的原因類別；manifest 欄位名稱與程式產生樣本的描述方式。
+已決定（2026-10-24，與 `protocol/` 已實作內容一致）：
+- 空 `items` 非法；順序違規拒絕，原因類別 `order`（相鄰相等合法）；`text` 不得為空；額外欄位不允許；`status.message` 在 `ok` 時可為空；單行上限 1,048,576 位元組（以位元組計，恰為上限合法）；空行 → `not_json`；非 UTF-8 → `not_json`；`v`=1；manifest 格式以 `protocol/fixtures/manifest.json` 為準。
+- 整則所有 item 合法才接受，任一非法整則非法；發送端（Rust helper）負責先過濾不合格 item 並另發 `status`（`state: error`），Core 不處理混有非法 item 的容錯。
+- 即時訊息也顯示時間（LIVE 與 REPLAY 皆含 `HH:mm:ss`，時區仍為【假設 A4】）。
+- 最大訊息寬度為注入參數 `maxItemWidth`（預設 600 為【假設】）。
+- 中途 `snapshot` 視為重設基準（取代歷史，不觸發 LIVE、不清佇列與帶子）；snapshot 之前收到 `items` 忽略並回報錯誤事件（細節為【假設】）。
 
-本 change 自身：
-- 最大訊息寬度的數值／來源；LIVE 是否顯示時間；「佇列播完」詮釋；中途 `snapshot` 與 snapshot 前 `items` 的處置；去重；Package.swift 位置；macOS 14 最低版本（使用者待確認）；A1–A8 皆為【假設】，使用者尚未逐條確認。
+仍為【假設】（使用者維持暫定，未升級）：
+- 「佇列播完」＝供料器補料時即時佇列已空；EOF 殘留半行不輸出；Core 以 `source`＋`id` 防禦性去重；`Package.swift` 放倉庫根目錄；macOS 14 最低部署目標；Swift 6 語言模式；`maxItemWidth` 預設值；`historyLimit`（200）；超長行事件於 0x0A 到達時輸出；A1–A8 維持原樣標示。

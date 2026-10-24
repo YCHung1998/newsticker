@@ -1,0 +1,4 @@
+$ swift test --filter FreezeResumeTests
+✘ Test run with 7 tests in 1 suite failed after 0.006 seconds with 8 issues.
+✘ Test hiddenDoesNotFillButQueueKeepsLiveItems() recorded an issue at FreezeResumeTests.swift:51:9: Expectation failed: (s.liveQueueCount → 0) == 1
+✘ Test hiddenDoesNotFillButQueueKeepsLiveItems() recorded an issue at FreezeResumeTests.swift:54:9: Expectation failed: (p.count == 1 && p[0].id == "11" → false) && (p[0].style == .live → <not evaluated>)

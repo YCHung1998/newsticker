@@ -20,7 +20,7 @@
 - **THEN** 輸出的行序列 SHALL 與一次整段餵入相同
 
 ### Requirement: 單行上限與超長行處理
-單行長度（不含 0x0A，以位元組計）超過上限時，`LineBuffer` SHALL 丟棄該行並輸出一個超長錯誤事件（含已丟棄位元組數或等價資訊），並 MUST 繼續處理後續行，不得終止串流。超長行 MUST NOT 被完整累積在記憶體中（超過上限後只計數、丟棄位元組，直到下一個 0x0A）。上限數值取自 message-contract 的單行上限【待確認：「1MB」精確位元組數；message-contract 暫定 1,048,576 位元組，Swift 端依賴該決定，上限須為單一常數】。恰等於上限的行 SHALL 照常輸出。
+單行長度（不含 0x0A，以位元組計）超過上限時，`LineBuffer` SHALL 丟棄該行並輸出一個超長錯誤事件（含已丟棄位元組數或等價資訊），並 MUST 繼續處理後續行，不得終止串流。超長行 MUST NOT 被完整累積在記憶體中（超過上限後只計數、丟棄位元組，直到下一個 0x0A）。上限數值取自 message-contract 的單行上限 1,048,576 位元組【已決定 2026-10-24，見 `protocol/fixtures/manifest.json` 的 `max_line_bytes`；上限為單一常數 `ProtocolRules.maxLineBytes`】。超長錯誤事件於該行的 0x0A 到達時輸出一次，並帶整行位元組數【假設：事件輸出時機與內容由 apply 決定，規格原只要求「已丟棄位元組數或等價資訊」】。恰等於上限的行 SHALL 照常輸出。
 
 #### Scenario: 恰為上限
 - **WHEN** 餵入長度恰為上限的一行加 0x0A
@@ -46,7 +46,7 @@
 - **THEN** SHALL 得到 A 的訊息、X 的 `not_json` 錯誤、B 的訊息，順序不變
 
 ### Requirement: 空行與串流結尾的處置
-空行（連續兩個 0x0A）與串流結束時未以 0x0A 結尾的尾端半行，其處置 SHALL 為：`LineBuffer` 照實輸出空行（長度 0）；結束時未完成的半行 MUST NOT 被當成完整行輸出。【待確認：message-contract 規定每行以 0x0A 結尾，但未規定空行是 `not_json` 還是忽略、未規定 EOF 殘留半行的處置；本規格暫定「空行交解碼器判為 `not_json`、EOF 殘留不輸出」，待 message-contract 決定】
+空行（連續兩個 0x0A）與串流結束時未以 0x0A 結尾的尾端半行，其處置 SHALL 為：`LineBuffer` 照實輸出空行（長度 0）；結束時未完成的半行 MUST NOT 被當成完整行輸出。空行交解碼器判為 `not_json`（與 manifest 樣本 `not-json-empty-line` 一致）；EOF 殘留不輸出【假設：沿用提案暫定值，使用者 2026-10-24 確認維持暫定，仍標假設】
 
 #### Scenario: 空行
 - **WHEN** 餵入 `a\n\nb\n`

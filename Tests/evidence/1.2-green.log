@@ -1,0 +1,6 @@
+$ swift test --filter ProtocolDecodingTests
+✔ Suite ProtocolDecodingTests passed after 0.003 seconds.
+✔ Test run with 19 tests in 1 suite passed after 0.003 seconds.
+$ swift test --filter ContractFixturesTests
+✔ Suite ContractFixturesTests passed after 0.048 seconds.
+✔ Test run with 4 tests in 1 suite passed after 0.048 seconds.

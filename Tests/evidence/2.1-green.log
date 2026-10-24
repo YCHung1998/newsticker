@@ -1,0 +1,2 @@
+$ swift test --filter LineBufferTests
+✔ Test run with 13 tests in 1 suite passed after 0.168 seconds.

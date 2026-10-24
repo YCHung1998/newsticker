@@ -1,0 +1,5 @@
+$ swift test --filter RebaseTests
+error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/
+Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range
+✘ Test keepsTailAndContinuesFillingWithGapLikeControl() recorded an issue at RebaseTests.swift:42:9: Expectation failed: (!pa.isEmpty → false) && (pa.count == pb.count → <not evaluated>)
+✘ Test rebaseDoesNotChangeModeQueueOrOrder() recorded an issue at RebaseTests.swift:75:9: Expectation failed: (placed.prefix(2).map(\.id) → []) == ["11", "12"]
