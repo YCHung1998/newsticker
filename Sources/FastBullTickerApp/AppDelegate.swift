@@ -20,6 +20,8 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var feedTimer: Timer?
     private var statsTimer: Timer?
     private var observers: [NSObjectProtocol] = []
+    private var occlusion: OcclusionDebouncer?
+    private var logNextFrameAfterThaw = false
 
     public init(config: ShellConfig = .provisional,
                 environment: [String: String] = ProcessInfo.processInfo.environment) {
@@ -84,13 +86,30 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
                 if f != panel.frame { panel.setFrame(f, display: true); self.log.write("screens changed: reclamped frame=\(NSStringFromRect(f))") }
             }
         })
+        // 遮蔽：原始狀態變化先經防抖器（吸收切換 Space 轉場的翻動）；凍結／解凍只動 driver，
+        // 絕不重設 frame／alpha／layers，也不呼叫 orderFront*（避免任何「重新呈現」）。
+        let debouncer = OcclusionDebouncer(confirmDelay: config.occludedConfirmDelay) { [weak self] decision in
+            guard let self else { return }
+            switch decision {
+            case .confirmedOccluded: self.driver?.setOccluded(true)
+            case .thawed: self.logNextFrameAfterThaw = true; self.driver?.setOccluded(false)
+            case .cancelled: break
+            }
+            self.log.write("occlusion: decision=\(decision) \(self.diagState())")
+        }
+        occlusion = debouncer
+        view.onLinkPauseChange = { [weak self] paused in self?.log.write("displayLink: \(paused ? "paused" : "resumed")") }
         observers.append(nc.addObserver(forName: NSWindow.didChangeOcclusionStateNotification, object: panel, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, let panel = self.panel, !(self.menu?.isHidden ?? false) else { return }
+                guard let self, let panel = self.panel else { return }
                 let visible = panel.occlusionState.contains(.visible)
-                self.driver?.setOccluded(!visible)
-                self.log.write("occlusion: visible=\(visible)")
+                self.log.write("occlusion: raw visible=\(visible) state=\(panel.occlusionState.rawValue) userHidden=\(self.menu?.isHidden ?? false) \(self.diagState())")
+                guard !(self.menu?.isHidden ?? false) else { return }   // 使用者手動隱藏時不處理遮蔽（維持既有行為）
+                self.occlusion?.note(visible: visible)
             }
+        })
+        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.log.write("space: activeSpaceDidChange \(self?.diagState() ?? "")") }
         })
 
         panel.present()
@@ -116,7 +135,23 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// 診斷快照：scheduler tape 時間與面板 frame／alpha（用於判斷凍結／解凍時有沒有跳動）。
+    private func diagState() -> String {
+        let tape = driver.map { String(format: "%.3f", $0.scheduler.tapeTime) } ?? "-"
+        let off = driver.map { String(format: "%.1f", $0.scheduler.scrollOffset) } ?? "-"
+        let f = panel.map { NSStringFromRect($0.frame) } ?? "-"
+        let a = panel.map { String(format: "%.2f", Double($0.alphaValue)) } ?? "-"
+        return "tape=\(tape) offset=\(off) frame=\(f) alpha=\(a)"
+    }
+
     private func step() {
+        if logNextFrameAfterThaw {
+            logNextFrameAfterThaw = false
+            driver?.step()
+            log.write("firstFrameAfterThaw: \(diagState())")
+            coordinator?.noteMode()
+            return
+        }
         driver?.step()
         coordinator?.noteMode()
     }

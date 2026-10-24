@@ -43,6 +43,8 @@ public struct ShellConfig: Sendable {
     /// 與 `SchedulerConfig` 對應：捲動速度 px/s（固定常數，目測調整）。
     public var scrollSpeed: Double
     public var screenMargin: CGFloat
+    /// 「不可見」須持續超過此秒數才凍結（遮蔽防抖，吸收切換 Space 轉場的狀態翻動）【假設】。
+    public var occludedConfirmDelay: TimeInterval
 
     public static let provisional = ShellConfig(
         level: .statusBar,
@@ -61,7 +63,8 @@ public struct ShellConfig: Sendable {
         persistDebounce: 0.5,
         feedInterval: 0.1,
         scrollSpeed: 90,   // 【假設】目測調整；60 時單則約 9–10 秒才走完，8 秒一則的示範會一直堆積在 LIVE
-        screenMargin: 8
+        screenMargin: 8,
+        occludedConfirmDelay: 1.0
     )
 
     /// 帶子可視寬度（扣掉標籤）。

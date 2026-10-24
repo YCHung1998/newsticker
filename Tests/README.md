@@ -180,3 +180,15 @@ FASTBULL_TICKER_AUTOQUIT_SECONDS=14 build/FastBullTicker.app/Contents/MacOS/Fast
   `level=25` 是 `.statusBar` 的 rawValue。行程結束後無 FastBullTicker／demo-helper 殘留。
 - **未目視驗證**（我看不到畫面）：帶子與紅色標籤是否真的出現在螢幕上、文字內容與顏色、捲動是否平順、拖曳、選單列圖示與選單、右鍵選單、透明度視覺、隱藏／顯示、點穿、全螢幕是否可見、不搶焦點、位置重啟後是否還原、中文字型。日誌中的 `occlusion: visible=true` 只表示系統認為面板可見。
 - 15 秒內沒有看到 LIVE→REPLAY 的真機日誌（第 1 次有）；最終 build 的回到重播由 `DemoCadenceTests` 以假時鐘驗證。
+
+## 切換 Space 閃爍修復：遮蔽防抖（2026-10-24，分支 `fix/space-switch-flash`）
+
+**未目視驗證**：以下只證明防抖邏輯正確；是否真的消除閃爍，待使用者目視確認並提供日誌（見 `README.md` 5.3）。
+
+- 實作：`Sources/FastBullTickerApp/OcclusionDebouncer.swift`（純 Foundation，可注入排程器）；延遲 `ShellConfig.provisional.occludedConfirmDelay = 1.0`【假設】。
+- 測試：`Tests/FastBullTickerAppTests/OcclusionDebouncerTests.swift`（10 個，假時鐘，不開視窗）。
+  重現：`swift test --filter Occlusion`
+- fail-then-pass：`python3 Tests/occlusion-mutations.py`，輸出存於 `Tests/evidence/occlusion-mutations.log`。
+  O1「沒有防抖（延遲 0）」→ 紅（5 個測試失敗，含 `briefInvisibilityUnderOneSecondNeverFreezes`、`flappingSequenceUnderOneSecondNeverFreezes`）；
+  O2 變回可見不取消 → 紅（4 個）；O3 不解凍 → 紅（2 個）；O4 重複通知重設計時 → 紅（1 個）；O5 設定延遲 0 → 紅（1 個）；還原後 10 個全綠。
+- 使用者手動隱藏維持立即：`userHiddenFreezesImmediatelyAndIsNotAffectedByDebounce`（driver 層）；既有 `hiddenFreezesAndResumesWithoutJump` 仍綠。

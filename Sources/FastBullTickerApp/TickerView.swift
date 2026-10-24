@@ -49,6 +49,8 @@ public final class TickerView: NSView, TickerRenderer {
 
     /// 逐幀回呼（由 App 設為 `driver.step`）。
     public var onFrame: (() -> Void)?
+    /// 診斷用：displayLink 暫停／恢復時回報（不影響行為）。
+    public var onLinkPauseChange: ((Bool) -> Void)?
     /// 右鍵選單（與選單列同一份）。
     public var contextMenu: NSMenu?
     public private(set) var frameCallbacks = 0
@@ -136,8 +138,10 @@ public final class TickerView: NSView, TickerRenderer {
     }
 
     public func setPaused(_ paused: Bool) {
+        let changed = self.paused != paused
         self.paused = paused
         link?.isPaused = paused
+        if changed { onLinkPauseChange?(paused) }
     }
 
     // MARK: displayLink
