@@ -7,12 +7,12 @@ MUST 定義 `TickerRenderer` 協定，消費 `show-engine-core` 的 `TickerSched
 - **WHEN** 以假 Scheduler 輸出驅動 Renderer 的測試實作
 - **THEN** 呼叫序列（加入訊息、設定位移、凍結、恢復）SHALL 與預期一致
 
-### Requirement: 依 spike 決定選擇渲染實作
-正式實作 MUST 為 `spikes/RESULTS.md` 決定章節所選方案（A：`NSView.displayLink`，逐幀依 tape 時間設 container layer 位置；B：單一線性 `CABasicAnimation`）。另一案 MUST NOT 同時進入正式專案。是否採用 30fps（`preferredFrameRateRange`）、長句是否切塊 MUST 依決定章節。此需求被 spike S4 決定阻塞。
+### Requirement: 渲染實作（暫定 displayLink，待 S4 決定確認）
+（2026-10-24 修訂【假設】）在決定章節確認前，暫定實作 MUST 為方案 A（`NSView.displayLink`），決定章節確認後 MUST 為其所選方案（A：`NSView.displayLink`，逐幀依 tape 時間設 container layer 位置；B：單一線性 `CABasicAnimation`）。另一案 MUST NOT 同時進入正式專案。是否採用 30fps（`preferredFrameRateRange`）、長句是否切塊 MUST 依決定章節。此需求不再被阻塞，改為暫定實作（待 spike S4 決定確認後調整）。
 
 #### Scenario: 與決定一致
 - **WHEN** 檢查正式專案
-- **THEN** 渲染實作 SHALL 與決定章節方案相同，決定章節 SHALL 含 A、B 兩案數字
+- **THEN** 決定章節確認前渲染實作 SHALL 為方案 A 並標示暫定；確認後 SHALL 與決定章節方案相同，決定章節 SHALL 含 A、B 兩案數字
 
 ### Requirement: 每則訊息預渲染為 bitmap
 每則訊息 MUST 預渲染成 bitmap layer（避免每幀重繪文字）。bitmap 寬度超過紋理上限（設計文件記憶約 16384px，待 S4 實測）時 MUST 切塊，切塊接縫 MUST 無可見縫隙（目視）。是否需切塊依 S4 結果。

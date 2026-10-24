@@ -1,0 +1,42 @@
+
+== make helper app sign
+PASS: make helper app sign
+
+== bundle 內容
+build/FastBullTicker.app/Contents/_CodeSignature/CodeResources
+build/FastBullTicker.app/Contents/Info.plist
+build/FastBullTicker.app/Contents/MacOS/FastBullTicker
+build/FastBullTicker.app/Contents/MacOS/ticker-connect
+PASS: 主執行檔存在
+PASS: helper 存在且可執行
+
+== Info.plist
+  "CFBundleExecutable" => "FastBullTicker"
+  "LSMinimumSystemVersion" => "14.0"
+  "LSUIElement" => true
+PASS: LSUIElement => true
+
+== codesign 驗證（簽名後）
+PASS: codesign --verify --strict -vv bundle
+PASS: codesign --verify --strict -vv helper
+
+== Makefile 不得出現遞迴簽名旗標
+PASS: grep 無結果
+
+== fail-then-pass：改 helper 一個位元組
+PASS: 改位元組後 codesign --verify 失敗（紅）（如預期失敗）
+  codesign 輸出: build/FastBullTicker.app/Contents/MacOS/ticker-connect: invalid signature (code or signature have been modified) In architecture: arm64 
+PASS: 重新 make sign 後 verify 通過（綠）
+
+== 還原乾淨 bundle
+PASS: 重建完成
+
+== helper 在 bundle 內可啟動（不連網：stdin EOF 應立即結束）
+exit code=0 elapsed=0s
+PASS: EOF 後立即結束
+
+== 主執行檔可啟動（空殼）
+FastBullTicker shell (Core protocol v1)
+PASS
+
+ALL PASS

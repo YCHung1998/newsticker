@@ -1,0 +1,7 @@
+# DemoCadenceTests.eightSecondCadenceCyclesReplayLiveReplayRepeatedly 的 fail-then-pass（2026-10-24）
+# 紅：ShellConfig.provisional.scrollSpeed = 60
+$ swift test --filter DemoCadence
+✘ Expectation failed: (liveToReplay → 1) >= 3
+↳ modes=[replay, live, replay, live]          # 240 秒內只回到重播 1 次：8 秒一則的新訊息一直堆積在 LIVE
+# 綠：scrollSpeed = 90
+✔ Test eightSecondCadenceCyclesReplayLiveReplayRepeatedly() passed

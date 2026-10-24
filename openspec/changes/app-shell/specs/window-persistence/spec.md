@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
 ### Requirement: 存檔內容
-`Persistence` MUST 儲存：螢幕 UUID（`CGDisplayCreateUUIDFromDisplayID`）、面板相對該螢幕的偏移、透明度。MUST NOT 儲存點穿狀態。儲存媒介使用 UserDefaults 或單一 plist/JSON 檔【待確認】。
+`Persistence` MUST 儲存：螢幕 UUID（`CGDisplayCreateUUIDFromDisplayID`）、面板相對該螢幕的偏移、透明度。MUST NOT 儲存點穿狀態。儲存媒介使用 UserDefaults 或單一 plist/JSON 檔【待確認】（2026-10-24 暫定實作：UserDefaults【假設】）。
 
 #### Scenario: 往返
 - **WHEN** 存入螢幕 UUID、偏移 (120, 40)、透明度 0.6 再讀出
 - **THEN** SHALL 得到相同值（單元測試，檔案位置可注入）
 
 ### Requirement: 以 didMoveNotification 存位置並 debounce
-位置存檔 MUST 聽 `NSWindow.didMoveNotification` 並 debounce（間隔【待確認】，暫定 0.3–1 秒），MUST NOT 依賴 mouse-up。拖曳過程中的連續事件 MUST 合併成一次寫入。
+位置存檔 MUST 聽 `NSWindow.didMoveNotification` 並 debounce（間隔【待確認】，暫定 0.3–1 秒；2026-10-24 實作取 0.5 秒【假設】），MUST NOT 依賴 mouse-up。拖曳過程中的連續事件 MUST 合併成一次寫入。
 
 #### Scenario: 連續移動
 - **WHEN** 在 100ms 內送出 50 次 didMove

@@ -11,16 +11,16 @@
 - **WHEN** 使用者切換到其他 App
 - **THEN** 面板 SHALL 仍然可見（`hidesOnDeactivate` 為 false）
 
-### Requirement: level 與 collectionBehavior 引用 spike 決定
-面板的 `level`、`collectionBehavior`（含 `canJoinAllApplications` 有無、是否保留 `.stationary`）MUST 逐項等於 `spikes/RESULTS.md` 決定章節的「最終組合」，並 MUST 能對應到 S1 的某個 PASS 格代號；本 change MUST NOT 自行選擇這些值，MUST NOT 使用 `.screenSaver` level。設計文件 5.2 的候選 `[.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]` 僅為 spike 的起點，不是本規格的決定。若決定章節狀態為「待使用者決策」，本需求對應任務 MUST 保持阻塞。
+### Requirement: level 與 collectionBehavior（暫定值，待 spike 決定確認）
+面板的 `level`、`collectionBehavior`（含 `canJoinAllApplications` 有無、是否保留 `.stationary`）**（2026-10-24 修訂【假設】）暫定實作先行**：在 `spikes/RESULTS.md` 決定章節經使用者確認前，MUST 使用暫定值——level `.statusBar`、collectionBehavior `[.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]`、`canJoinAllApplications` 先不加（待 S1）——集中於 `ShellConfig`，並標示「暫定（待 spike 決定確認後調整）」。決定章節確認後 MUST 逐項等於其「最終組合」並對應 S1 的 PASS 格代號。MUST NOT 使用 `.screenSaver` level。暫定值不代表已通過 S1。
 
-#### Scenario: 與決定逐項一致
+#### Scenario: 與決定逐項一致（決定章節確認後）
 - **WHEN** 檢查 `ShellConfig` 與 `RESULTS.md` 決定章節
 - **THEN** level、collectionBehavior OptionSet、`canJoinAllApplications` 三者 SHALL 逐項相同，且 RESULTS 引用的格代號存在
 
 #### Scenario: 決定尚未產出
 - **WHEN** `RESULTS.md` 決定章節缺漏或標「待使用者決策」
-- **THEN** 不得實作此需求，tasks 對應項目 SHALL 維持阻塞
+- **THEN** SHALL 使用暫定值實作，`ShellConfig` 與文件 SHALL 標示「暫定（待 spike 決定確認後調整）」，5.3 SHALL 仍須補驗
 
 ### Requirement: Accessory App 且永不啟用
 App MUST 為 accessory（Info.plist `LSUIElement=YES`，無 Dock 圖示）。程式碼 MUST NOT 呼叫 `NSApp.activate` 或 `NSApplication.activate(ignoringOtherApps:)`，MUST NOT 呼叫 `makeKeyAndOrderFront` 以外會令 App 啟用的 API 來顯示面板（顯示面板用 `orderFrontRegardless`）。
@@ -41,7 +41,7 @@ App MUST 為 accessory（Info.plist `LSUIElement=YES`，無 Dock 圖示）。程
 - **THEN** 面板 frame.origin SHALL 隨滑鼠移動，frontmost App SHALL 不變
 
 ### Requirement: 整條帶子以 window alphaValue 調整透明度
-整條帶子（含文字）的透明度 MUST 由 window `alphaValue` 控制；背景 MUST 為純色，MUST NOT 使用 `NSVisualEffectView` 或毛玻璃。滑桿下限 MUST 約為 20–30%（確切值【待確認】），使帶子不致完全看不見。
+整條帶子（含文字）的透明度 MUST 由 window `alphaValue` 控制；背景 MUST 為純色，MUST NOT 使用 `NSVisualEffectView` 或毛玻璃。滑桿下限 MUST 約為 20–30%（確切值【待確認】；2026-10-24 實作取 30%【假設】），使帶子不致完全看不見。
 
 #### Scenario: 透明度範圍
 - **WHEN** 滑桿拖到最小

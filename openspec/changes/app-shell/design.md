@@ -13,7 +13,7 @@
 
 ## Decisions
 
-1. **被 spike 決定的值集中成一個 `ShellConfig`（名稱暫定）**：level、collectionBehavior、渲染方案旗標、計時器種類、是否切塊。實作時由 `spike-decisions` 的最終組合逐項填入；任一項尚未被使用者確認，對應任務保持阻塞。理由：避免自行猜測，也讓日後修正只改一處。
+1. **被 spike 決定的值集中成一個 `ShellConfig`（名稱暫定）**：level、collectionBehavior、渲染方案旗標、計時器種類、是否切塊。實作時由 `spike-decisions` 的最終組合逐項填入；尚未被使用者確認的項目以「暫定值」填入（見第 8 點），確認後只改此處。理由：讓日後修正只改一處。
 2. **`FeedClient` 以可注入的 helper 路徑與時鐘建構**：生產用 `Bundle.main.url(forAuxiliaryExecutable:)`，環境變數可覆寫（開發用）；測試傳入假 helper 腳本與假時鐘。理由：設計文件 5.3 要求假 helper 整合測試。
 3. **generation token**：每次啟動 helper 遞增；`terminationHandler`、`readabilityHandler`、卡死計時器的回呼都帶 token，與當前不符即忽略。理由：避免舊行程事件汙染新行程狀態。
 4. **卡死判定**：閾值 = 心跳間隔（設計文件 3 節：至少每 30 秒）× 3 = 至少 90 秒；任何 stdout 位元組都重置計時；`NSWorkspace.didWakeNotification` 後給寬限期（長度【待確認】，暫定 ≥ 一個心跳間隔×3 的重新起算）。
@@ -23,7 +23,7 @@
 
 ## Risks / Trade-offs
 
-- [spike 決定未出] → 相關任務被阻塞，不以暫定值提前實作；`ShellConfig` 欄位先留空並使編譯失敗，而非預設猜值。
+- [spike 決定未出] → （2026-10-24 修訂）不再阻塞，改為「暫定實作」：`ShellConfig` 以設計文件預設值填入並於程式與文件標示「暫定（待 spike 決定確認後調整）」。風險：暫定值可能在全螢幕不可見或搶 Focus；以 5.3 在正式 `.app` 補驗，不成立即回報為對暫定值的修正。
 - [正式 bundle 與 spike 環境不同] → 驗收項 `app-acceptance` 補驗 S1／S2／S3／S4 的核心結論；若結論不成立，列為對 spike 決定的修正並回報使用者。
 - [人工驗收多] → tasks 逐項標明硬體與前提；無硬體則該格標「未執行：無硬體」，不得標通過。
 - [tasks 容量] → 本 change 已逼近 12 項上限；若 apply 時發現放不下，建議拆為 `app-shell-feed`（`FeedClient`＋假 helper 驗收）與 `app-shell-ui`（面板、選單、持久化、渲染、打包）。
@@ -31,3 +31,21 @@
 ## Open Questions
 
 見各 spec 內標【待確認】項：寬限期長度、lock/pid file 位置、滑桿下限（20% 或 30%）、jitter 比例、不可恢復錯誤的完整分類、`ShellConfig` 與 Core API 的實際型別名稱（待 `show-engine-core` apply 後對齊）、App bundle identifier 與名稱。
+
+## 2026-10-24 補充決定
+
+8. **【假設】暫定實作先行**：協調者依使用者「繼續完成後續」的指示（使用者尚未逐項確認）決定：3.2 PanelShell、3.3 StatusMenu、4.1 TickerRenderer 先用設計文件預設值實作。暫定值：level `.statusBar`、collectionBehavior `[.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]`（`canJoinAllApplications` 先不加，待 S1）、渲染 `NSView.displayLink`（macOS 14+）、補料計時器 `.common` mode。spike 決定出來後只替換 `ShellConfig` 常數或渲染實作；5.3 仍須在簽名 `.app` 補驗。
+9. **權限最小化**：不使用 sudo、不需輔助使用／螢幕錄製權限；簽名只做 ad-hoc（`codesign --sign -`），不 notarize、不沙盒。
+10. **FeedClient 暫定值（沿用並維持【假設】）**：卡死閾值 = 3×心跳 = 90 秒；退避 1→60 秒、±20% jitter；結束逾時 2 秒；喚醒寬限 = 重新起算一個完整卡死閾值（90 秒）；pid／lock file 位於 `~/Library/Application Support/FastBullTicker/`（`helper.pid`）；helper 路徑覆寫環境變數 `FASTBULL_TICKER_HELPER`（本次自訂，記於 README）；不可恢復錯誤 = 找不到檔、無執行權限、`Process.run()` 拋錯（含簽名被拒）。
+11. **協議依已實作的 `protocol/`、`ticker-connect/`**：單向 JSON-lines；`status` 至少每 30 秒（退避期間仍發）；stdin EOF 立即結束。
+12. **App 側 library target `FastBullTickerApp`**（可 import Foundation／AppKit）承載 `FeedClient` 等，供測試；`FastBullTickerCore` 維持不 import AppKit。
+
+## 2026-10-24 補充決定（apply 第 B 段）
+
+13. **失敗歸因規則（沿用 spikes）**：「平台限制」才可記為已知限制；「我方實作錯誤」必須修正。
+14. **【假設】透明度**：滑桿下限 0.3（規格區間 20–30%）、預設 0.9；範圍集中於 `ShellConfig.alphaRange`。位置存檔 debounce 0.5 秒（規格區間 0.3–1 秒）。儲存媒介 UserDefaults（鍵：`panel.placement`、`panel.alpha`）。點穿狀態不在 `PersistenceStore` 介面內，無法被持久化。
+15. **【假設】外觀**：初始 620×42；左側標籤寬 150pt、紅色斜切、文字「即時財經快訊」（來自使用者提供的參考截圖，未核對原圖）；重播黑底白字、即時白底黑字，均含 `HH:mm:ss`（本機時區）；字型 PingFang TC 16pt；單則左右留白 14pt；捲動速度 90 px/s（60 時 8 秒一則的示範訊息會一直堆積在 LIVE，見 `Tests/evidence/demo-cadence.log`）。
+16. **渲染與補料**：`TickerView` 兼任暫定方案 A 的 `TickerRenderer`；`displayLink` 逐幀與 `.common` mode 的 0.1 秒 `Timer` 都呼叫同一個冪等的 `TickerDriver.step()`，使選單展開（event tracking）時仍不斷料。遮蔽（`didChangeOcclusionStateNotification`）與使用者隱藏以 OR 合併成「凍結」。
+17. **結束流程（真機發現）**：`applicationShouldTerminate` 回傳 `.terminateLater` 再用 `DispatchQueue.main.async { NSApp.reply(...) }` 回覆，App **不會結束**（2026-10-24 第一次真機日誌：helper 已收尾、App 仍存活）。改為在主執行緒以 semaphore 等待 `FeedClient.shutdown`（最多約 6 秒）後回傳 `.terminateNow`。此為我方實作問題，已修正並再次真機確認。
+18. **除錯用環境變數**：`FASTBULL_TICKER_LOG`（日誌路徑，預設 `~/Library/Application Support/FastBullTicker/app.log`）、`FASTBULL_TICKER_AUTOQUIT_SECONDS`（N 秒後自動結束，供受控啟動驗證）。
+19. **離線示範 helper** `scripts/demo-helper.sh`：協定 v1；snapshot 12 則、每 8 秒一則 items、每 25 秒一則 status、stdin EOF 即結束；以 `FASTBULL_TICKER_HELPER` 指定。

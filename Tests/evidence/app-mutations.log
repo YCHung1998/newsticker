@@ -1,0 +1,34 @@
+[M1 退避不設上限] filter='BackoffPolicyTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['doublesFromOneAndCapsAtSixty', 'jitterIsWithinPlusMinusTwentyPercent']
+  ['✘ Test run with 4 tests in 1 suite failed after 0.002 seconds with 2 issues.']
+[M2 退避永不重置] filter='FeedClientTests|BackoffPolicyTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['backoffResetsOnlyAfterStableRunOverSixtySeconds', 'resetsOnlyWhenStableLongerThanSixtySeconds']
+  ['✘ Test run with 14 tests in 3 suites failed after 1.513 seconds with 3 issues.']
+[M3 EOF 不清除 handler 也不關 fd] filter='PipeReaderTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['eofClearsHandlerAndStopsInvocations']
+  ['✘ Test run with 1 test in 1 suite failed after 0.318 seconds with 2 issues.']
+[M4 忽略 generation token] filter='staleGenerationEventsAreIgnored'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['staleGenerationEventsAreIgnored']
+  ['✘ Test run with 1 test in 1 suite failed after 0.526 seconds with 2 issues.']
+[M5 輸出不重置卡死計時] filter='FeedClientResilience'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['anyOutputResetsTheTimerEvenWithoutStatus', 'partialLineBytesCountAsAlive']
+  ['✘ Test run with 13 tests in 1 suite failed after 1.830 seconds with 2 issues.']
+[M6 忽略喚醒寬限] filter='wake'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['wakeGivesAFreshGracePeriod', 'wakeNotificationFromWorkspaceCenterReachesClient']
+  ['✘ Test run with 2 tests in 1 suite failed after 0.390 seconds with 2 issues.']
+[M7 不可恢復錯誤也進退避重啟] filter='missingExecutableIsFatalWithSingleAttempt|nonExecutableIsFatalWithoutBackoffLoop'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['missingExecutableIsFatalWithSingleAttempt', 'nonExecutableIsFatalWithoutBackoffLoop']
+  ['✘ Test run with 2 tests in 1 suite failed after 49.175 seconds with 4 issues.']
+[M8 逾時後不送 SIGTERM] filter='shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof']
+  ['✘ Test run with 1 test in 1 suite failed after 21.216 seconds with 3 issues.']
+[M9 stderr 不讀走] filter='stderrFloodDoesNotBlockHelper'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['stderrFloodDoesNotBlockHelper']
+  ['✘ Test run with 1 test in 1 suite failed after 20.026 seconds with 2 issues.']
+[M10 不處理 pid file 遺留的舊 helper] filter='staleOrphanHelperIsKilledBeforeNewOneStarts'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['staleOrphanHelperIsKilledBeforeNewOneStarts']
+  ['✘ Test run with 1 test in 1 suite failed after 0.275 seconds with 3 issues.']
+[M11 結束時不關 stdin] filter='shutdownClosesStdinAndCooperativeHelperIsNotSigtermed'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['shutdownClosesStdinAndCooperativeHelperIsNotSigtermed']
+  ['✘ Test run with 1 test in 1 suite failed after 10.221 seconds with 1 issue.']
+[還原後] rc=0 ['✔ Test run with 27 tests in 4 suites passed after 2.391 seconds.']
