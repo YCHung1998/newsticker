@@ -388,6 +388,119 @@
       ]
     },
     {
+      "name": "items-with-url",
+      "file": "valid/items-with-url.jsonl",
+      "expect": "accept",
+      "covers": [
+        "url_items"
+      ]
+    },
+    {
+      "name": "snapshot-with-url",
+      "file": "valid/snapshot-with-url.jsonl",
+      "expect": "accept",
+      "covers": [
+        "url_snapshot"
+      ]
+    },
+    {
+      "name": "items-url-mixed",
+      "file": "valid/items-url-mixed.jsonl",
+      "expect": "accept",
+      "covers": [
+        "url_mixed"
+      ]
+    },
+    {
+      "name": "items-url-max-length",
+      "file": "valid/items-url-max-length.jsonl",
+      "expect": "accept",
+      "covers": [
+        "url_max_length"
+      ]
+    },
+    {
+      "name": "item-url-js-scheme",
+      "file": "invalid/item-url-js-scheme.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_js_scheme"
+      ]
+    },
+    {
+      "name": "item-url-ftp-scheme",
+      "file": "invalid/item-url-ftp-scheme.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_ftp_scheme"
+      ]
+    },
+    {
+      "name": "item-url-empty",
+      "file": "invalid/item-url-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_empty"
+      ]
+    },
+    {
+      "name": "item-url-too-long",
+      "file": "invalid/item-url-too-long.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_too_long"
+      ]
+    },
+    {
+      "name": "item-url-null",
+      "file": "invalid/item-url-null.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_null"
+      ]
+    },
+    {
+      "name": "item-url-number",
+      "file": "invalid/item-url-number.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_number"
+      ]
+    },
+    {
+      "name": "item-url-relative",
+      "file": "invalid/item-url-relative.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_relative"
+      ]
+    },
+    {
+      "name": "item-url-has-space",
+      "file": "invalid/item-url-has-space.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_has_space"
+      ]
+    },
+    {
+      "name": "item-url-trailing-newline",
+      "file": "invalid/item-url-trailing-newline.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "url_trailing_newline"
+      ]
+    },
+    {
       "name": "generated-at-limit",
       "generate": {
         "kind": "padded_items",

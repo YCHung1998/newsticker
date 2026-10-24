@@ -175,8 +175,8 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 
 | 範圍 | 指令 | 結果 | 測試檔 |
 |---|---|---|---|
-| 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 11 個通過 | `protocol/tests/test_contract.py` |
-| 抓取程式（Rust） | `cd ticker-connect && cargo test` | 65 個通過 | `ticker-connect/tests/*.rs` |
+| 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
+| 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
 | 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite | `Tests/FastBullTickerCoreTests/*.swift` |
 | App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 128 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |

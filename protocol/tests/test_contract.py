@@ -1,5 +1,6 @@
 """契約參考驗證測試。執行：python3 -m unittest discover -s protocol/tests -v"""
 import copy
+import json
 import os
 import sys
 import unittest
@@ -8,6 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import refcheck  # noqa: E402
 from jsonschema.validators import Draft202012Validator  # noqa: E402
 
+_MISSING = object()
 FIXDIR = os.path.join(refcheck.HERE, "fixtures")
 
 # 必要涵蓋類別（見 contract-fixtures spec「fixtures 涵蓋合法與非法樣本」）。
@@ -19,6 +21,10 @@ REQUIRED_COVERAGE = {
     "item_missing_field", "wrong_type", "bad_state", "empty_items", "mixed_invalid_item",
     "not_json", "oversize", "at_limit",
     "order_snapshot", "order_items", "non_utf8", "extra_field", "empty_text",
+    # url（ticker-navigation-link）
+    "url_items", "url_snapshot", "url_mixed", "url_max_length",
+    "url_js_scheme", "url_ftp_scheme", "url_empty", "url_too_long", "url_null",
+    "url_number", "url_relative", "url_has_space", "url_trailing_newline",
 }
 
 
@@ -90,6 +96,31 @@ class ManifestShape(unittest.TestCase):
         m = copy.deepcopy(self.m)
         m["samples"] = [s for s in m["samples"] if "bad_state" not in s.get("covers", [])]
         self.assertEqual(coverage_problems(m), ["缺涵蓋類別：bad_state"])
+
+
+class UrlRules(unittest.TestCase):
+    """url 欄位規則（design 決定 1）：直接以參考驗證器逐條斷言，不經 manifest。"""
+
+    def check(self, url):
+        item = {"source": "fastbull", "id": "1", "published_at_ms": 1, "text": "x"}
+        if url is not _MISSING:
+            item["url"] = url
+        raw = json.dumps({"v": 1, "type": "items", "items": [item]}).encode("utf-8")
+        return refcheck.check_line(raw)[0]
+
+    def test_rules(self):
+        cases = [
+            (_MISSING, True), ("https://a.example/x", True), ("http://a.example/x", True),
+            ("http://[::1]:8080/x", True),
+            ("HTTPS://a.example/x", False), ("javascript:alert(1)", False),
+            ("ftp://a.example/x", False), ("", False), (None, False), (5, False),
+            ("/relative", False), ("https://a b", False), ("https://a.example/\n", False),
+            ("https://a.example/\u4e2d", False), ("https:///x", False),
+            ("https://" + "a" * (2048 - 8), True), ("https://" + "a" * (2049 - 8), False),
+        ]
+        for url, want in cases:
+            with self.subTest(url=url if not isinstance(url, str) else url[:40] + f"({len(url)})"):
+                self.assertEqual(self.check(url), want)
 
 
 class Samples(unittest.TestCase):

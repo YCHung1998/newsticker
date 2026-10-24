@@ -192,3 +192,31 @@ FASTBULL_TICKER_AUTOQUIT_SECONDS=14 build/FastBullTicker.app/Contents/MacOS/Fast
   O1「沒有防抖（延遲 0）」→ 紅（5 個測試失敗，含 `briefInvisibilityUnderOneSecondNeverFreezes`、`flappingSequenceUnderOneSecondNeverFreezes`）；
   O2 變回可見不取消 → 紅（4 個）；O3 不解凍 → 紅（2 個）；O4 重複通知重設計時 → 紅（1 個）；O5 設定延遲 0 → 紅（1 個）；還原後 10 個全綠。
 - 使用者手動隱藏維持立即：`userHiddenFreezesImmediatelyAndIsNotAffectedByDebounce`（driver 層）；既有 `hiddenFreezesAndResumesWithoutJump` 仍綠。
+
+## ticker-navigation-link 第 N1 段：協定 `url`（tasks 1.1、2.1、3.1，2026-10-24，分支 `change/ticker-navigation-link`）
+
+規格：`openspec/changes/ticker-navigation-link/design.md` 決定 1。`v` 維持 1【假設】。測試不連網、不開視窗。
+
+### 重現指令
+```sh
+python3 -m unittest discover -s protocol/tests -v      # 12 個（原 11 + UrlRules 1；UrlRules 內 17 個 subTest）
+cd ticker-connect && cargo test                         # 76 個（原 65 + 11：fastbull_parse 9、emitter_contract 2）
+swift test                                              # 188 個（原 174 + ItemURLTests 14）
+swift test --filter ItemURLTests --filter ContractFixturesTests
+```
+測試檔：`protocol/tests/test_contract.py`、`ticker-connect/tests/{fastbull_parse,emitter_contract}.rs`（`tests/common/mod.rs` 的 `prod_origin()` 以拼接避開守衛）、`Tests/FastBullTickerCoreTests/{ItemURLTests,ContractFixturesTests}.swift`。
+
+### fail-then-pass 證據（實跑）
+1. **Python（1.1）**：只加 13 個 fixtures、manifest 與測試、schema 仍為 `additionalProperties:false` 且無 `url` 時，`FAILED (failures=8)`：
+   `items-with-url`、`snapshot-with-url`、`items-url-mixed`、`items-url-max-length` 四個合法樣本被拒，加上 `UrlRules` 的 4 個合法 case。改 schema 後 `Ran 12 tests ... OK`。
+   mutation：刪掉 schema 的 `not` 子句 → `FAIL ... (sample='item-url-trailing-newline')` 與 `UrlRules` 的 `'https://a.example/\n'`，`FAILED (failures=2)`；還原後 `OK`。
+2. **Rust（2.1）**：(a) 暫時還原舊 schema（`git show HEAD:protocol/schema/item.schema.json`），`cargo test --test emitter_contract` → `2 failed`
+   （`sample items-with-url should be accepted`、roundtrip 測試）；已還原為新 schema。(b) 先寫測試、`Item` 尚無 `url` 時 `cargo test --no-run` 全部測試目標編譯失敗
+   （`E0560 struct Item has no field named url`、`E0609 no field url`，`fastbull_parse` 14 個、`emitter_contract` 3 個錯誤）。實作後 `cargo test` 全綠（各目標 `test result: ok`，合計 76）。
+3. **Swift（3.1）**：先只有 manifest／fixtures／schema（`Item` 尚未有 `url`）：`swift test --filter ContractFixturesTests` →
+   `✘ everySampleMatchesManifest ... failed with 4 issues`（4 個合法 url 樣本被 `StrictKeys` 當額外欄位拒絕）。新增 `ItemURLTests` 後、實作前：編譯失敗
+   （`value of type 'Item' has no member 'url'`、`type 'ProtocolRules' has no member 'isValidURL'`）。實作後 `swift test` → `Test run with 188 tests in 29 suites passed`。
+   mutation：把 `isValidURL` 的上界 `0x7E` 改成 `0x7F` → `✘ emptyAndWhitespaceAndControlCharacters`（DEL 被放行），`14 tests ... failed with 1 issue`；還原後 14 個全綠。
+
+### 三端一致性
+三端皆直接讀 `protocol/fixtures/manifest.json`（現有 58 個樣本，含新增 13 個）：Python `test_all_samples_match_manifest`、Rust `emitter_contract_all_manifest_samples_match_reference_verdict`、Swift `ContractFixturesTests.everySampleMatchesManifest`，全部判定與原因類別一致。

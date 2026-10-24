@@ -10,6 +10,9 @@ pub struct Item {
     pub id: String,
     pub published_at_ms: u64,
     pub text: String,
+    /// 選填：原文連結。缺少代表無連結；絕不輸出 `null`。規則見 protocol/schema/item.schema.json。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

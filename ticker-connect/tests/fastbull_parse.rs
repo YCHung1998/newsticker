@@ -1,5 +1,5 @@
 mod common;
-use common::fixture_html;
+use common::{fixture_html, prod_origin};
 use std::collections::HashSet;
 use std::time::Duration;
 use ticker_connect::connector::Connector;
@@ -151,4 +151,111 @@ fn fastbull_parse_fixture_has_70_news_list_elements_but_only_the_side_list_is_ta
 fn fastbull_parse_elements_outside_the_list_scope_are_ignored() {
     let html = r#"<div id="main-content"><div class="news-list" data-id="M" data-date="1"><span class="title_name">M</span></div></div>"#;
     assert!(conn().convert(html.into()).is_err(), "only #side_fast_news counts");
+}
+
+// ---- url（ticker-navigation-link 2.1）----
+
+#[test]
+fn fastbull_parse_url_first_item_is_origin_plus_data_href() {
+    let items = conn().convert(fixture_html()).unwrap();
+    assert_eq!(items[0].url.as_deref(), Some(format!("{}/tw/fastshort/4334051_1_2", prod_origin()).as_str()));
+}
+
+#[test]
+fn fastbull_parse_url_all_20_equal_origin_fastshort_id() {
+    let items = conn().convert(fixture_html()).unwrap();
+    assert_eq!(items.len(), 20);
+    for it in &items {
+        assert_eq!(it.url.as_deref(), Some(format!("{}/tw/fastshort/{}", prod_origin(), it.id).as_str()), "{}", it.id);
+    }
+}
+
+#[test]
+fn fastbull_parse_url_output_passes_protocol_as_snapshot() {
+    let items = conn().convert(fixture_html()).unwrap();
+    let p = Protocol::new();
+    for it in &items {
+        assert!(it.url.is_some());
+        assert_eq!(p.check_item(it), Ok(()), "{}", it.id);
+    }
+    let line = serde_json::to_vec(&Message::snapshot(items)).unwrap();
+    assert_eq!(p.check_line(&line), Ok(()));
+    assert!(String::from_utf8(line).unwrap().contains("\"url\":\"https://www."));
+}
+
+fn one(inner: &str) -> String {
+    format!(r#"<div id="side_fast_news"><div class="news-list" data-id="X" data-date="1"><span class="title_name">T</span>{inner}</div></div>"#)
+}
+
+#[test]
+fn fastbull_parse_url_takes_first_data_href_in_document_order() {
+    let html = one(r#"<div class="shear_box" data-href="/tw/fastshort/first"></div><div data-href="/tw/fastshort/second"></div>"#);
+    let (items, skipped) = parse_html(&html, "fastbull");
+    assert_eq!(items[0].url.as_deref(), Some(format!("{}/tw/fastshort/first", prod_origin()).as_str()));
+    assert!(skipped.is_empty());
+}
+
+#[test]
+fn fastbull_parse_url_data_href_outside_the_element_is_not_borrowed() {
+    let html = r#"<div id="side_fast_news"><div data-href="/tw/fastshort/outside"></div>
+      <div class="news-list" data-id="A" data-date="2"><span class="title_name">A</span></div>
+      <div class="news-list" data-id="B" data-date="1"><span class="title_name">B</span><div data-href="/tw/fastshort/b"></div></div></div>"#;
+    let (items, _) = parse_html(html, "fastbull");
+    assert_eq!(items.len(), 2, "item without data-href is still emitted");
+    assert_eq!(items[0].url, None);
+    assert_eq!(items[1].url.as_deref(), Some(format!("{}/tw/fastshort/b", prod_origin()).as_str()));
+}
+
+#[test]
+fn fastbull_parse_url_missing_or_bad_data_href_degrades_to_no_url_but_keeps_item() {
+    let long = format!("/{}", "a".repeat(2100));
+    let bad: Vec<String> = vec![
+        "".into(),                           // 空值（index 0 不用）
+        "".into(),                           // 空值
+        "javascript:alert(1)".into(),
+        "//evil.example/x".into(),
+        "tw/fastshort/1".into(),             // 不以 / 開頭
+        "/tw/a b".into(),                    // 空白
+        "/tw/\u{4e2d}".into(),              // 非 ASCII
+        "/x\ny".into(),                     // 換行
+        long,
+    ];
+    for (i, v) in bad.iter().enumerate().skip(1) {
+        let html = one(&format!(r#"<div data-href="{v}"></div>"#));
+        let (items, _) = parse_html(&html, "fastbull");
+        assert_eq!(items.len(), 1, "case {i}: item must survive");
+        assert_eq!(items[0].url, None, "case {i}: {v:?}");
+        let p = Protocol::new();
+        assert_eq!(p.check_item(&items[0]), Ok(()), "case {i}: degraded item is valid");
+    }
+    let (items, _) = parse_html(&one(""), "fastbull");
+    assert_eq!((items.len(), items[0].url.clone()), (1, None), "no data-href at all");
+}
+
+#[test]
+fn fastbull_parse_url_exactly_at_limit_is_kept_and_over_limit_is_dropped() {
+    let origin_len = prod_origin().len();
+    let at = format!("/{}", "a".repeat(2048 - origin_len - 1));
+    let (items, _) = parse_html(&one(&format!(r#"<div data-href="{at}"></div>"#)), "fastbull");
+    assert_eq!(items[0].url.as_ref().map(String::len), Some(2048));
+    let over = format!("{at}a");
+    let (items, _) = parse_html(&one(&format!(r#"<div data-href="{over}"></div>"#)), "fastbull");
+    assert_eq!(items[0].url, None);
+}
+
+#[test]
+fn fastbull_parse_url_bad_data_href_writes_stderr_note_via_skipped_free_path() {
+    // convert 對壞 data-href 不得回錯（item 照常輸出）。
+    let html = one(r#"<div data-href="javascript:x"></div>"#);
+    let items = conn().convert(html).unwrap();
+    assert_eq!(items.len(), 1);
+    assert_eq!(items[0].url, None);
+}
+
+#[test]
+fn fastbull_parse_url_origin_is_constant_not_derived_from_fetch_target() {
+    let c = FastBullConnector::new("http://127.0.0.1:9/whatever", Duration::from_secs(10)).unwrap();
+    let items = c.convert(fixture_html()).unwrap();
+    assert!(items[0].url.as_deref().unwrap().starts_with(&prod_origin()));
+    assert!(!items[0].url.as_deref().unwrap().contains("127.0.0.1"));
 }

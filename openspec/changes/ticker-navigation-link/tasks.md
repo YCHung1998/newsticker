@@ -4,15 +4,15 @@
 
 ## 1. 協定契約
 
-- [ ] 1.1 【自動】協定與 fixtures：`protocol/schema/item.schema.json` 新增 `url`（含 `not: {pattern: "[^!-~]"}`）；新增 4 個合法與 9 個非法 fixtures（見 design.md 決定 1）；更新 `manifest.json`（`covers` 標籤）；`protocol/refcheck.py` 與 `protocol/tests/test_contract.py` 納入 `url`（缺任一類 `covers` 則測試失敗）；`protocol/README.md` 補 `url` 規則與三端接入說明。驗證方式（fail-then-pass）：先只加 fixtures 與 manifest，`python3 -m unittest discover -s protocol/tests -v` **失敗**（合法樣本被 `additionalProperties: false` 拒絕），再改 schema 後通過；另故意移除 schema 的 `not` 子句，`item-url-trailing-newline` 必須使測試失敗，還原後通過；既有 11 個測試仍全過。依賴：無。
+- [x] 1.1 【自動】協定與 fixtures：`protocol/schema/item.schema.json` 新增 `url`（含 `not: {pattern: "[^!-~]"}`）；新增 4 個合法與 9 個非法 fixtures（見 design.md 決定 1）；更新 `manifest.json`（`covers` 標籤）；`protocol/refcheck.py` 與 `protocol/tests/test_contract.py` 納入 `url`（缺任一類 `covers` 則測試失敗）；`protocol/README.md` 補 `url` 規則與三端接入說明。驗證方式（fail-then-pass）：先只加 fixtures 與 manifest，`python3 -m unittest discover -s protocol/tests -v` **失敗**（合法樣本被 `additionalProperties: false` 拒絕），再改 schema 後通過；另故意移除 schema 的 `not` 子句，`item-url-trailing-newline` 必須使測試失敗，還原後通過；既有 11 個測試仍全過。依賴：無。
 
 ## 2. Rust 連接器
 
-- [ ] 2.1 【自動】`ticker-connect/src/model.rs` 的 `Item` 增加 `url: Option<String>`（`skip_serializing_if = "Option::is_none"`，不輸出 `null`）；`fastbull.rs` 的 `parse_html` 取每個 `div.news-list` 後代第一個 `[data-href]`，以常數 origin `https://www.fastbull.com` 串接，不合法時降級為無 `url` 並寫 stderr；新增測試：快照第一則 `url` 為 `https://www.fastbull.com/tw/fastshort/4334051_1_2`、20 則皆等於 origin 加 `/tw/fastshort/` 加 `id`、缺 `data-href`／壞值（空、`javascript:`、`//evil.example/x`、超長）降級、輸出組成 snapshot 通過 schema、emitter 對 manifest 全部 `accept`／`reject` 樣本判定正確（含新增 13 個）、引擎原樣輸出 `url` 且不含 `url` 的 item 不出現 `url` 鍵。測試原始碼不得含正式主機字面值（用 `tests/common` 輔助函式拼出）。驗證方式：`cd ticker-connect && cargo test`（fail-then-pass：先寫測試與 fixtures 使 `fastbull_parse`、`emitter_contract` 失敗，再實作）；`cargo test no_external_network` 仍通過；`make helper` 成功。依賴：1.1。
+- [x] 2.1 【自動】`ticker-connect/src/model.rs` 的 `Item` 增加 `url: Option<String>`（`skip_serializing_if = "Option::is_none"`，不輸出 `null`）；`fastbull.rs` 的 `parse_html` 取每個 `div.news-list` 後代第一個 `[data-href]`，以常數 origin `https://www.fastbull.com` 串接，不合法時降級為無 `url` 並寫 stderr；新增測試：快照第一則 `url` 為 `https://www.fastbull.com/tw/fastshort/4334051_1_2`、20 則皆等於 origin 加 `/tw/fastshort/` 加 `id`、缺 `data-href`／壞值（空、`javascript:`、`//evil.example/x`、超長）降級、輸出組成 snapshot 通過 schema、emitter 對 manifest 全部 `accept`／`reject` 樣本判定正確（含新增 13 個）、引擎原樣輸出 `url` 且不含 `url` 的 item 不出現 `url` 鍵。測試原始碼不得含正式主機字面值（用 `tests/common` 輔助函式拼出）。驗證方式：`cd ticker-connect && cargo test`（fail-then-pass：先寫測試與 fixtures 使 `fastbull_parse`、`emitter_contract` 失敗，再實作）；`cargo test no_external_network` 仍通過；`make helper` 成功。依賴：1.1。
 
 ## 3. Swift 協定解碼
 
-- [ ] 3.1 【自動】`Sources/FastBullTickerCore/ProtocolTypes.swift`：`Item.url`、`ProtocolRules.maxURLBytes`／`isValidURL`（逐位元組檢查，與 schema 完全一致）、`Item.init(from:)` 區分「缺少」與 `null`（`null` 拒絕）；新增單元測試涵蓋 design.md 的每個 `url` 規則（含結尾換行、2048／2049、`null`）。驗證方式：先使 `swift test --filter ContractFixturesTests`（讀取已更新的 manifest）與 `swift test --filter ProtocolDecodingTests` **失敗**（新樣本被誤判），再實作後通過；`swift test --filter PackageSkeletonTests` 仍通過（Core 無 AppKit import）。依賴：1.1。
+- [x] 3.1 【自動】`Sources/FastBullTickerCore/ProtocolTypes.swift`：`Item.url`、`ProtocolRules.maxURLBytes`／`isValidURL`（逐位元組檢查，與 schema 完全一致）、`Item.init(from:)` 區分「缺少」與 `null`（`null` 拒絕）；新增單元測試涵蓋 design.md 的每個 `url` 規則（含結尾換行、2048／2049、`null`）。驗證方式：先使 `swift test --filter ContractFixturesTests`（讀取已更新的 manifest）與 `swift test --filter ProtocolDecodingTests` **失敗**（新樣本被誤判），再實作後通過；`swift test --filter PackageSkeletonTests` 仍通過（Core 無 AppKit import）。依賴：1.1。
 
 ## 4. Core 版面與識別
 
