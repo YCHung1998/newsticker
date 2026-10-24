@@ -5,10 +5,12 @@ import FastBullTickerCore
 /// 兩種實作（displayLink／CABasicAnimation）可共用同一組測試替身。
 @MainActor
 public protocol TickerRenderer: AnyObject {
-    /// 加入一則已排定 `tapeX`／`width` 的訊息。
+    /// 加入一則已排定 `tapeX`／`width` 的訊息。**對同一 `seq` 冪等**（向後 seek 時會重送仍在帶子上的訊息）。
     func add(_ item: PlacedItem)
     /// 設定目前捲動位移（`visualX = tapeX − offset`）。
     func setScrollOffset(_ offset: Double)
+    /// 控制列狀態（位置指示文字與兩個按鈕的啟用）；只在狀態改變時呼叫。
+    func setControlStrip(_ state: ControlStripState)
     /// Core `rebase()` 的位移同步：所有訊息座標 −delta。
     func applyRebase(delta: Double)
     /// 暫停／恢復逐幀工作（隱藏、被遮蔽時暫停）。
@@ -31,14 +33,16 @@ public enum Tiling {
 public struct TrackModel: Equatable {
     public struct Entry: Equatable { public var seq: Int; public var tapeX: Double; public var width: Double }
     public private(set) var entries: [Entry] = []
-    private var nextSeq = 0
     public init() {}
 
+    public func contains(seq: Int) -> Bool { entries.contains { $0.seq == seq } }
+
+    /// 以 Core 的 `seq` 為鍵。已存在者略過（回傳 false），座標不被覆蓋。
     @discardableResult
-    public mutating func add(tapeX: Double, width: Double) -> Int {
-        nextSeq += 1
-        entries.append(Entry(seq: nextSeq, tapeX: tapeX, width: width))
-        return nextSeq
+    public mutating func add(seq: Int, tapeX: Double, width: Double) -> Bool {
+        guard !contains(seq: seq) else { return false }
+        entries.append(Entry(seq: seq, tapeX: tapeX, width: width))
+        return true
     }
 
     /// 移除已完全捲出左緣（右緣 < offset − margin）者，回傳被移除的 seq。
@@ -71,6 +75,8 @@ public final class TickerDriver {
     public private(set) var rebaseCount = 0
     public private(set) var lastEvents: [SchedulerEvent] = []
 
+    public private(set) var controlState = ControlStripState.from(position: nil)
+
     public init(scheduler: TickerScheduler, renderer: TickerRenderer) {
         self.scheduler = scheduler; self.renderer = renderer
     }
@@ -94,6 +100,51 @@ public final class TickerDriver {
             rebaseCount += 1
         }
         renderer.setScrollOffset(scheduler.scrollOffset)
+        refreshControlStrip()
+    }
+
+    // MARK: 導覽（task 7.1）
+
+    /// `<` `>`：交給 Core `seek`。成功時先把與新視窗重疊的訊息逐一送給渲染器（冪等，已存在者略過；
+    /// 向後 seek 時左側圖層可能已被 prune，要重建），再同步位移與控制列。
+    @discardableResult
+    public func seek(_ direction: SeekDirection) -> SeekOutcome {
+        let outcome = scheduler.seek(direction)
+        if case .moved(_, let newly) = outcome {
+            if newly != nil { itemsPlaced += 1 }
+            let off = scheduler.scrollOffset, right = off + scheduler.config.viewportWidth
+            for p in scheduler.placed where p.tapeX + p.width > off && p.tapeX < right { renderer.add(p) }
+            renderer.setScrollOffset(off)
+            refreshControlStrip()
+        }
+        return outcome
+    }
+
+    /// 指標進出面板（追蹤區事件）。
+    public func setPointerInside(_ inside: Bool) { scheduler.setPointerInside(inside) }
+
+    /// 以 `NSEvent.mouseLocation` 與 `panel.frame` 核對指標狀態（保險：exit 事件遺失也不會永久凍結）。
+    public func reconcilePointer(mouse: CGPoint, panelFrame: CGRect, panelVisible: Bool, clickThrough: Bool) {
+        let inside = PointerHover.reconciled(tracked: scheduler.isPointerInside, mouse: mouse, panelFrame: panelFrame,
+                                             panelVisible: panelVisible, clickThrough: clickThrough)
+        scheduler.setPointerInside(inside)
+    }
+
+    /// 目前與可見帶子 `[0, viewportWidth)` 有交集的訊息（命中測試用；`visualLeft` 為帶子座標）。
+    public func hitItems() -> [HitItem] {
+        let off = scheduler.scrollOffset, vw = scheduler.config.viewportWidth
+        return scheduler.placed.compactMap { p in
+            let left = p.tapeX - off
+            guard left + p.width > 0, left < vw else { return nil }
+            return HitItem(seq: p.seq, visualLeft: left, width: p.width, hasLinkSlot: p.hasLinkSlot)
+        }
+    }
+
+    public func placedItem(seq: Int) -> PlacedItem? { scheduler.placed.last { $0.seq == seq } }
+
+    private func refreshControlStrip() {
+        let s = ControlStripState.from(position: scheduler.readingPosition)
+        if s != controlState { controlState = s; renderer.setControlStrip(s) }
     }
 
     public func setUserHidden(_ v: Bool) { userHidden = v; applyFreeze() }

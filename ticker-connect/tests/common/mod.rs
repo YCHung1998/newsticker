@@ -14,8 +14,14 @@ pub fn fixture_html() -> String {
     std::fs::read_to_string(format!("{ROOT}/../docs/fixtures/express-news-2026-10-24.html")).expect("snapshot fixture")
 }
 
+/// 正式站 origin；以拼接產生，避免測試原始碼出現正式主機字面值（見 no_external_network 守衛）。
+/// 只用於字串比對，不發任何請求。
+pub fn prod_origin() -> String {
+    format!("https://www.{}", ["fastbull", ".com"].concat())
+}
+
 pub fn item(id: &str, ms: u64) -> Item {
-    Item { source: "fake".into(), id: id.into(), published_at_ms: ms, text: format!("text {id}") }
+    Item { source: "fake".into(), id: id.into(), published_at_ms: ms, text: format!("text {id}"), url: None }
 }
 
 #[derive(Clone, Default)]

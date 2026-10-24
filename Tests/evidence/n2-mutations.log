@@ -1,0 +1,103 @@
+[S1 seek 改動某個 tapeX]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'lastOfRoundNextJumpsToNextRoundStart', 'nextForcePlacesWithNormalGapWhenNotYetPlaced', 'previousStillWorksAfterLongRunRebase', 'rebaseKeepsRecentPlacedSoPreviousStillWorks', 'seekNeverChangesAnyTapeXOrWidth', 'tickStillFillsDuringHold']
+  ['✘ Test run with 269 tests in 40 suites failed after 6.101 seconds with 13 issues.']
+[S2 seek 對齊偏 1pt]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'nextForcePlacesWithNormalGapWhenNotYetPlaced', 'nextUsesAlreadyPlacedItem', 'previousAlignsTargetToLeftEdgeAndStartsHold', 'previousStillWorksAfterLongRunRebase', 'rebaseKeepsRecentPlacedSoPreviousStillWorks']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.616 seconds with 11 issues.']
+[S3 指標停留不再凍結時間]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'hiddenAndPointerAreIndependent', 'invariantsHoldOverLongRandomRun', 'pointerInsideFreezesAndDoesNotConsumeHold', 'pointerInsideWithoutHoldFreezesScrolling', 'setPointerInsideIsIdempotent', 'timeBeforePointerEntersIsCounted']
+  ['✘ Test run with 269 tests in 40 suites failed after 5.655 seconds with 16 issues.']
+[S4 凍結（隱藏／指標）期間仍消耗保持]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'pointerInsideFreezesAndDoesNotConsumeHold']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.308 seconds with 10 issues.']
+[S5 再次 seek 累加保持而非重設]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'previousAtListStartDoesNothing', 'secondSeekResetsHoldNotAccumulates', 'snapshotThenItemsDriveSchedulerReplayToLiveToReplay', 'tickStillFillsDuringHold']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.008 seconds with 11 issues.']
+[S6 強制排入少了 gap]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'lastOfRoundNextJumpsToNextRoundStart', 'nextForcePlacesWithNormalGapWhenNotYetPlaced']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.610 seconds with 8 issues.']
+[S7 rebase 不保留最近 N 則]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'invariantsHoldOverLongRandomRun', 'rebaseKeepsRecentPlacedSoPreviousStillWorks', 'visualPositionsUnchangedAndMagnitudesShrink']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.249 seconds with 10 issues.']
+[S8 閱讀位置右緣改成 >= inset]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['rightEdgeEqualToInsetMeansNextOne']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.832 seconds with 1 issue.']
+[S9 即時批次總數不含佇列中尚未排入者]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['liveAppendWhileLiveIncreasesTotal', 'liveBatchIdentityAndTotals', 'liveBatchTotalGrowsAndLeftEdgeListWins', 'overflowDropShrinksOpenBatchTotal']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.133 seconds with 6 issues.']
+[S10 清單第一則按 < 不停住]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['previousAtListStartDoesNothing']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.594 seconds with 1 issue.']
+[S11 隱藏中 seek 仍動作]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['differentSeedsAlsoHold', 'emptyTapeAndHiddenAndNoMaterial', 'invariantsHoldOverLongRandomRun']
+  ['✘ Test run with 269 tests in 40 suites failed after 5.216 seconds with 8 issues.']
+[S12 setPointerInside 不先推進時鐘]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['setPointerInsideIsIdempotent', 'timeBeforePointerEntersIsCounted']
+  ['✘ Test run with 269 tests in 40 suites failed after 5.331 seconds with 3 issues.']
+[S13 強制排入的訊息不算新序號（seq 重複）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=[]
+  ["Swift/NativeDictionary.swift:792: Fatal error: Duplicate values for key: '1'", "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[L1 連結欄位未從截斷預算扣除]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['truncationBudgetSubtractsSlot']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.722 seconds with 2 issues.']
+[L2 沒有 url 也保留欄位]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['urlIsCarriedUnchangedAndLinkSlotFlagged', 'withoutURLOrWithZeroSlotIsIdenticalToBefore']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.617 seconds with 3 issues.']
+[P1 LinkPolicy 放行任何 scheme（含 javascript:）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['blockedURLsNeverReachTheOpener', 'rejectsNonHttpSchemes']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.382 seconds with 2 issues.']
+[P2 LinkPolicy 放行 userinfo]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['blockedURLsNeverReachTheOpener', 'rejectsUserinfoAndMissingHost']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.788 seconds with 4 issues.']
+[P3 LinkPolicy 不限制長度]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['rejectsOverlongAndAcceptsExactLimit']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.752 seconds with 1 issue.']
+[P4 命中測試：按鈕不再優先]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['buttonBeatsLinkBeneathIt', 'buttonsAreInTheControlStrip', 'linkHiddenByLabelOrStripIsNotALink']
+  ['✘ Test run with 269 tests in 40 suites failed after 5.212 seconds with 5 issues.']
+[P5 命中測試：忽略 hitSlop]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['firstMatchingLinkWinsWhenSlopsOverlap', 'linkZoneIncludingHitSlop']
+  ['✘ Test run with 269 tests in 40 suites failed after 6.078 seconds with 3 issues.']
+[P6 命中測試：標籤內的迴紋針仍有效]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['linkHiddenByLabelOrStripIsNotALink']
+  ['✘ Test run with 269 tests in 40 suites failed after 2.786 seconds with 2 issues.']
+[P7 (n/N) 格式錯誤]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['boundariesAndTwoDigits', 'formatsParenSlash']
+  ['✘ Test run with 269 tests in 40 suites failed after 5.434 seconds with 6 issues.']
+[P8 PointerHover：隱藏面板仍算在內]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hiddenPanelCountsAsOutside', 'reconcileOverridesLostExitEvent']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.292 seconds with 2 issues.']
+[P9 開啟失敗時重試]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['openerFailureIsReportedNotRetried']
+  ['✘ Test run with 269 tests in 40 suites failed after 4.757 seconds with 1 issue.']
+[P10 守衛放寬：任何 Workspace* 檔皆允許]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['sourcesAllowedOnlyInWorkspaceOpenerFiles']
+  ['✘ Test run with 269 tests in 40 suites failed after 3.445 seconds with 1 issue.']
+[還原後] rc=0 ['✔ Test run with 269 tests in 40 suites passed after 3.946 seconds.']
+
+[補記 S13 修正後重跑] 把測試輔助的 Dictionary(uniqueKeysWithValues:) 改為 uniquingKeysWith 後，S13 變成 16 個測試的斷言失敗（原本為 helper 崩潰 Duplicate values for key，同樣是紅）：differentSeedsAlsoHold, invariantsHoldOverLongRandomRun, replayRoundSequenceAndListIndex, liveBatchIdentityAndTotals, nextForcePlacesWithNormalGapWhenNotYetPlaced, previousAlignsTargetToLeftEdgeAndStartsHold ... 還原後 269 個全綠。

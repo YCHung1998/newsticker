@@ -45,6 +45,12 @@ public struct ShellConfig: Sendable {
     public var screenMargin: CGFloat
     /// 「不可見」須持續超過此秒數才凍結（遮蔽防抖，吸收切換 Space 轉場的狀態翻動）【假設】。
     public var occludedConfirmDelay: TimeInterval
+    /// 控制列版面（`<`、`(n/N)`、`>`）：24 + 52 + 24 = 100pt【假設，待使用者看實物】。
+    public var strip = ControlStripLayout()
+    /// 連結欄位寬度（pt）【假設：26】。
+    public var linkSlotWidth: Double = 26
+    /// 迴紋針命中區每側外擴（pt）【假設：4】。
+    public var hitSlop: Double = HitTesting.defaultHitSlop
 
     public static let provisional = ShellConfig(
         level: .statusBar,
@@ -67,8 +73,17 @@ public struct ShellConfig: Sendable {
         occludedConfirmDelay: 1.0
     )
 
-    /// 帶子可視寬度（扣掉標籤）。
-    public var tapeViewportWidth: Double { Double(panelSize.width - labelWidth) }
+    public var controlStripWidth: Double { strip.controlStripWidth }
+
+    /// 帶子可視寬度＝面板寬 − 標籤寬 − 控制列寬（預設 620 − 150 − 100 = 370；由 `strip` 推導，不重複寫死）。
+    public var tapeViewportWidth: Double {
+        strip.tapeViewportWidth(panelWidth: Double(panelSize.width), labelWidth: Double(labelWidth))
+    }
+
+    /// 命中測試用的幾何（與 `TickerView` 的圖層版面同源）。
+    public var hitGeometry: HitGeometry {
+        HitGeometry(panelSize: panelSize, labelWidth: Double(labelWidth), strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
+    }
 
     /// 依本設定建立 Core 的排程設定。時間以本機時區顯示。
     public func schedulerConfig(timeZone: TimeZone = .current) -> SchedulerConfig {
@@ -76,6 +91,7 @@ public struct ShellConfig: Sendable {
         c.speed = scrollSpeed
         c.viewportWidth = tapeViewportWidth
         c.maxItemWidth = max(tapeViewportWidth, 600)
+        c.linkSlotWidth = linkSlotWidth
         c.timeZone = timeZone
         return c
     }

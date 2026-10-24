@@ -98,3 +98,38 @@ func item(_ text: String, ms: Int64 = 1792832201957) -> Item {
         #expect(calls < 100, "應以二分搜尋量測，實際 \(calls) 次")
     }
 }
+
+/// 連結欄位（tasks 4.1，ticker-layout「有連結的訊息保留連結欄位寬度」）。
+@Suite struct LinkSlotLayoutTests {
+    private func withURL(_ text: String) -> Item {
+        Item(source: "fastbull", id: "1", publishedAtMs: 1792832201957, text: text, url: "https://example.test/a")
+    }
+
+    @Test func widthAddsSlotAndFlagsIt() {
+        // 顯示字串 "16:56:41 " + 11 字 = 20 字元 → 200；加欄位 26 = 226
+        let l = layoutItem(withURL("hello world"), timeZone: utc8, maxWidth: 10_000, linkSlotWidth: 26, measurer: flatMeasure)
+        #expect(l.width == 226 && l.hasLinkSlot && !l.truncated)
+        #expect(l.width - 26 == 200, "命中區本地座標為 [200, 226)")
+    }
+
+    @Test func truncationBudgetSubtractsSlot() {
+        let long = withURL(String(repeating: "x", count: 100))
+        let l = layoutItem(long, timeZone: utc8, maxWidth: 300, linkSlotWidth: 26, measurer: flatMeasure)
+        #expect(l.truncated && l.hasLinkSlot)
+        #expect(flatMeasure(l.displayString) <= 274)
+        #expect(l.width <= 300 && l.width == flatMeasure(l.displayString) + 26)
+        #expect(l.text.hasSuffix("…"))
+    }
+
+    @Test func withoutURLOrWithZeroSlotIsIdenticalToBefore() {
+        let plain = item("hello world")
+        let a = layoutItem(plain, timeZone: utc8, maxWidth: 10_000, linkSlotWidth: 26, measurer: flatMeasure)
+        let b = layoutItem(plain, timeZone: utc8, maxWidth: 10_000, measurer: flatMeasure)
+        #expect(a == b && !a.hasLinkSlot && a.width == 200)
+        let c = layoutItem(withURL("hello world"), timeZone: utc8, maxWidth: 10_000, linkSlotWidth: 0, measurer: flatMeasure)
+        #expect(c.width == 200 && !c.hasLinkSlot)
+        let t1 = layoutItem(item(String(repeating: "x", count: 100)), timeZone: utc8, maxWidth: 300, measurer: flatMeasure)
+        let t2 = layoutItem(item(String(repeating: "x", count: 100)), timeZone: utc8, maxWidth: 300, linkSlotWidth: 26, measurer: flatMeasure)
+        #expect(t1 == t2, "無 url 的截斷不扣欄位")
+    }
+}

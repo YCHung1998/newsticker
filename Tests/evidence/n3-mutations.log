@@ -1,0 +1,98 @@
+[N1 按鈕改在 mouse-down 觸發]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer', 'buttonsFireOnMouseUpNotMouseDown', 'releasingOutsideThePressedTargetDoesNotFire']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.414 seconds with 6 issues.']
+[N2 mouse-up 不核對與按下時的目標相同]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['releasingOutsideThePressedTargetDoesNotFire']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.832 seconds with 1 issue.']
+[N3 右鍵也被當成左鍵處理]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['rightAndOtherButtonsNeverTrigger']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.011 seconds with 1 issue.']
+[N4 .drag 不呼叫 performDrag]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['onlyDragTargetCallsPerformDrag']
+  ['✘ Test run with 309 tests in 48 suites failed after 4.992 seconds with 4 issues.']
+[N5 按鈕／迴紋針也呼叫 performDrag]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['buttonsFireOnMouseUpNotMouseDown', 'linkFiresOnMouseUpWithItsSeq', 'onlyDragTargetCallsPerformDrag']
+  ['✘ Test run with 309 tests in 48 suites failed after 7.003 seconds with 3 issues.']
+[N6 點穿（isEnabled=false）仍處理事件]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['disabledRouterIgnoresEverything']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.016 seconds with 1 issue.']
+[R1 TrackModel.add 不冪等]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backwardSeekRebuildsPrunedLayersWithoutDuplicates', 'trackModelAddIsIdempotentPerSeq', 'viewAddTwiceKeepsOneLayer']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.492 seconds with 7 issues.']
+[R2 向後 seek 不重建圖層]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backwardSeekRebuildsPrunedLayersWithoutDuplicates', 'seekNextForcePlacesAndAddsNewLayer']
+  ['✘ Test run with 309 tests in 48 suites failed after 7.414 seconds with 4 issues.']
+[R3 seek 後不同步捲動位移]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['backwardSeekRebuildsPrunedLayersWithoutDuplicates']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.159 seconds with 4 issues.']
+[R4 控制列狀態每次都推送]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['driverPushesControlStateOnlyWhenItChanges']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.328 seconds with 2 issues.']
+[R5 TickerView.add 不冪等（留下孤兒圖層）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['viewAddTwiceKeepsOneLayer']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.121 seconds with 1 issue.']
+[B1 時間不再粗體]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['boldPrefixIsExactlyTheTimeAndSpaceAware', 'timeRunIsBoldAndRestIsRegular']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.255 seconds with 10 issues.']
+[B2 迴紋針不繪製]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.925 seconds with 1 issue.']
+[V1 帶子可視寬度寫死 470]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['tapeViewportIsDerivedFromControlStripNotHardCoded', 'viewLayoutMatchesControlStripLayoutAndHitTesting']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.906 seconds with 5 issues.']
+[V2 帶子裁切區蓋到控制列]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['tapeViewportIsDerivedFromControlStripNotHardCoded', 'viewLayoutMatchesControlStripLayoutAndHitTesting']
+  ['✘ Test run with 309 tests in 48 suites failed after 4.060 seconds with 3 issues.']
+[V3 `<` 在清單第一則也啟用]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['stateFromReadingPosition']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.709 seconds with 1 issue.']
+[H1 核對不採用 mouseLocation（exit 遺失就卡住）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['lostExitEventIsRecoveredByMouseLocationReconcile']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.635 seconds with 3 issues.']
+[H2 指標進出事件不轉給 Core]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['pointerInsideFreezesScrollingAndLeavingResumes']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.941 seconds with 2 issues.']
+[A1 迴紋針開啟了別則的連結]
+  破壞後 rc=0 !!! 仍然綠（測試沒抓到）
+  失敗測試=[]
+  ['✔ Test run with 309 tests in 48 suites passed after 7.474 seconds.']
+[A2 迴紋針動作沒接上]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse', 'failedOpenIsNotRetried', 'policyBlockedURLNeverReachesTheOpener']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.133 seconds with 4 issues.']
+[A3 `>` 動作沒接上]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer']
+  ['✘ Test run with 309 tests in 48 suites failed after 5.930 seconds with 2 issues.']
+[O1 opener 啟用本 App（違反不啟用）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['realTreeIsClean', 'sourcesNeverCallApplicationActivation']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.549 seconds with 2 issues.']
+
+還原後 rc=0 ['✔ Test run with 309 tests in 48 suites passed after 6.085 seconds.']  存活的 mutation 數=1
+
+=== 補跑 A1（第一輪 A1 存活：測試只比對 host／path 前綴；已加強為比對被點擊那一則的完整網址，且改點非第一則）===
+[A1 迴紋針開啟了別則的連結]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse']
+  ['✘ Test run with 309 tests in 48 suites failed after 6.862 seconds with 1 issue.']
+
+還原後 rc=0 ['✔ Test run with 309 tests in 48 suites passed after 5.931 seconds.']  存活的 mutation 數=0

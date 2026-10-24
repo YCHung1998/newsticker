@@ -7,7 +7,7 @@ helper（Rust，Connect engine）到 App（Swift，Show engine）的單向 stdou
 
 | 路徑 | 內容 |
 |---|---|
-| `schema/item.schema.json` | 單則訊息：`source`、`id`、`published_at_ms`、`text`，不允許額外欄位 |
+| `schema/item.schema.json` | 單則訊息：`source`、`id`、`published_at_ms`、`text`，選填 `url`（見下），不允許額外欄位 |
 | `schema/snapshot.schema.json` | `{v:1, type:"snapshot", items:[…]}`，items 新到舊、非空 |
 | `schema/items.schema.json` | `{v:1, type:"items", items:[…]}`，items 舊到新、非空 |
 | `schema/status.schema.json` | `{v:1, type:"status", source, state:ok\|error, message}` |
@@ -45,6 +45,14 @@ python3 -m unittest discover -s protocol/tests -v
 ### 暫不處理的情況
 - `v` 缺失或型別不是整數 -> 歸類 `schema`（不是 `version`）。
 - 同一則訊息內 `id` 重複不檢查（契約未規定）。
+
+## `url` 欄位（ticker-navigation-link，選填）
+
+- 缺少 = 無連結。存在時必須是字串，且：長度 1–2048 位元組、僅可見 ASCII（`0x21`–`0x7E`，非 ASCII 位址須由發送端 percent-encode，所以字元數＝位元組數）、scheme 為小寫 `http`／`https`、`://` 之後第一個字元為英數或 `[`。`null`、數字、空字串、相對路徑、含空白或結尾換行皆非法（原因類別 `schema`，整則拒絕）。
+- Schema：`pattern: ^https?://[A-Za-z0-9\[][!-~]*$` 加 `not: {pattern: "[^!-~]"}`。`not` 子句不可省：Python `re.search` 的 `$` 會匹配結尾換行之前，單靠 `pattern` 時 `"https://a/\n"` 會通過；Rust `regex` 不會，Swift 逐位元組檢查不會。fixtures `invalid/item-url-trailing-newline` 守這個分歧。
+- 協定版本 `v` 維持 1【假設，見 `openspec/changes/ticker-navigation-link/design.md` 決定 1：helper 與 App 同倉庫同一個 `.app` 發行；舊的嚴格接收端會因 `additionalProperties: false` 丟棄含 `url` 的整則，兩端須一起更新】。
+- 新增 fixtures：valid `items-with-url`、`snapshot-with-url`、`items-url-mixed`、`items-url-max-length`（恰 2048 位元組）；invalid `item-url-js-scheme`、`-ftp-scheme`、`-empty`、`-too-long`（2049）、`-null`、`-number`、`-relative`、`-has-space`、`-trailing-newline`；`covers` 標籤為 `url_*`，`tests/test_contract.py` 的 `REQUIRED_COVERAGE` 缺任一則測試失敗。
+- 三端接入：Python `refcheck.py` 只靠 schema（不需改程式）；Rust 的 `Item.url: Option<String>`（`skip_serializing_if`，絕不輸出 `null`），`protocol.rs` 編入同一份 schema；Swift 的 `Item.url`、`ProtocolRules.isValidURL`（逐位元組，與 schema 一致）、`null` 拒絕。三端皆讀同一份 manifest，不複製副本。
 
 ## 兩端接入方式（供 `connect-engine-fastbull`、`show-engine-core` 引用）
 

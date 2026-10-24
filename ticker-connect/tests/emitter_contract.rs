@@ -184,3 +184,33 @@ fn emitter_wrong_order_message_is_not_written() {
     assert!(!rep.wrote_data && rep.wrote_status);
     assert_eq!(buf.lines().len(), 1);
 }
+
+#[test]
+fn emitter_url_is_passed_through_verbatim_and_absent_url_has_no_key() {
+    let buf = SharedBuf::default();
+    let mut em = Emitter::new(buf.clone(), "fake");
+    let mut with = item("a", 1);
+    with.url = Some("https://example.com/p?x=1&y=%E4%B8%AD".into());
+    em.emit(Message::items(vec![with, item("b", 2)])).unwrap();
+    let lines = buf.lines();
+    assert_eq!(lines.len(), 1);
+    let items = lines[0]["items"].as_array().unwrap();
+    assert_eq!(items[0]["url"], "https://example.com/p?x=1&y=%E4%B8%AD");
+    assert!(items[1].as_object().unwrap().get("url").is_none(), "no null / no key when url is None");
+    assert!(!String::from_utf8(buf.raw()).unwrap().contains("null"));
+}
+
+#[test]
+fn emitter_url_invalid_value_drops_the_item_and_warns() {
+    for bad in ["javascript:alert(1)", "", "https://a b", "https://a.example/\n", "ftp://a.example/"] {
+        let buf = SharedBuf::default();
+        let mut em = Emitter::new(buf.clone(), "fake");
+        let mut it = item("a", 1);
+        it.url = Some(bad.into());
+        let rep = em.emit(Message::items(vec![it, item("b", 2)])).unwrap();
+        assert!(rep.wrote_data && rep.wrote_status, "{bad:?}");
+        let lines = buf.lines();
+        let ids: Vec<&str> = lines[0]["items"].as_array().unwrap().iter().map(|i| i["id"].as_str().unwrap()).collect();
+        assert_eq!(ids, ["b"], "{bad:?}");
+    }
+}

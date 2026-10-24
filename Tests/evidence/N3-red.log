@@ -1,0 +1,941 @@
+[0/1] Planning build
+Building for debugging...
+[0/6] Write sources
+[1/6] Write swift-version--58304C5D6DBC2206.txt
+error: emit-module command failed with exit code 1 (use -v to see invocation)
+[3/9] Emitting module FastBullTickerAppTests
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:87:22: error: cannot find type 'NavigationActions' in scope
+ 85 |         var clock: ManualClock
+ 86 |         var opener: RecordingURLOpener
+ 87 |         var actions: NavigationActions
+    |                      `- error: cannot find type 'NavigationActions' in scope
+ 88 |         var router: NavigationInputRouter
+ 89 |         var log: AppLog
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:88:21: error: cannot find type 'NavigationInputRouter' in scope
+ 86 |         var opener: RecordingURLOpener
+ 87 |         var actions: NavigationActions
+ 88 |         var router: NavigationInputRouter
+    |                     `- error: cannot find type 'NavigationInputRouter' in scope
+ 89 |         var log: AppLog
+ 90 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:14:17: error: cannot find type 'NavigationInputRouter' in scope
+ 12 | private final class Probe {
+ 13 |     var previous = 0, next = 0, links: [Int] = [], drags = 0
+ 14 |     let router: NavigationInputRouter
+    |                 `- error: cannot find type 'NavigationInputRouter' in scope
+ 15 |     /// 面板 620×42、標籤 150、控制列 520..<620；一則有連結的訊息：視覺左緣 100、寬 200 → 連結欄位 424..<450。
+ 16 |     static let geometry = ShellConfig.provisional.hitGeometry
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:16:51: error: value of type 'ShellConfig' has no member 'hitGeometry'
+ 14 |     let router: NavigationInputRouter
+ 15 |     /// 面板 620×42、標籤 150、控制列 520..<620；一則有連結的訊息：視覺左緣 100、寬 200 → 連結欄位 424..<450。
+ 16 |     static let geometry = ShellConfig.provisional.hitGeometry
+    |                                                   `- error: value of type 'ShellConfig' has no member 'hitGeometry'
+ 17 |     static let linked = HitItem(seq: 7, visualLeft: 100, width: 200, hasLinkSlot: true)
+ 18 |     init() {
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:25:36: error: cannot find type 'PointerButton' in scope
+ 23 |         router.onLink = { [unowned self] in links.append($0) }
+ 24 |     }
+ 25 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |                                    `- error: cannot find type 'PointerButton' in scope
+ 26 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 27 |     func click(_ x: Double) { down(x); up(x) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:26:34: error: cannot find type 'PointerButton' in scope
+ 24 |     }
+ 25 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 26 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |                                  `- error: cannot find type 'PointerButton' in scope
+ 27 |     func click(_ x: Double) { down(x); up(x) }
+ 28 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:17:25: error: cannot find type 'ControlStripState' in scope
+ 15 |     enum Call: Equatable { case add(String), offset(Double), rebase(Double), paused(Bool) }
+ 16 |     var calls: [Call] = []
+ 17 |     var controlStates: [ControlStripState] = []
+    |                         `- error: cannot find type 'ControlStripState' in scope
+ 18 |     var duplicateAdds = 0
+ 19 |     var track = TrackModel()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:26:35: error: cannot find type 'ControlStripState' in scope
+ 24 |         if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }
+ 25 |     }
+ 26 |     func setControlStrip(_ state: ControlStripState) { controlStates.append(state) }
+    |                                   `- error: cannot find type 'ControlStripState' in scope
+ 27 |     func setScrollOffset(_ o: Double) { calls.append(.offset(o)); offset = o; _ = track.prune(offset: o) }
+ 28 |     func applyRebase(delta: Double) { calls.append(.rebase(delta)); track.rebase(delta: delta) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:202:120: error: extra argument 'linkSlotWidth' in call
+200 | 
+201 | @Suite struct TickerRendererBoldTimeTests {
+202 |     private let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+    |                                                                                                                        `- error: extra argument 'linkSlotWidth' in call
+203 | 
+204 |     private func psName(_ s: NSAttributedString, at i: Int) -> String? {
+[4/9] Compiling FastBullTickerAppTests NavigationViewTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:14:17: error: cannot find type 'NavigationInputRouter' in scope
+ 12 | private final class Probe {
+ 13 |     var previous = 0, next = 0, links: [Int] = [], drags = 0
+ 14 |     let router: NavigationInputRouter
+    |                 `- error: cannot find type 'NavigationInputRouter' in scope
+ 15 |     /// 面板 620×42、標籤 150、控制列 520..<620；一則有連結的訊息：視覺左緣 100、寬 200 → 連結欄位 424..<450。
+ 16 |     static let geometry = ShellConfig.provisional.hitGeometry
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:16:51: error: value of type 'ShellConfig' has no member 'hitGeometry'
+ 14 |     let router: NavigationInputRouter
+ 15 |     /// 面板 620×42、標籤 150、控制列 520..<620；一則有連結的訊息：視覺左緣 100、寬 200 → 連結欄位 424..<450。
+ 16 |     static let geometry = ShellConfig.provisional.hitGeometry
+    |                                                   `- error: value of type 'ShellConfig' has no member 'hitGeometry'
+ 17 |     static let linked = HitItem(seq: 7, visualLeft: 100, width: 200, hasLinkSlot: true)
+ 18 |     init() {
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:25:36: error: cannot find type 'PointerButton' in scope
+ 23 |         router.onLink = { [unowned self] in links.append($0) }
+ 24 |     }
+ 25 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |                                    `- error: cannot find type 'PointerButton' in scope
+ 26 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 27 |     func click(_ x: Double) { down(x); up(x) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:26:34: error: cannot find type 'PointerButton' in scope
+ 24 |     }
+ 25 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 26 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |                                  `- error: cannot find type 'PointerButton' in scope
+ 27 |     func click(_ x: Double) { down(x); up(x) }
+ 28 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:19:18: error: cannot find 'NavigationInputRouter' in scope
+ 17 |     static let linked = HitItem(seq: 7, visualLeft: 100, width: 200, hasLinkSlot: true)
+ 18 |     init() {
+ 19 |         router = NavigationInputRouter(geometry: Probe.geometry)
+    |                  `- error: cannot find 'NavigationInputRouter' in scope
+ 20 |         router.hitItems = { [Probe.linked] }
+ 21 |         router.onPrevious = { [unowned self] in previous += 1 }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:72:19: error: cannot find 'PointerButton' in scope
+ 70 |     @Test func rightAndOtherButtonsNeverTrigger() {
+ 71 |         let p = Probe()
+ 72 |         for b in [PointerButton.right, .other] {
+    |                   `- error: cannot find 'PointerButton' in scope
+ 73 |             p.down(530, button: b); p.up(530, button: b)
+ 74 |             p.down(430, button: b); p.up(430, button: b)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:72:41: error: reference to member 'other' cannot be resolved without a contextual type
+ 70 |     @Test func rightAndOtherButtonsNeverTrigger() {
+ 71 |         let p = Probe()
+ 72 |         for b in [PointerButton.right, .other] {
+    |                                         `- error: reference to member 'other' cannot be resolved without a contextual type
+ 73 |             p.down(530, button: b); p.up(530, button: b)
+ 74 |             p.down(430, button: b); p.up(430, button: b)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:129:11: error: value of type 'TickerView' has no member 'onPointerInside'
+127 |         let v = TickerView(config: .provisional)
+128 |         var got: [Bool] = []
+129 |         v.onPointerInside = { got.append($0) }
+    |           `- error: value of type 'TickerView' has no member 'onPointerInside'
+130 |         v.pointerChanged(true); v.pointerChanged(false)
+131 |         #expect(got == [true, false])
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:130:11: error: value of type 'TickerView' has no member 'pointerChanged'
+128 |         var got: [Bool] = []
+129 |         v.onPointerInside = { got.append($0) }
+130 |         v.pointerChanged(true); v.pointerChanged(false)
+    |           `- error: value of type 'TickerView' has no member 'pointerChanged'
+131 |         #expect(got == [true, false])
+132 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationViewTests.swift:130:35: error: value of type 'TickerView' has no member 'pointerChanged'
+128 |         var got: [Bool] = []
+129 |         v.onPointerInside = { got.append($0) }
+130 |         v.pointerChanged(true); v.pointerChanged(false)
+    |                                   `- error: value of type 'TickerView' has no member 'pointerChanged'
+131 |         #expect(got == [true, false])
+132 |     }
+[5/9] Compiling FastBullTickerAppTests NavigationLinkOpenerTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationLinkOpenerTests.swift:17:39: error: cannot find 'WorkspaceURLOpener' in scope
+15 |     @Test func workspaceOpenerConformsButIsNeverInvokedHere() {
+16 |         // 只做型別層檢查：存在、符合 URLOpener；不呼叫 open，所以不會開啟任何瀏覽器。
+17 |         let make: () -> URLOpener = { WorkspaceURLOpener(onFailure: { _ in }) }
+   |                                       `- error: cannot find 'WorkspaceURLOpener' in scope
+18 |         _ = make
+19 |         #expect(WorkspaceURLOpener.opensWithActivation == true, "預設讓瀏覽器成為前景（是瀏覽器，不是本 App）")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/NavigationLinkOpenerTests.swift:19:17: error: cannot find 'WorkspaceURLOpener' in scope
+17 |         let make: () -> URLOpener = { WorkspaceURLOpener(onFailure: { _ in }) }
+18 |         _ = make
+19 |         #expect(WorkspaceURLOpener.opensWithActivation == true, "預設讓瀏覽器成為前景（是瀏覽器，不是本 App）")
+   |                 `- error: cannot find 'WorkspaceURLOpener' in scope
+20 |     }
+21 | }
+[6/9] Compiling FastBullTickerAppTests AppSmokeTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:87:22: error: cannot find type 'NavigationActions' in scope
+ 85 |         var clock: ManualClock
+ 86 |         var opener: RecordingURLOpener
+ 87 |         var actions: NavigationActions
+    |                      `- error: cannot find type 'NavigationActions' in scope
+ 88 |         var router: NavigationInputRouter
+ 89 |         var log: AppLog
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:88:21: error: cannot find type 'NavigationInputRouter' in scope
+ 86 |         var opener: RecordingURLOpener
+ 87 |         var actions: NavigationActions
+ 88 |         var router: NavigationInputRouter
+    |                     `- error: cannot find type 'NavigationInputRouter' in scope
+ 89 |         var log: AppLog
+ 90 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:17:25: error: cannot find type 'ControlStripState' in scope
+ 15 |     enum Call: Equatable { case add(String), offset(Double), rebase(Double), paused(Bool) }
+ 16 |     var calls: [Call] = []
+ 17 |     var controlStates: [ControlStripState] = []
+    |                         `- error: cannot find type 'ControlStripState' in scope
+ 18 |     var duplicateAdds = 0
+ 19 |     var track = TrackModel()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:101:23: error: cannot find 'NavigationActions' in scope
+ 99 |         let opener = RecordingURLOpener()
+100 |         let log = AppLog(fileURL: nil, toStderr: false)
+101 |         let actions = NavigationActions(driver: driver, opener: opener, log: log)
+    |                       `- error: cannot find 'NavigationActions' in scope
+102 |         let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+103 |         router.hitItems = { [unowned driver] in driver.hitItems() }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:102:22: error: cannot find 'NavigationInputRouter' in scope
+100 |         let log = AppLog(fileURL: nil, toStderr: false)
+101 |         let actions = NavigationActions(driver: driver, opener: opener, log: log)
+102 |         let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+    |                      `- error: cannot find 'NavigationInputRouter' in scope
+103 |         router.hitItems = { [unowned driver] in driver.hitItems() }
+104 |         actions.bind(to: router)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:102:58: error: value of type 'ShellConfig' has no member 'hitGeometry'
+100 |         let log = AppLog(fileURL: nil, toStderr: false)
+101 |         let actions = NavigationActions(driver: driver, opener: opener, log: log)
+102 |         let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+    |                                                          `- error: value of type 'ShellConfig' has no member 'hitGeometry'
+103 |         router.hitItems = { [unowned driver] in driver.hitItems() }
+104 |         actions.bind(to: router)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:103:56: error: cannot infer return type for closure with multiple statements; add explicit type to disambiguate
+101 |         let actions = NavigationActions(driver: driver, opener: opener, log: log)
+102 |         let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+103 |         router.hitItems = { [unowned driver] in driver.hitItems() }
+    |                                                        `- error: cannot infer return type for closure with multiple statements; add explicit type to disambiguate
+104 |         actions.bind(to: router)
+105 |         return Rig(driver: driver, renderer: renderer, clock: clock, opener: opener, actions: actions, router: router, log: log)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:103:56: error: value of type 'TickerDriver' has no member 'hitItems'
+101 |         let actions = NavigationActions(driver: driver, opener: opener, log: log)
+102 |         let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+103 |         router.hitItems = { [unowned driver] in driver.hitItems() }
+    |                                                        `- error: value of type 'TickerDriver' has no member 'hitItems'
+104 |         actions.bind(to: router)
+105 |         return Rig(driver: driver, renderer: renderer, clock: clock, opener: opener, actions: actions, router: router, log: log)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:113:63: error: cannot infer contextual base in reference to member 'left'
+111 | 
+112 |     private func click(_ r: Rig, _ x: Double) {
+113 |         r.router.mouseDown(at: CGPoint(x: x, y: 21), button: .left, performDrag: {})
+    |                                                               `- error: cannot infer contextual base in reference to member 'left'
+114 |         r.router.mouseUp(at: CGPoint(x: x, y: 21), button: .left)
+115 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:114:61: error: cannot infer contextual base in reference to member 'left'
+112 |     private func click(_ r: Rig, _ x: Double) {
+113 |         r.router.mouseDown(at: CGPoint(x: x, y: 21), button: .left, performDrag: {})
+114 |         r.router.mouseUp(at: CGPoint(x: x, y: 21), button: .left)
+    |                                                             `- error: cannot infer contextual base in reference to member 'left'
+115 |     }
+116 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:120:24: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+118 |         for _ in 0..<200 {
+119 |             r.clock.t += 0.25; r.driver.step()
+120 |             if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && cfg.labelWidth + $0.visualLeft + $0.width < 520 && $0.visualLeft >= 0 }) { return h }
+    |                        `- error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+121 |         }
+122 |         return nil
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:130:71: error: value of type 'ShellConfig' has no member 'linkSlotWidth'
+128 |         r.driver.step()
+129 |         let h = try #require(advanceUntilLinkVisible(&r))
+130 |         let x = Double(cfg.labelWidth) + h.visualLeft + h.width - cfg.linkSlotWidth / 2
+    |                                                                       `- error: value of type 'ShellConfig' has no member 'linkSlotWidth'
+131 |         click(r, x)
+132 |         #expect(r.opener.opened.count == 1)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:135:44: error: reference to member 'opened' cannot be resolved without a contextual type
+133 |         let u = try #require(r.opener.opened.first)
+134 |         #expect(u.scheme == "https" && u.host == "example.com" && u.path.hasPrefix("/demo/"))
+135 |         #expect(r.actions.linkResults == [.opened])
+    |                                            `- error: reference to member 'opened' cannot be resolved without a contextual type
+136 |         click(r, x)
+137 |         #expect(r.opener.opened.count == 2, "每次點擊恰一次")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:145:26: error: value of type 'TickerDriver' has no member 'hitItems'
+143 |         r.driver.step()
+144 |         for _ in 0..<80 { r.clock.t += 0.25; r.driver.step() }
+145 |         #expect(r.driver.hitItems().allSatisfy { !$0.hasLinkSlot })
+    |                          `- error: value of type 'TickerDriver' has no member 'hitItems'
+146 |         #expect(r.driver.scheduler.placed.allSatisfy { !$0.hasLinkSlot })
+147 |         for x in stride(from: 150.0, to: 520.0, by: 7.0) { click(r, x) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:159:44: error: reference to member 'blockedByPolicy' cannot be resolved without a contextual type
+157 |         click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+158 |         #expect(r.opener.opened.isEmpty)
+159 |         #expect(r.actions.linkResults == [.blockedByPolicy])
+    |                                            `- error: reference to member 'blockedByPolicy' cannot be resolved without a contextual type
+160 |     }
+161 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:169:74: error: reference to member 'openerFailed' cannot be resolved without a contextual type
+167 |         let h = try #require(advanceUntilLinkVisible(&r))
+168 |         click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+169 |         #expect(r.opener.opened.count == 1 && r.actions.linkResults == [.openerFailed])
+    |                                                                          `- error: reference to member 'openerFailed' cannot be resolved without a contextual type
+170 |     }
+171 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:202:49: error: cannot infer contextual base in reference to member 'atListStart'
+200 |         click(r, 530)
+201 |         #expect(r.driver.scheduler.scrollOffset == off && r.driver.scheduler.holdRemaining == 0)
+202 |         #expect(r.actions.seekOutcomes.last == .atListStart)
+    |                                                 `- error: cannot infer contextual base in reference to member 'atListStart'
+203 |     }
+204 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:211:18: error: value of type 'TickerDriver' has no member 'setPointerInside'
+209 |         r.clock.t += 3; r.driver.step()
+210 |         let off = r.driver.scheduler.scrollOffset
+211 |         r.driver.setPointerInside(true)
+    |                  `- error: value of type 'TickerDriver' has no member 'setPointerInside'
+212 |         r.clock.t += 20; r.driver.step()
+213 |         #expect(r.driver.scheduler.scrollOffset == off)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:214:18: error: value of type 'TickerDriver' has no member 'setPointerInside'
+212 |         r.clock.t += 20; r.driver.step()
+213 |         #expect(r.driver.scheduler.scrollOffset == off)
+214 |         r.driver.setPointerInside(false)
+    |                  `- error: value of type 'TickerDriver' has no member 'setPointerInside'
+215 |         r.clock.t += 1; r.driver.step()
+216 |         #expect(r.driver.scheduler.scrollOffset == off + 60)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:225:18: error: value of type 'TickerDriver' has no member 'setPointerInside'
+223 |         let frame = CGRect(x: 100, y: 800, width: 620, height: 42)
+224 |         // 追蹤區說「在內」，且實際指標也在內 → 維持暫停。
+225 |         r.driver.setPointerInside(true)
+    |                  `- error: value of type 'TickerDriver' has no member 'setPointerInside'
+226 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+227 |         #expect(r.driver.scheduler.isPointerInside)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:226:18: error: value of type 'TickerDriver' has no member 'reconcilePointer'
+224 |         // 追蹤區說「在內」，且實際指標也在內 → 維持暫停。
+225 |         r.driver.setPointerInside(true)
+226 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+    |                  `- error: value of type 'TickerDriver' has no member 'reconcilePointer'
+227 |         #expect(r.driver.scheduler.isPointerInside)
+228 |         // exit 事件遺失：指標其實已在外 → 核對後恢復。
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:229:18: error: value of type 'TickerDriver' has no member 'reconcilePointer'
+227 |         #expect(r.driver.scheduler.isPointerInside)
+228 |         // exit 事件遺失：指標其實已在外 → 核對後恢復。
+229 |         r.driver.reconcilePointer(mouse: CGPoint(x: 5, y: 5), panelFrame: frame, panelVisible: true, clickThrough: false)
+    |                  `- error: value of type 'TickerDriver' has no member 'reconcilePointer'
+230 |         #expect(!r.driver.scheduler.isPointerInside)
+231 |         // 指標在內但面板點穿或隱藏 → 不暫停。
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:232:18: error: value of type 'TickerDriver' has no member 'reconcilePointer'
+230 |         #expect(!r.driver.scheduler.isPointerInside)
+231 |         // 指標在內但面板點穿或隱藏 → 不暫停。
+232 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: true)
+    |                  `- error: value of type 'TickerDriver' has no member 'reconcilePointer'
+233 |         #expect(!r.driver.scheduler.isPointerInside)
+234 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: false, clickThrough: false)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:234:18: error: value of type 'TickerDriver' has no member 'reconcilePointer'
+232 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: true)
+233 |         #expect(!r.driver.scheduler.isPointerInside)
+234 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: false, clickThrough: false)
+    |                  `- error: value of type 'TickerDriver' has no member 'reconcilePointer'
+235 |         #expect(!r.driver.scheduler.isPointerInside)
+236 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:236:18: error: value of type 'TickerDriver' has no member 'reconcilePointer'
+234 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: false, clickThrough: false)
+235 |         #expect(!r.driver.scheduler.isPointerInside)
+236 |         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+    |                  `- error: value of type 'TickerDriver' has no member 'reconcilePointer'
+237 |         #expect(r.driver.scheduler.isPointerInside, "指標在內且面板可見：由核對補上 enter")
+238 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:262:23: error: value of type 'AppCoordinator' has no member 'itemsReceived'
+260 |         let ok = await AppSmokeTests().awaitCondition { coord.snapshots >= 1 && coord.itemBatches >= 3 }
+261 |         #expect(ok)
+262 |         #expect(coord.itemsReceived > 12)
+    |                       `- error: value of type 'AppCoordinator' has no member 'itemsReceived'
+263 |         #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+264 |         #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:263:23: error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+261 |         #expect(ok)
+262 |         #expect(coord.itemsReceived > 12)
+263 |         #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+    |                       `- error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+264 |         #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+265 |         #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:263:49: error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+261 |         #expect(ok)
+262 |         #expect(coord.itemsReceived > 12)
+263 |         #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+    |                                                 `- error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+264 |         #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+265 |         #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:263:70: error: value of type 'AppCoordinator' has no member 'itemsReceived'
+261 |         #expect(ok)
+262 |         #expect(coord.itemsReceived > 12)
+263 |         #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+    |                                                                      `- error: value of type 'AppCoordinator' has no member 'itemsReceived'
+264 |         #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+265 |         #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:265:59: error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+263 |         #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+264 |         #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+265 |         #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
+    |                                                           `- error: value of type 'AppCoordinator' has no member 'itemsWithURL'
+266 |     }
+267 | }
+[7/9] Compiling FastBullTickerAppTests TickerRendererTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:17:25: error: cannot find type 'ControlStripState' in scope
+ 15 |     enum Call: Equatable { case add(String), offset(Double), rebase(Double), paused(Bool) }
+ 16 |     var calls: [Call] = []
+ 17 |     var controlStates: [ControlStripState] = []
+    |                         `- error: cannot find type 'ControlStripState' in scope
+ 18 |     var duplicateAdds = 0
+ 19 |     var track = TrackModel()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:26:35: error: cannot find type 'ControlStripState' in scope
+ 24 |         if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }
+ 25 |     }
+ 26 |     func setControlStrip(_ state: ControlStripState) { controlStates.append(state) }
+    |                                   `- error: cannot find type 'ControlStripState' in scope
+ 27 |     func setScrollOffset(_ o: Double) { calls.append(.offset(o)); offset = o; _ = track.prune(offset: o) }
+ 28 |     func applyRebase(delta: Double) { calls.append(.rebase(delta)); track.rebase(delta: delta) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:202:120: error: extra argument 'linkSlotWidth' in call
+200 | 
+201 | @Suite struct TickerRendererBoldTimeTests {
+202 |     private let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+    |                                                                                                                        `- error: extra argument 'linkSlotWidth' in call
+203 | 
+204 |     private func psName(_ s: NSAttributedString, at i: Int) -> String? {
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:24:32: error: extra argument 'seq' in call
+ 22 |     func add(_ item: PlacedItem) {
+ 23 |         // 與 TickerView 同一套冪等邏輯：同一 seq 已在帶子上就略過。
+ 24 |         if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }
+    |                                `- error: extra argument 'seq' in call
+ 25 |     }
+ 26 |     func setControlStrip(_ state: ControlStripState) { controlStates.append(state) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:24:18: error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 22 |     func add(_ item: PlacedItem) {
+ 23 |         // 與 TickerView 同一套冪等邏輯：同一 seq 已在帶子上就略過。
+ 24 |         if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }
+    |                  `- error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 25 |     }
+ 26 |     func setControlStrip(_ state: ControlStripState) { controlStates.append(state) }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:80:19: error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 78 |         var m = TrackModel()
+ 79 |         let a = 1, b = 2
+ 80 |         #expect(m.add(seq: a, tapeX: 1_000_000, width: 300))
+    |                   `- error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 81 |         #expect(m.add(seq: b, tapeX: 1_000_348, width: 300))
+ 82 |         let offset = 1_000_100.0
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:80:28: error: extra argument 'seq' in call
+ 78 |         var m = TrackModel()
+ 79 |         let a = 1, b = 2
+ 80 |         #expect(m.add(seq: a, tapeX: 1_000_000, width: 300))
+    |                            `- error: extra argument 'seq' in call
+ 81 |         #expect(m.add(seq: b, tapeX: 1_000_348, width: 300))
+ 82 |         let offset = 1_000_100.0
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:81:19: error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 79 |         let a = 1, b = 2
+ 80 |         #expect(m.add(seq: a, tapeX: 1_000_000, width: 300))
+ 81 |         #expect(m.add(seq: b, tapeX: 1_000_348, width: 300))
+    |                   `- error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+ 82 |         let offset = 1_000_100.0
+ 83 |         let before = (m.visualX(seq: a, offset: offset)!, m.visualX(seq: b, offset: offset)!)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:81:28: error: extra argument 'seq' in call
+ 79 |         let a = 1, b = 2
+ 80 |         #expect(m.add(seq: a, tapeX: 1_000_000, width: 300))
+ 81 |         #expect(m.add(seq: b, tapeX: 1_000_348, width: 300))
+    |                            `- error: extra argument 'seq' in call
+ 82 |         let offset = 1_000_100.0
+ 83 |         let before = (m.visualX(seq: a, offset: offset)!, m.visualX(seq: b, offset: offset)!)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:210:17: error: cannot find 'ItemText' in scope
+208 | 
+209 |     @Test func boldPrefixIsExactlyTheTimeAndSpaceAware() {
+210 |         #expect(ItemText.boldPrefixLength(of: "12:34:56 美股盤前") == 8)
+    |                 `- error: cannot find 'ItemText' in scope
+211 |         #expect(ItemText.boldPrefixLength(of: "00:00:00 ") == 8)
+212 |         #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:211:17: error: cannot find 'ItemText' in scope
+209 |     @Test func boldPrefixIsExactlyTheTimeAndSpaceAware() {
+210 |         #expect(ItemText.boldPrefixLength(of: "12:34:56 美股盤前") == 8)
+211 |         #expect(ItemText.boldPrefixLength(of: "00:00:00 ") == 8)
+    |                 `- error: cannot find 'ItemText' in scope
+212 |         #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+213 |         #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:212:17: error: cannot find 'ItemText' in scope
+210 |         #expect(ItemText.boldPrefixLength(of: "12:34:56 美股盤前") == 8)
+211 |         #expect(ItemText.boldPrefixLength(of: "00:00:00 ") == 8)
+212 |         #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+    |                 `- error: cannot find 'ItemText' in scope
+213 |         #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+214 |         #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:213:17: error: cannot find 'ItemText' in scope
+211 |         #expect(ItemText.boldPrefixLength(of: "00:00:00 ") == 8)
+212 |         #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+213 |         #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+    |                 `- error: cannot find 'ItemText' in scope
+214 |         #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+215 |         #expect(ItemText.boldPrefixLength(of: "12:34") == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:214:17: error: cannot find 'ItemText' in scope
+212 |         #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+213 |         #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+214 |         #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+    |                 `- error: cannot find 'ItemText' in scope
+215 |         #expect(ItemText.boldPrefixLength(of: "12:34") == 0)
+216 |         #expect(ItemText.boldPrefixLength(of: "") == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:215:17: error: cannot find 'ItemText' in scope
+213 |         #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+214 |         #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+215 |         #expect(ItemText.boldPrefixLength(of: "12:34") == 0)
+    |                 `- error: cannot find 'ItemText' in scope
+216 |         #expect(ItemText.boldPrefixLength(of: "") == 0)
+217 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:216:17: error: cannot find 'ItemText' in scope
+214 |         #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+215 |         #expect(ItemText.boldPrefixLength(of: "12:34") == 0)
+216 |         #expect(ItemText.boldPrefixLength(of: "") == 0)
+    |                 `- error: cannot find 'ItemText' in scope
+217 |     }
+218 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:221:73: error: type 'ItemBitmapRenderer' has no member 'boldFontName'
+219 |     @Test func timeRunIsBoldAndRestIsRegular() {
+220 |         let s = r.attributedString("12:34:56 美股盤前：道指期貨")
+221 |         for i in 0..<8 { #expect(psName(s, at: i) == ItemBitmapRenderer.boldFontName, "index \(i)") }
+    |                                                                         `- error: type 'ItemBitmapRenderer' has no member 'boldFontName'
+222 |         for i in 8..<s.length { #expect(psName(s, at: i) == ItemBitmapRenderer.fontName, "index \(i)") }
+223 |         #expect(ItemBitmapRenderer.boldFontName != ItemBitmapRenderer.fontName)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:223:36: error: type 'ItemBitmapRenderer' has no member 'boldFontName'
+221 |         for i in 0..<8 { #expect(psName(s, at: i) == ItemBitmapRenderer.boldFontName, "index \(i)") }
+222 |         for i in 8..<s.length { #expect(psName(s, at: i) == ItemBitmapRenderer.fontName, "index \(i)") }
+223 |         #expect(ItemBitmapRenderer.boldFontName != ItemBitmapRenderer.fontName)
+    |                                    `- error: type 'ItemBitmapRenderer' has no member 'boldFontName'
+224 |     }
+225 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:250:116: error: extra argument 'linkSlotWidth' in call
+248 | 
+249 |     @Test func paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink() {
+250 |         let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+    |                                                                                                                    `- error: extra argument 'linkSlotWidth' in call
+251 |         let textW = r.measurer("12:34:56 美股盤前")
+252 |         let w = textW + 26
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:258:32: error: cannot infer key path type from context; consider explicitly specifying a root type
+256 |         #expect(foregroundCount(with, px: slotPx) > 20, "欄位內有迴紋針的前景像素")
+257 |         #expect(foregroundCount(without, px: slotPx) == 0, "無連結：該範圍沒有任何前景像素（本來就沒有欄位）")
+258 |         let sumWith = with.map(\.width).reduce(0, +), sumWithout = without.map(\.width).reduce(0, +)
+    |                                `- error: cannot infer key path type from context; consider explicitly specifying a root type
+259 |         #expect(sumWith == Int((CGFloat(w) * scale).rounded(.up)))
+260 |         #expect(sumWithout == Int((CGFloat(textW) * scale).rounded(.up)))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:258:80: error: cannot infer key path type from context; consider explicitly specifying a root type
+256 |         #expect(foregroundCount(with, px: slotPx) > 20, "欄位內有迴紋針的前景像素")
+257 |         #expect(foregroundCount(without, px: slotPx) == 0, "無連結：該範圍沒有任何前景像素（本來就沒有欄位）")
+258 |         let sumWith = with.map(\.width).reduce(0, +), sumWithout = without.map(\.width).reduce(0, +)
+    |                                                                                `- error: cannot infer key path type from context; consider explicitly specifying a root type
+259 |         #expect(sumWith == Int((CGFloat(w) * scale).rounded(.up)))
+260 |         #expect(sumWithout == Int((CGFloat(textW) * scale).rounded(.up)))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:264:116: error: extra argument 'linkSlotWidth' in call
+262 | 
+263 |     @Test func paperclipColorFollowsStyle() {
+264 |         let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+    |                                                                                                                    `- error: extra argument 'linkSlotWidth' in call
+265 |         let w = r.measurer("12:34:56 美股盤前") + 26
+266 |         // live＝白底黑字：迴紋針是暗色，欄位內「亮於 128」的像素佔絕大多數（背景），replay 則相反。
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:276:116: error: extra argument 'linkSlotWidth' in call
+274 | 
+275 |     @Test func schedulerWidthWithSlotEqualsMeasurerPlusSlotAndMatchesBitmap() throws {
+276 |         let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+    |                                                                                                                    `- error: extra argument 'linkSlotWidth' in call
+277 |         var cfg = ShellConfig.provisional.schedulerConfig(timeZone: TimeZone(secondsFromGMT: 0)!)
+278 |         cfg.linkSlotWidth = 26
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:280:28: error: cannot infer contextual base in reference to member 'snapshot'
+278 |         cfg.linkSlotWidth = 26
+279 |         var sched = TickerScheduler(config: cfg, clock: { 0 }, measurer: r.measurer)
+280 |         _ = sched.receive(.snapshot([Item(source: "t", id: "1", publishedAtMs: 0, text: "測試訊息", url: "https://example.com/demo/1")]))
+    |                            `- error: cannot infer contextual base in reference to member 'snapshot'
+281 |         let p = try #require(sched.tick().first)
+282 |         #expect(p.hasLinkSlot)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:283:9: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+281 |         let p = try #require(sched.tick().first)
+282 |         #expect(p.hasLinkSlot)
+283 |         #expect(p.width == r.measurer(p.timeString + " " + p.text) + 26)
+    |         `- error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+284 |         let tiles = r.render(p, scale: scale)
+285 |         #expect(tiles.map(\.width).reduce(0, +) == Int((CGFloat(p.width) * scale).rounded(.up)))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:285:9: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+283 |         #expect(p.width == r.measurer(p.timeString + " " + p.text) + 26)
+284 |         let tiles = r.render(p, scale: scale)
+285 |         #expect(tiles.map(\.width).reduce(0, +) == Int((CGFloat(p.width) * scale).rounded(.up)))
+    |         `- error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+286 |     }
+287 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:281:17: warning: no calls to throwing functions occur within 'try' expression
+279 |         var sched = TickerScheduler(config: cfg, clock: { 0 }, measurer: r.measurer)
+280 |         _ = sched.receive(.snapshot([Item(source: "t", id: "1", publishedAtMs: 0, text: "測試訊息", url: "https://example.com/demo/1")]))
+281 |         let p = try #require(sched.tick().first)
+    |                 `- warning: no calls to throwing functions occur within 'try' expression
+282 |         #expect(p.hasLinkSlot)
+283 |         #expect(p.width == r.measurer(p.timeString + " " + p.text) + 26)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:293:19: error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+291 |     @Test func trackModelAddIsIdempotentPerSeq() {
+292 |         var m = TrackModel()
+293 |         #expect(m.add(seq: 5, tapeX: 100, width: 50))
+    |                   `- error: type 'Int' cannot be used as a boolean; test for '!= 0' instead
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:293:28: error: extra argument 'seq' in call
+291 |     @Test func trackModelAddIsIdempotentPerSeq() {
+292 |         var m = TrackModel()
+293 |         #expect(m.add(seq: 5, tapeX: 100, width: 50))
+    |                            `- error: extra argument 'seq' in call
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:294:20: error: type 'Int' cannot be used as a boolean; test for '== 0' instead
+292 |         var m = TrackModel()
+293 |         #expect(m.add(seq: 5, tapeX: 100, width: 50))
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+    |                    `- error: type 'Int' cannot be used as a boolean; test for '== 0' instead
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+296 |         #expect(m.contains(seq: 5) && !m.contains(seq: 6))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:294:29: error: extra argument 'seq' in call
+292 |         var m = TrackModel()
+293 |         #expect(m.add(seq: 5, tapeX: 100, width: 50))
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+    |                             `- error: extra argument 'seq' in call
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+296 |         #expect(m.contains(seq: 5) && !m.contains(seq: 6))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:296:19: error: value of type 'TrackModel' has no member 'contains'
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+296 |         #expect(m.contains(seq: 5) && !m.contains(seq: 6))
+    |                   `- error: value of type 'TrackModel' has no member 'contains'
+297 |     }
+298 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:296:42: error: value of type 'TrackModel' has no member 'contains'
+294 |         #expect(!m.add(seq: 5, tapeX: 999, width: 1), "同 seq 第二次略過，座標不被覆蓋")
+295 |         #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+296 |         #expect(m.contains(seq: 5) && !m.contains(seq: 6))
+    |                                          `- error: value of type 'TrackModel' has no member 'contains'
+297 |     }
+298 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:304:40: error: value of type 'TickerView' has no member 'layerSeqs'
+302 |                            tapeX: 400, width: 120, url: nil, seq: 9, listID: 1, listIndex: 1, hasLinkSlot: false)
+303 |         v.add(p); v.add(p)
+304 |         #expect(v.layerCount == 1 && v.layerSeqs == [9])
+    |                                        `- error: value of type 'TickerView' has no member 'layerSeqs'
+305 |     }
+306 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:319:29: error: value of type 'TickerDriver' has no member 'seek'
+317 |         for _ in 0..<4 {
+318 |             let beforeSeqs = Set(r.track.entries.map(\.seq))
+319 |             let outcome = d.seek(.previous)
+    |                             `- error: value of type 'TickerDriver' has no member 'seek'
+320 |             guard case .moved(let target, _) = outcome else { Issue.record("seek 失敗 \(outcome)"); return }
+321 |             if !beforeSeqs.contains(target.seq) { rebuilt += 1 }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:319:35: error: cannot infer contextual base in reference to member 'previous'
+317 |         for _ in 0..<4 {
+318 |             let beforeSeqs = Set(r.track.entries.map(\.seq))
+319 |             let outcome = d.seek(.previous)
+    |                                   `- error: cannot infer contextual base in reference to member 'previous'
+320 |             guard case .moved(let target, _) = outcome else { Issue.record("seek 失敗 \(outcome)"); return }
+321 |             if !beforeSeqs.contains(target.seq) { rebuilt += 1 }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:322:29: error: value of type 'TrackModel' has no member 'contains'
+320 |             guard case .moved(let target, _) = outcome else { Issue.record("seek 失敗 \(outcome)"); return }
+321 |             if !beforeSeqs.contains(target.seq) { rebuilt += 1 }
+322 |             #expect(r.track.contains(seq: target.seq), "目標圖層存在")
+    |                             `- error: value of type 'TrackModel' has no member 'contains'
+323 |             #expect(abs(r.offset - target.tapeX) < 1e-9, "目標貼齊視窗左緣")
+324 |             let seqs = r.track.entries.map(\.seq)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:337:42: error: value of type 'TickerDriver' has no member 'seek'
+335 |         let before = d.itemsPlaced
+336 |         var n = 0
+337 |         while n < 3 { if case .moved = d.seek(.next) { n += 1 } else { break } }
+    |                                          `- error: value of type 'TickerDriver' has no member 'seek'
+338 |         #expect(n == 3)
+339 |         #expect(d.itemsPlaced > before - 1)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:337:48: error: cannot infer contextual base in reference to member 'next'
+335 |         let before = d.itemsPlaced
+336 |         var n = 0
+337 |         while n < 3 { if case .moved = d.seek(.next) { n += 1 } else { break } }
+    |                                                `- error: cannot infer contextual base in reference to member 'next'
+338 |         #expect(n == 3)
+339 |         #expect(d.itemsPlaced > before - 1)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:340:25: error: value of type 'TrackModel' has no member 'contains'
+338 |         #expect(n == 3)
+339 |         #expect(d.itemsPlaced > before - 1)
+340 |         #expect(r.track.contains(seq: d.scheduler.readingItem!.seq))
+    |                         `- error: value of type 'TrackModel' has no member 'contains'
+341 |     }
+342 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:351:17: error: cannot find 'ControlStripState' in scope
+349 |     }
+350 |     @Test func stateFromReadingPosition() {
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+    |                 `- error: cannot find 'ControlStripState' in scope
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:351:58: error: cannot find 'ControlStripState' in scope
+349 |     }
+350 |     @Test func stateFromReadingPosition() {
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+    |                                                          `- error: cannot find 'ControlStripState' in scope
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:351:50: error: 'nil' requires a contextual type
+349 |     }
+350 |     @Test func stateFromReadingPosition() {
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+    |                                                  `- error: 'nil' requires a contextual type
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:352:17: error: cannot find 'ControlStripState' in scope
+350 |     @Test func stateFromReadingPosition() {
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+    |                 `- error: cannot find 'ControlStripState' in scope
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+354 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:352:65: error: cannot find 'ControlStripState' in scope
+350 |     @Test func stateFromReadingPosition() {
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+    |                                                                 `- error: cannot find 'ControlStripState' in scope
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+354 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:353:17: error: cannot find 'ControlStripState' in scope
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+    |                 `- error: cannot find 'ControlStripState' in scope
+354 |     }
+355 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:353:66: error: cannot find 'ControlStripState' in scope
+351 |         #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+352 |         #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+353 |         #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+    |                                                                  `- error: cannot find 'ControlStripState' in scope
+354 |     }
+355 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:361:41: error: cannot find 'ControlStripState' in scope
+359 |         d.receive(.snapshot(sampleItems(10)))
+360 |         d.step()
+361 |         #expect(r.controlStates.last == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+    |                                         `- error: cannot find 'ControlStripState' in scope
+362 |         clock.t += 6; d.step()                     // 第一則進入閱讀範圍
+363 |         let t1 = r.controlStates.last
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:373:19: error: value of type 'TickerView' has no member 'layoutSnapshot'
+371 |         let cfg = ShellConfig.provisional
+372 |         let v = TickerView(config: cfg)
+373 |         let l = v.layoutSnapshot
+    |                   `- error: value of type 'TickerView' has no member 'layoutSnapshot'
+374 |         let w = Double(cfg.panelSize.width)
+375 |         #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:375:54: error: value of type 'ShellConfig' has no member 'controlStripWidth'
+373 |         let l = v.layoutSnapshot
+374 |         let w = Double(cfg.panelSize.width)
+375 |         #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
+    |                                                      `- error: value of type 'ShellConfig' has no member 'controlStripWidth'
+376 |         #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+377 |         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:376:53: error: value of type 'ShellConfig' has no member 'strip'
+374 |         let w = Double(cfg.panelSize.width)
+375 |         #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
+376 |         #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+    |                                                     `- error: value of type 'ShellConfig' has no member 'strip'
+377 |         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+378 |         #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:377:54: error: value of type 'ShellConfig' has no member 'strip'
+375 |         #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
+376 |         #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+377 |         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+    |                                                      `- error: value of type 'ShellConfig' has no member 'strip'
+378 |         #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+379 |         #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:378:54: error: value of type 'ShellConfig' has no member 'strip'
+376 |         #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+377 |         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+378 |         #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+    |                                                      `- error: value of type 'ShellConfig' has no member 'strip'
+379 |         #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
+380 |         #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(panelWidth: w).lowerBound)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:379:55: error: value of type 'ShellConfig' has no member 'strip'
+377 |         #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+378 |         #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+379 |         #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
+    |                                                       `- error: value of type 'ShellConfig' has no member 'strip'
+380 |         #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(panelWidth: w).lowerBound)
+381 |         #expect(Double(l.clipFrame.maxX) <= Double(l.stripFrame.minX), "帶子裁切在控制列之外")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:380:49: error: value of type 'ShellConfig' has no member 'strip'
+378 |         #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+379 |         #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
+380 |         #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(panelWidth: w).lowerBound)
+    |                                                 `- error: value of type 'ShellConfig' has no member 'strip'
+381 |         #expect(Double(l.clipFrame.maxX) <= Double(l.stripFrame.minX), "帶子裁切在控制列之外")
+382 |         #expect(Double(l.clipFrame.maxX) == Double(cfg.labelWidth) + cfg.tapeViewportWidth)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:384:21: error: value of type 'ShellConfig' has no member 'hitGeometry'
+382 |         #expect(Double(l.clipFrame.maxX) == Double(cfg.labelWidth) + cfg.tapeViewportWidth)
+383 |         // 版面中心點經 HitTesting 必為對應動作（版面與命中測試一致）。
+384 |         let g = cfg.hitGeometry
+    |                     `- error: value of type 'ShellConfig' has no member 'hitGeometry'
+385 |         func hit(_ r: CGRect) -> HitTarget { HitTesting.target(at: CGPoint(x: r.midX, y: r.midY), in: g, items: []) }
+386 |         #expect(hit(l.previousFrame) == .previousButton)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:393:27: error: cannot find 'ControlStripState' in scope
+391 |     @Test func disabledButtonsAreDimmedAndIndicatorTextShown() {
+392 |         let v = TickerView(config: .provisional)
+393 |         v.setControlStrip(ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+    |                           `- error: cannot find 'ControlStripState' in scope
+394 |         var l = v.layoutSnapshot
+395 |         #expect(l.indicatorText == "(1/10)")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:393:11: error: value of type 'TickerView' has no member 'setControlStrip'
+391 |     @Test func disabledButtonsAreDimmedAndIndicatorTextShown() {
+392 |         let v = TickerView(config: .provisional)
+393 |         v.setControlStrip(ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+    |           `- error: value of type 'TickerView' has no member 'setControlStrip'
+394 |         var l = v.layoutSnapshot
+395 |         #expect(l.indicatorText == "(1/10)")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:394:19: error: value of type 'TickerView' has no member 'layoutSnapshot'
+392 |         let v = TickerView(config: .provisional)
+393 |         v.setControlStrip(ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+394 |         var l = v.layoutSnapshot
+    |                   `- error: value of type 'TickerView' has no member 'layoutSnapshot'
+395 |         #expect(l.indicatorText == "(1/10)")
+396 |         #expect(l.previousOpacity < l.nextOpacity && l.nextOpacity == 1)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:397:27: error: cannot find 'ControlStripState' in scope
+395 |         #expect(l.indicatorText == "(1/10)")
+396 |         #expect(l.previousOpacity < l.nextOpacity && l.nextOpacity == 1)
+397 |         v.setControlStrip(ControlStripState(text: "(2/10)", previousEnabled: true, nextEnabled: true))
+    |                           `- error: cannot find 'ControlStripState' in scope
+398 |         l = v.layoutSnapshot
+399 |         #expect(l.previousOpacity == 1 && l.indicatorText == "(2/10)")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:397:11: error: value of type 'TickerView' has no member 'setControlStrip'
+395 |         #expect(l.indicatorText == "(1/10)")
+396 |         #expect(l.previousOpacity < l.nextOpacity && l.nextOpacity == 1)
+397 |         v.setControlStrip(ControlStripState(text: "(2/10)", previousEnabled: true, nextEnabled: true))
+    |           `- error: value of type 'TickerView' has no member 'setControlStrip'
+398 |         l = v.layoutSnapshot
+399 |         #expect(l.previousOpacity == 1 && l.indicatorText == "(2/10)")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:398:15: error: value of type 'TickerView' has no member 'layoutSnapshot'
+396 |         #expect(l.previousOpacity < l.nextOpacity && l.nextOpacity == 1)
+397 |         v.setControlStrip(ControlStripState(text: "(2/10)", previousEnabled: true, nextEnabled: true))
+398 |         l = v.layoutSnapshot
+    |               `- error: value of type 'TickerView' has no member 'layoutSnapshot'
+399 |         #expect(l.previousOpacity == 1 && l.indicatorText == "(2/10)")
+400 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:404:53: error: value of type 'ShellConfig' has no member 'controlStripWidth'
+402 |     @Test func tapeViewportIsDerivedFromControlStripNotHardCoded() {
+403 |         var cfg = ShellConfig.provisional
+404 |         #expect(cfg.tapeViewportWidth == 370 && cfg.controlStripWidth == 100)
+    |                                                     `- error: value of type 'ShellConfig' has no member 'controlStripWidth'
+405 |         #expect(cfg.schedulerConfig().viewportWidth == 370 && cfg.schedulerConfig().linkSlotWidth == cfg.linkSlotWidth)
+406 |         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:405:106: error: value of type 'ShellConfig' has no member 'linkSlotWidth'
+403 |         var cfg = ShellConfig.provisional
+404 |         #expect(cfg.tapeViewportWidth == 370 && cfg.controlStripWidth == 100)
+405 |         #expect(cfg.schedulerConfig().viewportWidth == 370 && cfg.schedulerConfig().linkSlotWidth == cfg.linkSlotWidth)
+    |                                                                                                          `- error: value of type 'ShellConfig' has no member 'linkSlotWidth'
+406 |         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
+407 |         #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:406:13: error: value of type 'ShellConfig' has no member 'strip'
+404 |         #expect(cfg.tapeViewportWidth == 370 && cfg.controlStripWidth == 100)
+405 |         #expect(cfg.schedulerConfig().viewportWidth == 370 && cfg.schedulerConfig().linkSlotWidth == cfg.linkSlotWidth)
+406 |         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
+    |             `- error: value of type 'ShellConfig' has no member 'strip'
+407 |         #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
+408 |         let l = TickerView(config: cfg).layoutSnapshot
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerRendererTests.swift:408:41: error: value of type 'TickerView' has no member 'layoutSnapshot'
+406 |         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
+407 |         #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
+408 |         let l = TickerView(config: cfg).layoutSnapshot
+    |                                         `- error: value of type 'TickerView' has no member 'layoutSnapshot'
+409 |         #expect(Double(l.clipFrame.maxX) == 150 + 350)
+410 |     }

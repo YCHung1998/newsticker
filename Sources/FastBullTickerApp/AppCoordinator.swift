@@ -41,6 +41,10 @@ public final class AppCoordinator {
     public private(set) var helperStarts = 0
     public private(set) var fatal: FeedFatalError?
     public private(set) var modesSeen: [TickerMode] = []
+    /// 收到的訊息總數與其中帶 `url` 者（診斷用，不記錄網址本身）。
+    public private(set) var itemsReceived = 0
+    public private(set) var itemsWithURL = 0
+    private var lastReadingText = ""
 
     public init(driver: TickerDriver, log: AppLog) {
         self.driver = driver; self.log = log
@@ -52,8 +56,12 @@ public final class AppCoordinator {
         switch event {
         case .message(let m):
             switch m {
-            case .snapshot(let items): snapshots += 1; log.write("feed: snapshot items=\(items.count)")
-            case .items(let items): itemBatches += 1; log.write("feed: items count=\(items.count)")
+            case .snapshot(let items):
+                snapshots += 1; count(items)
+                log.write("feed: snapshot items=\(items.count) withUrl=\(items.filter { $0.url != nil }.count)")
+            case .items(let items):
+                itemBatches += 1; count(items)
+                log.write("feed: items count=\(items.count) withUrl=\(items.filter { $0.url != nil }.count)")
             case .status(let s): statuses += 1; log.write("feed: status \(s.state.rawValue) \(s.message)")
             }
             driver.receive(m)
@@ -68,8 +76,18 @@ public final class AppCoordinator {
         }
     }
 
-    /// 每次 `step()` 後呼叫，記錄模式變化。
+    private func count(_ items: [Item]) {
+        itemsReceived += items.count
+        itemsWithURL += items.filter { $0.url != nil }.count
+    }
+
+    /// 每次 `step()` 後呼叫，記錄模式變化與閱讀位置 `(n/N)` 的變化。
     public func noteMode() {
+        let reading = driver.controlState.text
+        if reading != lastReadingText {
+            lastReadingText = reading
+            log.write("reading: \(reading.isEmpty ? "(none)" : reading)")
+        }
         if modesSeen.last != driver.mode {
             modesSeen.append(driver.mode)
             log.write("mode -> \(driver.mode.rawValue)")
@@ -78,7 +96,7 @@ public final class AppCoordinator {
 
     public var statsLine: String {
         "stats: mode=\(driver.mode.rawValue) frozen=\(driver.isFrozen) snapshots=\(snapshots) itemBatches=\(itemBatches) "
-        + "statuses=\(statuses) badLines=\(badLines) placed=\(driver.itemsPlaced) liveQueue=\(driver.scheduler.liveQueueCount) rebases=\(driver.rebaseCount)"
+        + "statuses=\(statuses) withUrl=\(itemsWithURL)/\(itemsReceived) badLines=\(badLines) placed=\(driver.itemsPlaced) liveQueue=\(driver.scheduler.liveQueueCount) rebases=\(driver.rebaseCount)"
     }
 
     /// 建立 FeedClient 的事件回呼：跳回主佇列後交給 `handle`（保持事件順序）。

@@ -192,3 +192,136 @@ FASTBULL_TICKER_AUTOQUIT_SECONDS=14 build/FastBullTicker.app/Contents/MacOS/Fast
   O1「沒有防抖（延遲 0）」→ 紅（5 個測試失敗，含 `briefInvisibilityUnderOneSecondNeverFreezes`、`flappingSequenceUnderOneSecondNeverFreezes`）；
   O2 變回可見不取消 → 紅（4 個）；O3 不解凍 → 紅（2 個）；O4 重複通知重設計時 → 紅（1 個）；O5 設定延遲 0 → 紅（1 個）；還原後 10 個全綠。
 - 使用者手動隱藏維持立即：`userHiddenFreezesImmediatelyAndIsNotAffectedByDebounce`（driver 層）；既有 `hiddenFreezesAndResumesWithoutJump` 仍綠。
+
+## ticker-navigation-link 第 N1 段：協定 `url`（tasks 1.1、2.1、3.1，2026-10-24，分支 `change/ticker-navigation-link`）
+
+規格：`openspec/changes/ticker-navigation-link/design.md` 決定 1。`v` 維持 1【假設】。測試不連網、不開視窗。
+
+### 重現指令
+```sh
+python3 -m unittest discover -s protocol/tests -v      # 12 個（原 11 + UrlRules 1；UrlRules 內 17 個 subTest）
+cd ticker-connect && cargo test                         # 76 個（原 65 + 11：fastbull_parse 9、emitter_contract 2）
+swift test                                              # 188 個（原 174 + ItemURLTests 14）
+swift test --filter ItemURLTests --filter ContractFixturesTests
+```
+測試檔：`protocol/tests/test_contract.py`、`ticker-connect/tests/{fastbull_parse,emitter_contract}.rs`（`tests/common/mod.rs` 的 `prod_origin()` 以拼接避開守衛）、`Tests/FastBullTickerCoreTests/{ItemURLTests,ContractFixturesTests}.swift`。
+
+### fail-then-pass 證據（實跑）
+1. **Python（1.1）**：只加 13 個 fixtures、manifest 與測試、schema 仍為 `additionalProperties:false` 且無 `url` 時，`FAILED (failures=8)`：
+   `items-with-url`、`snapshot-with-url`、`items-url-mixed`、`items-url-max-length` 四個合法樣本被拒，加上 `UrlRules` 的 4 個合法 case。改 schema 後 `Ran 12 tests ... OK`。
+   mutation：刪掉 schema 的 `not` 子句 → `FAIL ... (sample='item-url-trailing-newline')` 與 `UrlRules` 的 `'https://a.example/\n'`，`FAILED (failures=2)`；還原後 `OK`。
+2. **Rust（2.1）**：(a) 暫時還原舊 schema（`git show HEAD:protocol/schema/item.schema.json`），`cargo test --test emitter_contract` → `2 failed`
+   （`sample items-with-url should be accepted`、roundtrip 測試）；已還原為新 schema。(b) 先寫測試、`Item` 尚無 `url` 時 `cargo test --no-run` 全部測試目標編譯失敗
+   （`E0560 struct Item has no field named url`、`E0609 no field url`，`fastbull_parse` 14 個、`emitter_contract` 3 個錯誤）。實作後 `cargo test` 全綠（各目標 `test result: ok`，合計 76）。
+3. **Swift（3.1）**：先只有 manifest／fixtures／schema（`Item` 尚未有 `url`）：`swift test --filter ContractFixturesTests` →
+   `✘ everySampleMatchesManifest ... failed with 4 issues`（4 個合法 url 樣本被 `StrictKeys` 當額外欄位拒絕）。新增 `ItemURLTests` 後、實作前：編譯失敗
+   （`value of type 'Item' has no member 'url'`、`type 'ProtocolRules' has no member 'isValidURL'`）。實作後 `swift test` → `Test run with 188 tests in 29 suites passed`。
+   mutation：把 `isValidURL` 的上界 `0x7E` 改成 `0x7F` → `✘ emptyAndWhitespaceAndControlCharacters`（DEL 被放行），`14 tests ... failed with 1 issue`；還原後 14 個全綠。
+
+### 三端一致性
+三端皆直接讀 `protocol/fixtures/manifest.json`（現有 58 個樣本，含新增 13 個）：Python `test_all_samples_match_manifest`、Rust `emitter_contract_all_manifest_samples_match_reference_verdict`、Swift `ContractFixturesTests.everySampleMatchesManifest`，全部判定與原因類別一致。
+
+## ticker-navigation-link 第 N2 段：Core 版面與識別、閱讀位置與 seek、App 純函式（tasks 4.1、5.1、6.1，2026-10-24，分支 `change/ticker-navigation-link`）
+
+規格：`openspec/changes/ticker-navigation-link/design.md` 決定 3–9、11。測試不開視窗、不開瀏覽器、不連網。標【假設】者（8 秒保持、24pt 內縮、保留 64 則、控制列 100pt、hitSlop 4pt）尚未經使用者確認。
+
+### 重現指令
+```sh
+swift test                                                   # 269 個（原 188 + 新增 81），40 個 suite
+swift test --filter ListIdentityTests --filter LinkSlotLayoutTests --filter ReadingPositionTests --filter SeekHoldTests
+swift test --filter SchedulerInvariantTests --filter RebaseTests --filter FreezeResumeTests
+swift test --filter HitTesting --filter ControlStripLayout --filter PositionIndicator --filter PointerHover --filter LinkPolicy --filter LinkOpening --filter LinkOpenerGuard
+python3 Tests/n2-mutations.py                                # 25 個 mutation，約 6 分鐘；完整輸出存於 Tests/evidence/n2-mutations.log
+```
+測試檔：`Tests/FastBullTickerCoreTests/{ListIdentityTests,ReadingPositionTests,SeekHoldTests,TickerLayoutTests(LinkSlotLayoutTests),RebaseTests,SchedulerInvariantTests}.swift`、
+`Tests/FastBullTickerAppTests/{HitTestingTests,PositionIndicatorTests,PointerHoverTests,LinkPolicyTests,LinkOpenerGuardTests,LinkTestSupport}.swift`。
+
+### fail-then-pass
+- **紅**（先寫測試、實作尚未存在）：Core 測試編譯失敗，`Tests/evidence/N2-core-red.log`（例如 `extra argument 'linkSlotWidth' in call`、`PlacedItem has no member 'listID'`、`TickerScheduler has no member 'seek'`）；
+  App 測試編譯失敗，`Tests/evidence/N2-app-red.log`（`cannot find 'HitItem'`、`ControlStripLayout`、`HitTarget` 等，98 行）。
+- **綠**：實作後 `swift test` → `Test run with 269 tests in 40 suites passed`；`swift build` 0 warning。
+- 實作後唯一一個既有測試需要改動：`RebaseTests.visualPositionsUnchangedAndMagnitudesShrink` 的 `abs(tapeX) < 5000` 界線。
+  原因：預設 `retainPlacedCount = 64` 使 rebase 後保留最近 64 則（座標為負、每則約 150），界線放寬為 `5000 + 64 × 150`（其餘斷言不變）。這是規格要求（rebase 須保留以供 `<` 回溯）造成的必要變更，不是為了讓測試通過而放寬。
+- **mutation**（`python3 Tests/n2-mutations.py`，逐一破壞 → 跑全部測試 → 還原）：25 個破壞全部變紅，還原後 269 個全綠。摘要：
+  S1 seek 改動某個 tapeX → 紅（不變量 1、`seekNeverChangesAnyTapeXOrWidth` 類測試與 `SchedulerInvariantTests`）；S2 對齊偏 1pt → 紅；S3 指標停留不凍結 → 紅；
+  S4 凍結期間仍消耗保持 → 紅（`pointerInsideFreezesAndDoesNotConsumeHold`、`SchedulerInvariantTests`）；S5 保持累加而非重設 → 紅；S6 強制排入少 gap → 紅；
+  S7 rebase 不保留最近 N 則 → 紅；S8 內縮線 `>=` → 紅（`rightEdgeEqualToInsetMeansNextOne`）；S9 即時批次總數不含佇列 → 紅；S10 清單第一則 `<` 不停住 → 紅；
+  S11 隱藏中 seek 仍動作 → 紅；S12 `setPointerInside` 不先推進時鐘 → 紅；S13 seq 重複 → 紅；L1 連結欄位未扣截斷預算 → 紅；L2 無 url 也保留欄位 → 紅；
+  P1 `LinkPolicy` 放行 `javascript:` → 紅；P2 放行 userinfo → 紅；P3 不限長度 → 紅；P4 按鈕不再優先 → 紅；P5 忽略 hitSlop → 紅；P6 標籤內迴紋針有效 → 紅；
+  P7 `(n/N)` 格式 → 紅；P8 隱藏面板仍算在內 → 紅；P9 失敗時重試 → 紅；P10 守衛放寬 → 紅。
+  S13 在第一輪時以 helper 崩潰（`Duplicate values for key`）呈現，同樣是紅；已把輔助函式改為不崩潰後重跑，變成 16 個測試的斷言失敗（見 log 末尾補記）。
+
+### 守衛
+`LinkOpenerGuardTests` 掃描 `Tests/` 不得出現真實開啟連結的呼叫（`NSWorkspace` 加 `.shared.open`；守衛自己以拼接組字串避免掃到自己），`Sources/` 只有 `Workspace*Opener.swift` 可以出現（目前尚無，`WorkspaceURLOpener.swift` 屬 N3），
+並掃描 `Sources/` 不得有 `NSApp.activate`／`activate(ignoringOtherApps`。守衛會失敗這件事以「暫存目錄植入違規」證明（`plantedViolationInTestsFails` 等），不修改真實檔案。
+
+### 不變量對應（design.md 決定 4）
+`SchedulerInvariantTests`（固定種子 20261024，30,000 步；另 5 個種子各 8,000 步）以 A（會 rebase）／B（對照，不 rebase）兩個排程器吃同一串 tick／items／hide／show／seek（連按 1–4 次）／指標進出／rebase，逐步斷言：
+1 既有訊息 tapeX／width 不因 seek 改變（A、B 皆驗）；2 相鄰間距恆為 gap（含強制排入）；3 兩次 seek／rebase 之間 `scrollOffset` 為 tape 時間純函數；
+4 隱藏與指標停留不推進時間、不消耗保持，隱藏 ≥1 小時恢復不跳動；5 rebase 前後視覺位置相同、保留最近 `retainPlacedCount` 則、清單總數仍可查；
+6 每則即時訊息只播一次（含 `>` 強制排入）；7 `readingPosition` 為純函數且 A、B 一致；8 seek 成功後 `readingItem == target`、目標貼齊視覺左緣 0、保持重設。
+涵蓋計數也被斷言（seek >1000、成功 >300、強制排入 >50、指標進入 >100、凍結 tick >1000、保持中 tick >100），避免空轉通過。
+該場景把 `seekHoldSeconds` 設為 2（預設 8 會讓隨機 seek 幾乎總在保持中、帶子長期靜止）；預設值本身由 `SeekHoldTests` 驗證。
+
+---
+
+## ticker-navigation-link 第 N3 段：渲染與視圖、組裝與煙霧測試、整體驗證（tasks 7.1、8.1、10.1，2026-10-25，分支 `change/ticker-navigation-link`）
+
+規格：`openspec/changes/ticker-navigation-link/design.md` 決定 7–11。**自動測試不開真實視窗、不開瀏覽器、不連正式網站**（`LinkOpenerGuardTests` 掃描保證 `Tests/` 沒有真實開啟連結的呼叫，`Sources/` 只有 `WorkspaceURLOpener.swift` 有）。標【假設】者（粗體字型 Semibold、迴紋針自繪外觀、控制列配色、26pt 連結欄位、4pt hitSlop）尚未經使用者確認；**所有視覺行為未目視驗證**。
+
+### 重現指令（專案根目錄）
+```sh
+swift test                                                       # 309 個（N2 為 269，N3 新增 40 個），48 個 suite
+swift test --filter TickerRenderer                               # 7.1：粗體時間、迴紋針像素、add 冪等、向後 seek 重建、控制列版面
+swift test --filter NavigationView                               # 7.1：滑鼠事件分派（mouse-up 觸發、右鍵、拖曳注入點、追蹤區）
+swift test --filter NavigationLinkOpener                         # 7.1：opener 只收 OpenableURL
+swift test --filter AppSmoke                                     # 8.1：headless 煙霧（含 AppSmokeNavigationTests）
+swift test --filter LinkOpenerGuard                              # 守衛：Tests/ 不得真開連結；Sources/ 只有 Workspace*Opener.swift；不得啟用本 App
+python3 Tests/demo-helper-protocol-check.py                      # 示範 helper 輸出通過協定驗證（含 url），約 7 秒
+python3 Tests/n3-mutations.py                                    # 22 組 mutation（約 4 分鐘）；輸出存於 Tests/evidence/n3-mutations.log
+N3_SNAPSHOT_DIR=/某目錄 swift test --filter PanelSnapshot        # 離屏渲染 PNG（範例：Tests/evidence/n3-panel-offscreen.png）
+```
+測試檔：`Tests/FastBullTickerAppTests/{TickerRendererTests,NavigationViewTests,NavigationLinkOpenerTests,AppSmokeTests,PanelSnapshotTests}.swift`；實作：`Sources/FastBullTickerApp/{ItemBitmap,TickerView,TickerDriver,ShellConfig,PositionIndicator,NavigationInput,NavigationActions,WorkspaceURLOpener,AppCoordinator,AppDelegate}.swift`、`scripts/demo-helper.sh`。
+
+### fail-then-pass
+- **紅**：先寫完測試、實作尚未存在時 `swift build --build-tests` 編譯失敗，233 個 error（`cannot find 'ControlStripState'`、`'ItemText'`、`value of type 'ShellConfig' has no member 'strip'`、`'TickerDriver' has no member 'reconcilePointer'`、`extra argument 'seq'`…），完整輸出 `Tests/evidence/N3-red.log`。
+- **綠**：實作後 `swift test` → `Test run with 309 tests in 48 suites passed`；`swift build` 0 warning。
+- 實作後我方測試自己的兩個錯誤（不是實作問題）：`linkOnlyWithinVisibleBandNotUnderControlStrip` 的幾何算錯（visualLeft 應為 130／250，已修）、`driverPushesControlStateOnlyWhenItChanges` 誤期待初始就送一次狀態（初始與視圖預設相同不送，已改）。
+- 唯一動到的既有測試：`TickerRendererTests` 的 `RecordingRenderer`／`TrackModelTests` 改用 `TrackModel.add(seq:tapeX:width:)`（`TrackModel` 依 design 決定 7 改以 Core 的 `seq` 為鍵），斷言內容不變。
+
+### mutation（`python3 Tests/n3-mutations.py`，逐一破壞→跑全部測試→還原）
+22 組全部變紅，還原後 309 個全綠。**第一輪有 1 組存活（A1：迴紋針開啟了別則的連結）**——因為測試只比對 host 與 path 前綴，且點的剛好是第一則；已把測試改為點非第一則並比對完整網址（`https://example.com/demo/<被點擊那一則的 id>`），補跑 A1 後變紅（附在 log 末尾）。摘要：
+
+| 破壞 | 變紅的測試 |
+|---|---|
+| N1 按鈕改在 mouse-down 觸發 | `buttonsFireOnMouseUpNotMouseDown`、`releasingOutsideThePressedTargetDoesNotFire`、`arrowButtonsChangePositionAndHoldTimer` |
+| N2 mouse-up 不核對目標 | `releasingOutsideThePressedTargetDoesNotFire` |
+| N3 右鍵當左鍵 | `rightAndOtherButtonsNeverTrigger` |
+| N4 `.drag` 不呼叫 performDrag／N5 按鈕與迴紋針也拖曳 | `onlyDragTargetCallsPerformDrag`（及 `linkFiresOnMouseUpWithItsSeq` 等） |
+| N6 點穿仍處理事件 | `disabledRouterIgnoresEverything` |
+| R1 `TrackModel.add` 不冪等 | `trackModelAddIsIdempotentPerSeq`、`viewAddTwiceKeepsOneLayer`、`backwardSeekRebuildsPrunedLayersWithoutDuplicates` |
+| R2 向後 seek 不重建圖層 | `backwardSeekRebuildsPrunedLayersWithoutDuplicates`、`seekNextForcePlacesAndAddsNewLayer` |
+| R3 seek 後不同步位移／R4 控制列狀態每次推送／R5 `TickerView.add` 不冪等 | `backwardSeek…`／`driverPushesControlStateOnlyWhenItChanges`／`viewAddTwiceKeepsOneLayer`（以 scrollLayer 實際子圖層數抓出孤兒圖層） |
+| B1 時間不粗體／B2 迴紋針不繪製 | `boldPrefixIsExactly…`、`timeRunIsBoldAndRestIsRegular`／`paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink` |
+| V1 可視寬度寫死 470／V2 裁切區蓋到控制列／V3 `<` 永遠啟用 | `tapeViewportIsDerivedFromControlStripNotHardCoded`、`viewLayoutMatchesControlStripLayoutAndHitTesting`／`stateFromReadingPosition` |
+| H1 核對不採用 mouseLocation／H2 進出事件不轉給 Core | `lostExitEventIsRecoveredByMouseLocationReconcile`／`pointerInsideFreezesScrollingAndLeavingResumes` |
+| A1 開了別則連結（補強後）／A2 迴紋針沒接上／A3 `>` 沒接上 | `clickingPaperclipOpensExactly…`／同左、`failedOpenIsNotRetried`、`policyBlockedURLNeverReachesTheOpener`／`arrowButtonsChangePositionAndHoldTimer` |
+| O1 opener 啟用本 App | `realTreeIsClean`、`sourcesNeverCallApplicationActivation` |
+
+### 8.1 煙霧測試涵蓋（`AppSmokeNavigationTests`，不開視窗、假 opener）
+點迴紋針→假 opener 恰收到一次 https 網址且等於被點擊那一則；無 `url` 的訊息不產生迴紋針、點遍整條帶子 opener 為零；`javascript:` 被 `LinkPolicy` 擋下；opener 失敗不重試；點 `<`／`>` 使 `(n/N)` 與保持計時（8 秒、第 5 秒仍不動、第 9 秒恢復、再點重設）符合預期；清單第一則按 `<` 無動作；指標進入凍結、離開恢復；exit 事件遺失由 `mouseLocation` 核對補救（面板點穿或隱藏時不暫停）；`router.isEnabled = false`（點穿）時無動作；示範 helper 經 `FeedClient` 嚴格解碼 `badLines == 0` 且 `url` 有帶與沒帶者都存在。`grep -rn "activate(" Sources/` 無對 `NSApp`／`NSApplication` 的呼叫（只有註解與 `NSWorkspace.OpenConfiguration.activates` 屬性，那是讓瀏覽器成為前景）。
+
+### 10.1 整體驗證（2026-10-25 實跑）
+`swift build` 0 warning；`make helper app sign test` 成功（309 個）；`codesign --verify --strict build/FastBullTicker.app` 通過；`sh Tests/app-packaging-check.sh` ALL PASS；`cargo test` 76 通過；`python3 -m unittest discover -s protocol/tests` 12 個 OK；`cd spikes && swift build && tests/run_script_tests.sh` passed=41；`openspec validate --all --strict` 13 項全過。
+
+### 真機啟動驗證（一次，約 13 秒；示範 helper、`FASTBULL_TICKER_AUTOQUIT_SECONDS=12`）
+日誌（節錄；視覺一律**未目視驗證**）：
+```
+layout: tapeViewport=370 controlStrip=100 linkSlot=26 hitSlop=4 panel=620x42
+panel effective: level=25 behavior=[canJoinAllSpaces,fullScreenAuxiliary,ignoresCycle,stationary] styleMask=[borderless,nonactivatingPanel] hidesOnDeactivate=false canBecomeKey=false canBecomeMain=false isOpaque=false hasShadow=false alpha=0.90 …
+feed: snapshot items=12 withUrl=8
+reading: (1/10)   …   reading: (2/10)
+feed: items count=1 withUrl=1      mode -> live
+final stats: … withUrl=25/37 badLines=0 placed=3 …     quit: helper shutdown completed     terminate
+```
+注意（環境因素，不是本段程式缺陷）：這台機器在我啟動前已有一個舊的 `FastBullTicker`（pid 39445，22:38 啟動，使用者或協調者開的）與其 helper 在執行，兩個實例共用同一個 pid file（`~/Library/Application Support/FastBullTicker/helper.pid`）。我的實例啟動時依既有「回收殘留 helper」邏輯**終止了該舊實例的 helper**（日誌 `reclaimed stale helper pid=39512`），雙方因此互相回收、日誌中 helper 反覆 `exited`／重啟（`snapshots=3`）。舊實例（39445）及其新 helper 在我結束後仍在執行，我沒有動它。**我自己啟動的行程已全部結束**。

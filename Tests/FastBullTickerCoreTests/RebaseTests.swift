@@ -25,7 +25,10 @@ import Foundation
         // rebase 可能移除已捲出者：以尾端對齊比較
         let tail = beforeVisual.suffix(afterVisual.count)
         #expect(Array(tail) == afterVisual)
-        #expect(a.placed.map(\.tapeX).allSatisfy { abs($0) < 5000 })
+        // 2026-10-24（ticker-navigation-link 5.1）：預設另外保留最近 retainPlacedCount(64) 則供 `<` 回溯，
+        // 它們的 tapeX 為負（每則約 150），所以界線放寬為 5000 + 64 × 150。
+        #expect(a.placed.map(\.tapeX).allSatisfy { abs($0) < 5000 + Double(a.config.retainPlacedCount) * 150 })
+        #expect(a.placed.count >= a.config.retainPlacedCount)
         // tapeX 位移恰為 delta，間距/寬度/順序不變
         let bTail = b.placed.suffix(a.placed.count)
         for (x, y) in zip(a.placed, bTail) {
@@ -86,5 +89,18 @@ import Foundation
         s = makeScheduler(clock, config: c)
         clock.t = 2; _ = s.tick()
         #expect(s.shouldRebase)
+    }
+
+    @Test func previousStillWorksAfterLongRunRebase() {
+        var (_, a, _) = pair(seconds: 5000)
+        let readingBefore = a.readingPosition
+        #expect(readingBefore != nil && readingBefore!.index > 1, "場景需讓閱讀中那一則不是清單第一則；若不是請調整秒數")
+        _ = a.rebase()
+        #expect(a.readingPosition == readingBefore.map { ReadingPosition(item: a.readingItem!, index: $0.index, total: $0.total) })
+        let spacing = zip(a.placed, a.placed.dropFirst()).map { $1.tapeX - $0.tapeX }
+        guard case .moved(let target, _) = a.seek(.previous) else { Issue.record("rebase 後 seek(.previous) 應成功"); return }
+        #expect(target.seq == readingBefore!.item.seq - 1)
+        #expect(abs(a.visualX(of: target)) < 1e-6)
+        #expect(zip(a.placed, a.placed.dropFirst()).map { $1.tapeX - $0.tapeX } == spacing)
     }
 }

@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 import CoreGraphics
+import CoreText
 @testable import FastBullTickerApp
 import FastBullTickerCore
 
@@ -13,10 +14,16 @@ final class ManualClock { var t: Double = 100 }
 final class RecordingRenderer: TickerRenderer {
     enum Call: Equatable { case add(String), offset(Double), rebase(Double), paused(Bool) }
     var calls: [Call] = []
+    var controlStates: [ControlStripState] = []
+    var duplicateAdds = 0
     var track = TrackModel()
     var offset = 0.0
     var paused = false
-    func add(_ item: PlacedItem) { calls.append(.add(item.id)); track.add(tapeX: item.tapeX, width: item.width) }
+    func add(_ item: PlacedItem) {
+        // 與 TickerView 同一套冪等邏輯：同一 seq 已在帶子上就略過。
+        if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }
+    }
+    func setControlStrip(_ state: ControlStripState) { controlStates.append(state) }
     func setScrollOffset(_ o: Double) { calls.append(.offset(o)); offset = o; _ = track.prune(offset: o) }
     func applyRebase(delta: Double) { calls.append(.rebase(delta)); track.rebase(delta: delta) }
     func setPaused(_ p: Bool) { calls.append(.paused(p)); paused = p }
@@ -69,8 +76,9 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
 @Suite struct TrackModelTests {
     @Test func rebasePreservesVisualPositionsAndPrunesScrolledOut() {
         var m = TrackModel()
-        let a = m.add(tapeX: 1_000_000, width: 300)
-        let b = m.add(tapeX: 1_000_348, width: 300)
+        let a = 1, b = 2
+        let addedA = m.add(seq: a, tapeX: 1_000_000, width: 300), addedB = m.add(seq: b, tapeX: 1_000_348, width: 300)
+        #expect(addedA && addedB)
         let offset = 1_000_100.0
         let before = (m.visualX(seq: a, offset: offset)!, m.visualX(seq: b, offset: offset)!)
         m.rebase(delta: offset)
@@ -184,5 +192,221 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
         let liveToReplay = zip(modes, modes.dropFirst()).filter { $0 == .live && $1 == .replay }.count
         #expect(liveToReplay >= 3, "modes=\(modes)")
         #expect(modes.first == .replay)
+    }
+}
+
+
+// MARK: N3（task 7.1）：粗體時間、迴紋針、add 冪等、向後 seek 重建圖層、控制列版面
+
+@Suite struct TickerRendererBoldTimeTests {
+    private let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+
+    private func psName(_ s: NSAttributedString, at i: Int) -> String? {
+        guard let f = s.attribute(NSAttributedString.Key(kCTFontAttributeName as String), at: i, effectiveRange: nil) else { return nil }
+        return CTFontCopyPostScriptName(f as! CTFont) as String
+    }
+
+    @Test func boldPrefixIsExactlyTheTimeAndSpaceAware() {
+        #expect(ItemText.boldPrefixLength(of: "12:34:56 美股盤前") == 8)
+        #expect(ItemText.boldPrefixLength(of: "00:00:00 ") == 8)
+        #expect(ItemText.boldPrefixLength(of: "美股盤前 12:34:56") == 0, "只有開頭的時間粗體")
+        #expect(ItemText.boldPrefixLength(of: "1:34:56 x") == 0)
+        #expect(ItemText.boldPrefixLength(of: "12-34-56 x") == 0)
+        #expect(ItemText.boldPrefixLength(of: "12:34") == 0)
+        #expect(ItemText.boldPrefixLength(of: "") == 0)
+    }
+
+    @Test func timeRunIsBoldAndRestIsRegular() {
+        let s = r.attributedString("12:34:56 美股盤前：道指期貨")
+        for i in 0..<8 { #expect(psName(s, at: i) == ItemBitmapRenderer.boldFontName, "index \(i)") }
+        for i in 8..<s.length { #expect(psName(s, at: i) == ItemBitmapRenderer.fontName, "index \(i)") }
+        #expect(ItemBitmapRenderer.boldFontName != ItemBitmapRenderer.fontName)
+    }
+
+    @Test func measurerUsesTheSameAttributedStringAsDrawing() {
+        // 粗體時間比一般字重寬或等寬，但量測值必須等於以同一建構函式算出的寬度。
+        let s = "12:34:56 abc"
+        let direct = Double(CGFloat(CTLineGetTypographicBounds(CTLineCreateWithAttributedString(r.attributedString(s)), nil, nil, nil)).rounded(.up) + 28)
+        #expect(r.measurer(s) == direct)
+    }
+}
+
+@Suite struct TickerRendererLinkSlotTests {
+    private let scale: CGFloat = 2
+    private func item(url: String?, slot: Bool, style: TickerStyle = .replay, width: Double = 0) -> PlacedItem {
+        PlacedItem(source: "t", id: "1", style: style, timeString: "12:34:56", text: "美股盤前", truncated: false,
+                   tapeX: 0, width: width, url: url, seq: 1, listID: 1, listIndex: 1, hasLinkSlot: slot)
+    }
+    /// 取 bitmap 中某欄範圍內「前景色（亮於 128）」的像素數（replay 為黑底白字）。
+    private func foregroundCount(_ images: [CGImage], px: Range<Int>) -> Int {
+        guard let img = images.first, let data = img.dataProvider?.data, let ptr = CFDataGetBytePtr(data) else { return -1 }
+        let bpr = img.bytesPerRow, bpp = img.bitsPerPixel / 8
+        var n = 0
+        for y in 0..<img.height { for x in px where x < img.width && ptr[y * bpr + x * bpp] > 128 { n += 1 } }
+        return n
+    }
+
+    @Test func paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink() {
+        let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+        let textW = r.measurer("12:34:56 美股盤前")
+        let w = textW + 26
+        let slotPx = Int((CGFloat(w - 26) * scale).rounded(.up))..<Int((CGFloat(w) * scale).rounded(.up))
+        let with = r.render(item(url: "https://example.com/demo/1", slot: true, width: w), scale: scale)
+        let without = r.render(item(url: nil, slot: false, width: textW), scale: scale)
+        #expect(foregroundCount(with, px: slotPx) > 20, "欄位內有迴紋針的前景像素")
+        #expect(foregroundCount(without, px: slotPx) == 0, "無連結：該範圍沒有任何前景像素（本來就沒有欄位）")
+        let sumWith = with.map(\.width).reduce(0, +), sumWithout = without.map(\.width).reduce(0, +)
+        #expect(sumWith == Int((CGFloat(w) * scale).rounded(.up)))
+        #expect(sumWithout == Int((CGFloat(textW) * scale).rounded(.up)))
+    }
+
+    @Test func paperclipColorFollowsStyle() {
+        let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+        let w = r.measurer("12:34:56 美股盤前") + 26
+        // live＝白底黑字：迴紋針是暗色，欄位內「亮於 128」的像素佔絕大多數（背景），replay 則相反。
+        let slotPx = Int((CGFloat(w - 26) * scale).rounded(.up))..<Int((CGFloat(w) * scale).rounded(.up))
+        let live = r.render(item(url: "https://example.com/demo/1", slot: true, style: .live, width: w), scale: scale)
+        let replay = r.render(item(url: "https://example.com/demo/1", slot: true, style: .replay, width: w), scale: scale)
+        let total = slotPx.count * live[0].height
+        #expect(foregroundCount(live, px: slotPx) > total * 8 / 10)
+        #expect(foregroundCount(replay, px: slotPx) < total * 2 / 10)
+    }
+
+    @Test func schedulerWidthWithSlotEqualsMeasurerPlusSlotAndMatchesBitmap() throws {
+        let r = ItemBitmapRenderer(fontSize: 16, padding: 14, heightPt: 42, textureLimitPx: 16_384, linkSlotWidth: 26)
+        var cfg = ShellConfig.provisional.schedulerConfig(timeZone: TimeZone(secondsFromGMT: 0)!)
+        cfg.linkSlotWidth = 26
+        var sched = TickerScheduler(config: cfg, clock: { 0 }, measurer: r.measurer)
+        _ = sched.receive(.snapshot([Item(source: "t", id: "1", publishedAtMs: 0, text: "測試訊息", url: "https://example.com/demo/1")]))
+        let p = try #require(sched.tick().first)
+        #expect(p.hasLinkSlot)
+        #expect(p.width == r.measurer(p.timeString + " " + p.text) + 26)
+        let tiles = r.render(p, scale: scale)
+        #expect(tiles.map(\.width).reduce(0, +) == Int((CGFloat(p.width) * scale).rounded(.up)))
+    }
+}
+
+@MainActor
+@Suite struct TickerRendererIdempotencyTests {
+    @Test func trackModelAddIsIdempotentPerSeq() {
+        var m = TrackModel()
+        let first = m.add(seq: 5, tapeX: 100, width: 50), second = m.add(seq: 5, tapeX: 999, width: 1)
+        #expect(first)
+        #expect(!second, "同 seq 第二次略過，座標不被覆蓋")
+        #expect(m.entries == [TrackModel.Entry(seq: 5, tapeX: 100, width: 50)])
+        #expect(m.contains(seq: 5) && !m.contains(seq: 6))
+    }
+
+    @Test func viewAddTwiceKeepsOneLayer() {
+        let v = TickerView(config: .provisional)
+        let p = PlacedItem(source: "t", id: "1", style: .live, timeString: "12:34:56", text: "x", truncated: false,
+                           tapeX: 400, width: 120, url: nil, seq: 9, listID: 1, listIndex: 1, hasLinkSlot: false)
+        v.add(p); v.add(p)
+        #expect(v.layerCount == 1 && v.layerSeqs == [9] && v.containerCount == 1, "重複 add 不留下孤兒圖層")
+    }
+
+    @Test func backwardSeekRebuildsPrunedLayersWithoutDuplicates() {
+        let clock = ManualClock()
+        let (d, r) = makeDriver(clock: clock)
+        d.receive(.snapshot(sampleItems(10)))
+        d.step()
+        // 讓閱讀位置走到清單第 6 則以後（左側早已被 prune）。
+        var guardN = 0
+        while (d.scheduler.readingPosition?.index ?? 0) < 6 && guardN < 400 { clock.t += 0.5; d.step(); guardN += 1 }
+        #expect((d.scheduler.readingPosition?.index ?? 0) >= 6)
+        var rebuilt = 0
+        for _ in 0..<4 {
+            let beforeSeqs = Set(r.track.entries.map(\.seq))
+            let outcome = d.seek(.previous)
+            guard case .moved(let target, _) = outcome else { Issue.record("seek 失敗 \(outcome)"); return }
+            if !beforeSeqs.contains(target.seq) { rebuilt += 1 }
+            #expect(r.track.contains(seq: target.seq), "目標圖層存在")
+            #expect(abs(r.offset - target.tapeX) < 1e-9, "目標貼齊視窗左緣")
+            let seqs = r.track.entries.map(\.seq)
+            #expect(seqs.count == Set(seqs).count, "圖層不重複")
+        }
+        #expect(rebuilt >= 1, "至少有一次目標圖層原本已被 prune 而需要重建（否則測試沒有鑑別力）")
+    }
+
+    @Test func seekNextForcePlacesAndAddsNewLayer() {
+        let clock = ManualClock()
+        let (d, r) = makeDriver(clock: clock)
+        d.receive(.snapshot(sampleItems(3)))
+        d.step(); clock.t += 1; d.step()
+        let before = d.itemsPlaced
+        var n = 0
+        while n < 3 { if case .moved = d.seek(.next) { n += 1 } else { break } }
+        #expect(n == 3)
+        #expect(d.itemsPlaced > before - 1)
+        #expect(r.track.contains(seq: d.scheduler.readingItem!.seq))
+    }
+}
+
+@MainActor
+@Suite struct TickerRendererControlStripTests {
+    private func pos(_ i: Int, _ n: Int) -> ReadingPosition {
+        ReadingPosition(item: PlacedItem(source: "t", id: "1", style: .live, timeString: "", text: "", truncated: false, tapeX: 0, width: 100),
+                        index: i, total: n)
+    }
+    @Test func stateFromReadingPosition() {
+        #expect(ControlStripState.from(position: nil) == ControlStripState(text: "", previousEnabled: false, nextEnabled: false))
+        #expect(ControlStripState.from(position: pos(1, 10)) == ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+        #expect(ControlStripState.from(position: pos(10, 10)) == ControlStripState(text: "(10/10)", previousEnabled: true, nextEnabled: true), "最後一則仍可按 >（跳下一輪）")
+    }
+
+    @Test func driverPushesControlStateOnlyWhenItChanges() {
+        let clock = ManualClock()
+        let (d, r) = makeDriver(clock: clock)
+        d.receive(.snapshot(sampleItems(10)))
+        d.step()
+        #expect(r.controlStates.isEmpty, "初始（無閱讀位置）與視圖預設相同，不送")
+        clock.t += 6; d.step()                     // 第一則進入閱讀範圍
+        let t1 = r.controlStates.last
+        #expect(t1?.text.hasPrefix("(1/10)") == true)
+        let n = r.controlStates.count
+        d.step(); d.step()
+        #expect(r.controlStates.count == n, "狀態沒變就不重送")
+    }
+
+    @Test func viewLayoutMatchesControlStripLayoutAndHitTesting() {
+        let cfg = ShellConfig.provisional
+        let v = TickerView(config: cfg)
+        let l = v.layoutSnapshot
+        let w = Double(cfg.panelSize.width)
+        #expect(Double(l.stripFrame.minX) == w - cfg.controlStripWidth && Double(l.stripFrame.maxX) == w)
+        #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(panelWidth: w).lowerBound)
+        #expect(Double(l.previousFrame.width) == cfg.strip.buttonWidth)
+        #expect(Double(l.indicatorFrame.minX) == cfg.strip.indicatorRange(panelWidth: w).lowerBound)
+        #expect(Double(l.indicatorFrame.width) == cfg.strip.indicatorWidth)
+        #expect(Double(l.nextFrame.minX) == cfg.strip.nextButtonRange(panelWidth: w).lowerBound)
+        #expect(Double(l.clipFrame.maxX) <= Double(l.stripFrame.minX), "帶子裁切在控制列之外")
+        #expect(Double(l.clipFrame.maxX) == Double(cfg.labelWidth) + cfg.tapeViewportWidth)
+        // 版面中心點經 HitTesting 必為對應動作（版面與命中測試一致）。
+        let g = cfg.hitGeometry
+        func hit(_ r: CGRect) -> HitTarget { HitTesting.target(at: CGPoint(x: r.midX, y: r.midY), in: g, items: []) }
+        #expect(hit(l.previousFrame) == .previousButton)
+        #expect(hit(l.nextFrame) == .nextButton)
+        #expect(hit(l.indicatorFrame) == .drag)
+    }
+
+    @Test func disabledButtonsAreDimmedAndIndicatorTextShown() {
+        let v = TickerView(config: .provisional)
+        v.setControlStrip(ControlStripState(text: "(1/10)", previousEnabled: false, nextEnabled: true))
+        var l = v.layoutSnapshot
+        #expect(l.indicatorText == "(1/10)")
+        #expect(l.previousOpacity < l.nextOpacity && l.nextOpacity == 1)
+        v.setControlStrip(ControlStripState(text: "(2/10)", previousEnabled: true, nextEnabled: true))
+        l = v.layoutSnapshot
+        #expect(l.previousOpacity == 1 && l.indicatorText == "(2/10)")
+    }
+
+    @Test func tapeViewportIsDerivedFromControlStripNotHardCoded() {
+        var cfg = ShellConfig.provisional
+        #expect(cfg.tapeViewportWidth == 370 && cfg.controlStripWidth == 100)
+        #expect(cfg.schedulerConfig().viewportWidth == 370 && cfg.schedulerConfig().linkSlotWidth == cfg.linkSlotWidth)
+        cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
+        #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
+        let l = TickerView(config: cfg).layoutSnapshot
+        #expect(Double(l.clipFrame.maxX) == 150 + 350)
     }
 }

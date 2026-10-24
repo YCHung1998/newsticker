@@ -13,6 +13,14 @@ public struct SchedulerConfig: Sendable {
     public var historyLimit: Int = 200
     public var timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
     public var rebaseThreshold: Double = 500_000
+    /// `seek` 成功後捲動保持的秒數（0 = 不保持）【假設：8】。
+    public var seekHoldSeconds: Double = 8
+    /// 閱讀位置內縮：右緣必須大於此值才算「閱讀中」。須小於任何訊息的 `width`【假設：24pt】。
+    public var readingInset: Double = 24
+    /// 連結欄位寬度；只套用於有 `url` 的訊息。0 = 不保留欄位（實際值由 App 層設定）。
+    public var linkSlotWidth: Double = 0
+    /// rebase 後至少保留的已排入訊息數，使 `<` 仍可回溯【假設：64】。
+    public var retainPlacedCount: Int = 64
     public init() {}
 }
 
@@ -25,6 +33,40 @@ public struct PlacedItem: Equatable, Sendable {
     public var truncated: Bool
     public var tapeX: Double
     public var width: Double
+    /// 原樣取自 `Item.url`。
+    public var url: String? = nil
+    /// 排入序號：排程器內從 1 起單調遞增，唯一識別一次「排入」。
+    public var seq: Int = 0
+    /// 所屬清單（一輪重播，或一個即時批次）與在清單內的序號（從 1 起）。排入後不變。
+    public var listID: Int = 0
+    public var listIndex: Int = 0
+    /// `width` 是否含最右側的連結欄位。
+    public var hasLinkSlot: Bool = false
+
+    public init(source: String, id: String, style: TickerStyle, timeString: String, text: String, truncated: Bool,
+                tapeX: Double, width: Double, url: String? = nil, seq: Int = 0, listID: Int = 0, listIndex: Int = 0,
+                hasLinkSlot: Bool = false) {
+        self.source = source; self.id = id; self.style = style; self.timeString = timeString; self.text = text
+        self.truncated = truncated; self.tapeX = tapeX; self.width = width; self.url = url; self.seq = seq
+        self.listID = listID; self.listIndex = listIndex; self.hasLinkSlot = hasLinkSlot
+    }
+}
+
+public struct ReadingPosition: Equatable, Sendable {
+    public var item: PlacedItem
+    /// `min(item.listIndex, total)`。
+    public var index: Int
+    public var total: Int
+
+    public init(item: PlacedItem, index: Int, total: Int) { self.item = item; self.index = index; self.total = total }
+}
+
+public enum SeekDirection: Sendable { case previous, next }
+
+public enum SeekOutcome: Equatable, Sendable {
+    /// 成功對齊；`newlyPlaced` 非 nil 表示 `.next` 強制排入了一則。
+    case moved(target: PlacedItem, newlyPlaced: PlacedItem?)
+    case atListStart, previousNotRetained, noReadingItem, noMaterial, hidden
 }
 
 public enum SchedulerEvent: Equatable, Sendable {
@@ -50,6 +92,9 @@ public struct TickerScheduler {
     public private(set) var placed: [PlacedItem] = []
     /// 因即時佇列上限被丟棄的累計數量。
     public private(set) var totalDropped = 0
+    /// 捲動保持剩餘秒數（seek 成功後設為 `seekHoldSeconds`，由注入時鐘消耗）。
+    public private(set) var holdRemaining: Double = 0
+    public private(set) var isPointerInside = false
 
     private var lastClock: Double
     private var hasBaseline = false
@@ -57,6 +102,12 @@ public struct TickerScheduler {
     private var liveQueue: [Item] = []      // 舊到新
     private var replayCursor = 0
     private var tailEnd: Double?            // 最後一則的 tapeX + width（pruning 後仍保留）
+    private var nextSeq = 1
+    private var nextListID = 1
+    private var replayListID: Int?          // 目前這一輪重播（游標回到起點、或離開 LIVE 後重設）
+    private var openLiveListID: Int?        // 進行中的即時批次（供料器回到 REPLAY 時關閉）
+    private var openLivePlaced = 0
+    private var closedTotals: [Int: Int] = [:]   // 已固定總數的清單（重播一輪於開始時固定；即時批次於關閉時固定）
 
     /// 單次 tick 最多補幾則（防止 width + gap 為 0 的退化設定造成無窮迴圈）。
     private static let maxPlacementsPerTick = 10_000
@@ -83,6 +134,32 @@ public struct TickerScheduler {
     public var shouldRebase: Bool { Self.shouldRebase(scrollOffset: scrollOffset, threshold: config.rebaseThreshold) }
     /// 建議 rebase 的閾值判斷（純函數）。
     public static func shouldRebase(scrollOffset: Double, threshold: Double) -> Bool { abs(scrollOffset) >= threshold }
+
+    /// 某清單目前的總數。進行中的即時批次＝已排入數＋佇列中尚未排入數（LIVE 追加使其增加）；其餘為固定值。
+    /// 清單隨其訊息一起被 rebase 清理後回傳 nil。
+    public func listTotal(of listID: Int) -> Int? {
+        if listID == openLiveListID { return openLivePlaced + liveQueue.count }
+        return closedTotals[listID]
+    }
+
+    /// 閱讀中那一則：依排入順序第一則「右緣 > readingInset 且左緣 < viewportWidth」者。純函數，不讀時鐘。
+    public var readingItem: PlacedItem? {
+        let off = scrollOffset
+        // placed 依 tapeX 遞增且互不重疊 → 右緣單調，二分搜尋第一則右緣 > inset 者。
+        var lo = 0, hi = placed.count
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if placed[mid].tapeX + placed[mid].width - off > config.readingInset { hi = mid } else { lo = mid + 1 }
+        }
+        guard lo < placed.count, placed[lo].tapeX - off < config.viewportWidth else { return nil }
+        return placed[lo]
+    }
+
+    public var readingPosition: ReadingPosition? {
+        guard let item = readingItem else { return nil }
+        let total = max(listTotal(of: item.listID) ?? item.listIndex, 1)
+        return ReadingPosition(item: item, index: min(item.listIndex, total), total: total)
+    }
 
     // MARK: 輸入
 
@@ -136,7 +213,11 @@ public struct TickerScheduler {
         let now = clock()
         let delta = max(0, now - lastClock)
         lastClock = now
-        if !isHidden { tapeTime += delta }
+        // 隱藏與指標停留各自獨立，任一成立整段都不推進、也不消耗保持。
+        guard !isHidden, !isPointerInside else { return }
+        let consumed = min(holdRemaining, delta)
+        holdRemaining -= consumed
+        tapeTime += delta - consumed
     }
 
     public mutating func hide() {
@@ -149,6 +230,13 @@ public struct TickerScheduler {
         guard isHidden else { return }
         lastClock = clock()      // 隱藏的實際時長不計入
         isHidden = false
+    }
+
+    /// 指標進出面板。先以時鐘推進（切換前的時間要算進去），再切換狀態；重複設定同一值冪等。
+    public mutating func setPointerInside(_ inside: Bool) {
+        guard inside != isPointerInside else { return }
+        advance()
+        isPointerInside = inside
     }
 
     // MARK: 供料器
@@ -167,33 +255,85 @@ public struct TickerScheduler {
             } else {
                 startX = rightEdge          // 空帶子，或尾端已完全離開
             }
-            guard let (item, style) = pullNext() else { break }
-            let layout = layoutItem(item, timeZone: config.timeZone, maxWidth: config.maxItemWidth, measurer: measurer)
-            let p = PlacedItem(source: item.source, id: item.id, style: style, timeString: layout.timeString,
-                               text: layout.text, truncated: layout.truncated, tapeX: startX, width: layout.width)
-            placed.append(p)
-            tailEnd = startX + layout.width
-            out.append(p)
+            guard let pulled = pullNext() else { break }
+            out.append(place(pulled, startX: startX))
         }
         return out
     }
 
+    /// 排入一則：`tick()` 與 `seek(.next)` 的強制排入共用，保證 `tapeX`、`seq`、清單資訊的算法只有一份。
+    private mutating func place(_ pulled: Pulled, startX: Double) -> PlacedItem {
+        let item = pulled.item
+        let layout = layoutItem(item, timeZone: config.timeZone, maxWidth: config.maxItemWidth,
+                                linkSlotWidth: config.linkSlotWidth, measurer: measurer)
+        let p = PlacedItem(source: item.source, id: item.id, style: pulled.style, timeString: layout.timeString,
+                           text: layout.text, truncated: layout.truncated, tapeX: startX, width: layout.width,
+                           url: item.url, seq: nextSeq, listID: pulled.listID, listIndex: pulled.listIndex,
+                           hasLinkSlot: layout.hasLinkSlot)
+        nextSeq += 1
+        placed.append(p)
+        tailEnd = startX + layout.width
+        return p
+    }
+
+    private struct Pulled { var item: Item; var style: TickerStyle; var listID: Int; var listIndex: Int }
+
     /// 模式只決定從哪裡取料。「佇列播完」＝供料器補料時即時佇列已空（集中在這一處）。
-    private mutating func pullNext() -> (Item, TickerStyle)? {
+    private mutating func pullNext() -> Pulled? {
         if mode == .live && liveQueue.isEmpty {
             mode = .replay
             replayCursor = 0                  // 從最新一則開始
+            replayListID = nil                // 新的一輪
+            if let id = openLiveListID { closedTotals[id] = openLivePlaced; openLiveListID = nil }
         }
         switch mode {
         case .live:
-            return (liveQueue.removeFirst(), .live)
+            if openLiveListID == nil {
+                openLiveListID = nextListID; nextListID += 1; openLivePlaced = 0
+            }
+            openLivePlaced += 1
+            return Pulled(item: liveQueue.removeFirst(), style: .live, listID: openLiveListID!, listIndex: openLivePlaced)
         case .replay:
             let latest = latestItems
             guard !latest.isEmpty else { return nil }
-            let item = latest[replayCursor % latest.count]
-            replayCursor = (replayCursor % latest.count) + 1
-            return (item, .replay)
+            let idx = replayCursor % latest.count
+            if idx == 0 || replayListID == nil {       // 游標回到起點 = 新的一輪；總數於開始時固定
+                replayListID = nextListID; nextListID += 1
+                closedTotals[replayListID!] = latest.count
+            }
+            replayCursor = idx + 1
+            return Pulled(item: latest[idx], style: .replay, listID: replayListID!, listIndex: idx + 1)
         }
+    }
+
+    // MARK: seek
+
+    /// 把閱讀中那一則的前一則／下一則對齊到視窗左緣（只改 `baseOffset`，不動任何 `tapeX`），並啟動捲動保持。
+    /// `.next` 若下一則尚未排入，立即強制排入供料器下一次會取的那一則（`tapeX` = 尾端 + gap，與正常補料相同）。
+    /// 不動作的結果不改變 `baseOffset` 與保持計時。
+    public mutating func seek(_ direction: SeekDirection) -> SeekOutcome {
+        guard !isHidden else { return .hidden }
+        advance()
+        guard let r = readingItem else { return .noReadingItem }
+        let target: PlacedItem
+        var newly: PlacedItem?
+        switch direction {
+        case .previous:
+            if r.listIndex <= 1 { return .atListStart }
+            guard let t = placed.last(where: { $0.seq == r.seq - 1 && $0.listID == r.listID }) else { return .previousNotRetained }
+            target = t
+        case .next:
+            if let t = placed.last(where: { $0.seq == r.seq + 1 }) {
+                target = t
+            } else {
+                guard let pulled = pullNext() else { return .noMaterial }
+                let p = place(pulled, startX: (tailEnd ?? 0) + config.gap)
+                target = p; newly = p
+            }
+        }
+        baseOffset = target.tapeX - config.speed * tapeTime
+        holdRemaining = config.seekHoldSeconds
+        return .moved(target: target, newlyPlaced: newly)
     }
 
     // MARK: rebase
@@ -208,9 +348,12 @@ public struct TickerScheduler {
         if let t = tailEnd { tailEnd = t - delta }
         // scrollOffset 此刻為 0：右緣 <= 0 者已完全離開；至少保留最後一則。
         if placed.count > 1 {
-            let keepFrom = placed.firstIndex { $0.tapeX + $0.width > 0 } ?? (placed.count - 1)
+            var keepFrom = placed.firstIndex { $0.tapeX + $0.width > 0 } ?? (placed.count - 1)
+            keepFrom = min(keepFrom, max(0, placed.count - config.retainPlacedCount))   // 另外保留最近 N 則供 `<` 回溯
             if keepFrom > 0 { placed.removeFirst(keepFrom) }
         }
+        let alive = Set(placed.map(\.listID))
+        closedTotals = closedTotals.filter { alive.contains($0.key) || $0.key == replayListID }
         return delta
     }
 }

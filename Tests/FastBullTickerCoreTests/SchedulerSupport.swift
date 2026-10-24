@@ -39,3 +39,18 @@ extension TickerScheduler {
         return out
     }
 }
+
+/// 帶 `url` 的版本（連結欄位測試用）。
+func itu(_ n: Int, source: String = "fastbull") -> Item {
+    var i = it(n, source: source)
+    i.url = "https://example.test/n/\(n)"
+    return i
+}
+
+extension TickerScheduler {
+    /// 以最多 1 秒的步長 tick 到時刻 t（避免一次大跳躍使尾端離開視窗而改排到右緣）。
+    mutating func tickTo(_ clock: FakeClock, _ t: Double) {
+        while clock.t + 1 < t { clock.t += 1; _ = tick() }
+        clock.t = t; _ = tick()
+    }
+}
