@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `main` always passes `openspec validate --all --strict` and every test suite that exists at that point. Never commit failing work to `main`; never force-push or rewrite history.
 - One branch per OpenSpec change: `change/<change-name>` (e.g. `change/connect-engine-fastbull`). Merge to `main` with `--no-ff` after the change's tests pass and the user has seen the evidence.
-- Commit per finished task group, message `<change-name>: <what>`. Commit only when the user asked for it or the task says so.
+- Commit per finished task group, message `<change-name>: <what>`. The user authorized (2026-10-24) committing, branching and `--no-ff` merging to `main` without asking each time, provided the tests/validation above pass and the evidence is reported afterwards. Pushing to a remote is still not authorized (no remote exists).
 - Parallel work must use separate worktrees (`git worktree add ../newsticker-<change> change/<change>`), one agent per worktree. Two agents must never edit the same working tree at once. This repo's own rule so far: changes are applied sequentially.
 - Generated artifacts (`ticker-connect/target/`, `.build/`, `build/`, `*.app`) are ignored. `spikes/RESULTS.md` and spike scripts are versioned; raw logs and CSVs are not.
 

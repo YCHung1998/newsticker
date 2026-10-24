@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- bundle identifier 與名稱為暫定【假設】（app-shell 設計待確認項），僅供本機自用 -->
+    <key>CFBundleIdentifier</key><string>local.fastbull.FastBullTicker</string>
+    <key>CFBundleName</key><string>FastBullTicker</string>
+    <key>CFBundleDisplayName</key><string>FastBullTicker</string>
+    <key>CFBundleExecutable</key><string>FastBullTicker</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundleShortVersionString</key><string>0.1.0</string>
+    <key>CFBundleVersion</key><string>1</string>
+    <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <key>LSUIElement</key><true/>
+    <key>NSHighResolutionCapable</key><true/>
+</dict>
+</plist>

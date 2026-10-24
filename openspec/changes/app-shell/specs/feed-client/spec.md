@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: 以 Process 與 Pipe 啟動 helper
-`FeedClient` MUST 以 `Process`＋`Pipe` 啟動 helper，stdout 位元組交給 Core 的 `LineBuffer` 與解碼器。helper 路徑 MUST 以 `Bundle.main.url(forAuxiliaryExecutable:)` 尋找；環境變數可覆寫路徑（僅開發用，覆寫的環境變數名稱【待確認】）。stderr MUST 一律讀走（寫入日誌或丟棄），MUST NOT 讓 stderr 管線塞滿而阻塞 helper。
+`FeedClient` MUST 以 `Process`＋`Pipe` 啟動 helper，stdout 位元組交給 Core 的 `LineBuffer` 與解碼器。helper 路徑 MUST 以 `Bundle.main.url(forAuxiliaryExecutable:)` 尋找；環境變數可覆寫路徑（僅開發用，環境變數名稱 `FASTBULL_TICKER_HELPER`【假設】，2026-10-24 自訂）。stderr MUST 一律讀走（寫入日誌或丟棄），MUST NOT 讓 stderr 管線塞滿而阻塞 helper。
 
 #### Scenario: stderr 灌滿
 - **WHEN** 假 helper 向 stderr 持續輸出數十 MB
@@ -26,7 +26,7 @@
 - **THEN** handler SHALL 被清除，CPU SHALL 不因空轉升高（測試以呼叫次數斷言）
 
 ### Requirement: 指數退避重啟
-helper 非預期結束時 MUST 以指數退避重啟：1 秒起、倍增、上限 60 秒，加 jitter（比例【待確認】，暫定 ±20%）。僅當 helper 穩定運行超過 60 秒才重置退避。退避時間計算 MUST 為可注入時鐘與亂數源的純函式並有單元測試。
+helper 非預期結束時 MUST 以指數退避重啟：1 秒起、倍增、上限 60 秒，加 jitter（比例暫定 ±20%【假設】）。僅當 helper 穩定運行超過 60 秒才重置退避。退避時間計算 MUST 為可注入時鐘與亂數源的純函式並有單元測試。
 
 #### Scenario: 連續快速崩潰
 - **WHEN** 假 helper 連續啟動即崩潰
@@ -56,14 +56,14 @@ helper 非預期結束時 MUST 以指數退避重啟：1 秒起、倍增、上�
 - **THEN** SHALL 視為活著（行長上限由 `LineBuffer` 處理）
 
 ### Requirement: 睡眠喚醒寬限
-收到 `NSWorkspace.didWakeNotification` 後 MUST 給寬限期（長度【待確認】，暫定重新起算一個完整卡死閾值），寬限期內 MUST NOT 因無輸出而判定卡死，以避免睡眠喚醒與 VPN 重連的誤判（風險 3）。
+收到 `NSWorkspace.didWakeNotification` 後 MUST 給寬限期（長度暫定重新起算一個完整卡死閾值 = 90 秒【假設】），寬限期內 MUST NOT 因無輸出而判定卡死，以避免睡眠喚醒與 VPN 重連的誤判（風險 3）。
 
 #### Scenario: 喚醒後
 - **WHEN** 系統睡眠 5 分鐘後喚醒
 - **THEN** 喚醒後寬限期內 SHALL 不重啟 helper（單元測試以假時鐘與模擬通知驗證；真機睡眠為需人工驗收）
 
 ### Requirement: 不可恢復的錯誤不無限重啟
-若啟動失敗屬不可恢復（找不到執行檔、無執行權限、簽名失敗被系統拒絕），MUST NOT 無限重啟；MUST 停止重啟並讓 UI 顯示錯誤狀態（呈現方式【待確認】）。完整分類【待確認】；可恢復錯誤（網路、helper 崩潰）依退避重啟。
+若啟動失敗屬不可恢復（找不到執行檔、無執行權限、簽名失敗被系統拒絕），MUST NOT 無限重啟；MUST 停止重啟並讓 UI 顯示錯誤狀態（呈現方式【待確認】）。暫定分類：找不到執行檔、無執行權限、`Process.run()` 拋錯（含簽名被拒）【假設】；可恢復錯誤（網路、helper 崩潰）依退避重啟。
 
 #### Scenario: 執行檔缺失
 - **WHEN** helper 路徑不存在
@@ -74,7 +74,7 @@ helper 非預期結束時 MUST 以指數退避重啟：1 秒起、倍增、上�
 - **THEN** SHALL 回報不可恢復錯誤，不進入退避迴圈
 
 ### Requirement: App 正常結束流程
-App 正常結束時 MUST 關閉 helper 的 stdin（觸發其 EOF 退出），等待短暫逾時（長度【待確認】，暫定 2 秒）仍未結束則送 SIGTERM。
+App 正常結束時 MUST 關閉 helper 的 stdin（觸發其 EOF 退出），等待短暫逾時（長度暫定 2 秒【假設】）仍未結束則送 SIGTERM。
 
 #### Scenario: helper 配合
 - **WHEN** 關閉 stdin
@@ -85,7 +85,7 @@ App 正常結束時 MUST 關閉 helper 的 stdin（觸發其 EOF 退出），等
 - **THEN** 逾時後 SHALL 收到 SIGTERM
 
 ### Requirement: 雙實例窗口
-為處理 App 被 `kill -9` 或快速重啟時舊 helper 尚未退出的窗口，MUST 使用 lock／pid file（位置【待確認】）：新 App 啟動 helper 前，若 pid file 指向仍存活的舊 helper，MUST 先終止它（或等待其退出）再啟動；同一時刻 MUST NOT 有兩個 helper 同時輪詢。
+為處理 App 被 `kill -9` 或快速重啟時舊 helper 尚未退出的窗口，MUST 使用 lock／pid file（位置 `~/Library/Application Support/FastBullTicker/helper.pid`【假設】，可由建構子注入供測試）：新 App 啟動 helper 前，若 pid file 指向仍存活的舊 helper，MUST 先終止它（或等待其退出）再啟動；同一時刻 MUST NOT 有兩個 helper 同時輪詢。
 
 #### Scenario: 快速重啟
 - **WHEN** `kill -9` App 後立即重啟

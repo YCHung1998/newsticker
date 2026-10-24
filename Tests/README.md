@@ -53,3 +53,52 @@ openspec validate show-engine-core --strict
 ## 與 Python 參考驗證器的一致性
 
 `ContractFixturesTests.everySampleMatchesManifest` 對 `protocol/fixtures/manifest.json` 的全部樣本（含程式產生的 `generated-at-limit` 1,048,576 位元組、`generated-over-limit` 1,048,577 位元組）斷言：`accept` 者解碼成功、`reject` 者失敗且原因類別（`not_json`／`schema`／`version`／`oversize`／`order`）相同。Python 端 `protocol/tests/test_contract.py` 以同一份 manifest 斷言 `refcheck.check_line`。兩端各自與 manifest 一致，因此彼此一致（傳遞性）；`manifestAndDirectoryAreOneToOne` 另檢查 manifest 與目錄一一對應，`missingFixtureFileFailsLoudly` 檢查缺檔會失敗而非略過。
+
+
+---
+
+# app-shell 第 A 段（1.1、2.1、2.2）的驗證與重現（2026-10-24）
+
+全部不連網、不需 sudo／系統權限。FeedClient 測試用「假 helper 腳本」（`/bin/sh` 暫存腳本）加「假時鐘」（`FakeClock`，只在 `advance(by:)` 時前進），不碰正式網站。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                       # 128 tests：Core 101 + App 27
+swift test --filter FeedClientTests              # 2.1 核心（含 BackoffPolicyTests、PipeReaderTests 為同檔的另兩個 suite）
+swift test --filter FeedClientResilience         # 2.2 韌性
+sh Tests/app-packaging-check.sh                  # 1.1 打包與簽名（含改 helper 一位元組的 fail-then-pass）
+python3 Tests/app-mutations.py                   # 2.1／2.2 的 11 組 mutation（約 3 分鐘；每組破壞→紅→還原）
+```
+
+| task | 測試檔（`Tests/FastBullTickerAppTests/`） | 內容 |
+|---|---|---|
+| 1.1 | （腳本）`Tests/app-packaging-check.sh` | bundle 結構、`LSUIElement`、codesign、`grep -- "--deep" Makefile` 無結果、改 helper 位元組後 verify 紅→重簽綠、helper 吃 stdin EOF 立即結束 |
+| 2.1 | `FeedClientTests.swift` | 退避純函式、EOF 清 handler、正常輸出、崩潰＋退避序列（假時鐘）、穩定 >60 秒才重置、半行＋壞行、stderr 灌滿 30MB、generation token、路徑覆寫／bundle 查找 |
+| 2.2 | `FeedClientResilienceTests.swift` | 卡死閾值、任何輸出（含半行）算活著、喚醒寬限（含 `WakeObserver` 模擬通知）、缺檔／無 +x／無法啟動＝嘗試 1 次、優雅結束（stdin EOF／忽略 EOF→SIGTERM）、pid file 清除孤兒 helper 且不誤殺無關行程 |
+| 共用 | `Support.swift` | `FakeClock`、`EventLog`、`Sandbox`（暫存腳本）、`waitUntil` |
+
+## fail-then-pass 證據（誠實說明）
+
+- **做法**：測試與實作是一起寫完、再對實作做「故意破壞→測試變紅→還原→變綠」的 mutation（不是先對空實作看紅）。這與 Core 的 3.x、Rust helper 的做法相同。
+- 1.1：`Tests/evidence/1.1-packaging.log`——改 helper 一位元組後 `codesign --verify` 輸出 `invalid signature (code or signature have been modified)`（紅），重新 `make sign` 後通過（綠）。
+- 2.1／2.2：`Tests/evidence/app-mutations.log`——11 組 mutation 全部變紅，還原後 `27 tests in 4 suites passed`。
+
+| mutation | 破壞內容 | 變紅的測試 |
+|---|---|---|
+| M1 | 退避不設上限 | `doublesFromOneAndCapsAtSixty`、`jitterIsWithinPlusMinusTwentyPercent` |
+| M2 | 退避永不重置 | `backoffResetsOnlyAfterStableRunOverSixtySeconds`、`resetsOnlyWhenStableLongerThanSixtySeconds` |
+| M3 | EOF 不清 handler 也不關 fd | `eofClearsHandlerAndStopsInvocations` |
+| M4 | 忽略 generation token | `staleGenerationEventsAreIgnored` |
+| M5 | 輸出不重置卡死計時 | `anyOutputResetsTheTimerEvenWithoutStatus`、`partialLineBytesCountAsAlive` |
+| M6 | 忽略喚醒寬限 | `wakeGivesAFreshGracePeriod`、`wakeNotificationFromWorkspaceCenterReachesClient` |
+| M7 | 不可恢復錯誤也進退避 | `missingExecutableIsFatalWithSingleAttempt`、`nonExecutableIsFatalWithoutBackoffLoop` |
+| M8 | 逾時後不送 SIGTERM | `shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof` |
+| M9 | stderr 不讀走 | `stderrFloodDoesNotBlockHelper` |
+| M10 | 不處理 pid file 遺留 helper | `staleOrphanHelperIsKilledBeforeNewOneStarts` |
+| M11 | 結束時不關 stdin | `shutdownClosesStdinAndCooperativeHelperIsNotSigtermed` |
+
+過程中的紀錄：
+- M3 第一版只拿掉 `readabilityHandler = nil` 而保留 `close()`，測試仍綠——因為 macOS 的 `FileHandle.close()` 本身就會停掉 handler；改為兩者都拿掉後才變紅。結論：EOF 後「清除 handler 或關閉 fd」任一都防得住 busy loop，我們兩者都做。
+- `shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof` 第一次在完整測試併行時失敗：我方測試用固定 200ms 等腳本設好 `trap`，負載高時 SIGTERM 比 trap 早到。已改為腳本寫 ready 檔、測試等 ready 檔（我方測試的競態，非實作問題）。
+- 「卡死：只有 items 沒有 status」「半行」兩個情境，用 `FeedClient.receive(_:generation:)` 直接注入位元組模擬輸出（假時鐘無法讓真腳本在特定假時間點輸出）；其餘情境用真行程。
+- 未涵蓋：真機睡眠／喚醒、`kill -9` App 後的真實孤兒（pid file 測試以「父行程已結束的孤兒」模擬）、簽名後 bundle 內 helper 連真站——屬 5.1／5.3 人工驗收。

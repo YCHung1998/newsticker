@@ -33,7 +33,7 @@
 - **THEN** 帶子 SHALL 從隱藏前的 tape 位置續走，無可見跳動（目視驗收）
 
 ### Requirement: 選單展開期間計時器不斷料
-選單展開（`NSEventTrackingRunLoopMode`）期間，補料計時器 MUST 持續觸發。計時器種類（`.common` mode 的 `Timer` 或 `DispatchSourceTimer`）MUST 依 spike S3 決定章節實作【依 spike-decisions，被 S3 結果阻塞】，MUST NOT 使用預設 mode 的 `Timer`。
+選單展開（`NSEventTrackingRunLoopMode`）期間，補料計時器 MUST 持續觸發。計時器種類（`.common` mode 的 `Timer` 或 `DispatchSourceTimer`）暫定使用 `.common` mode 的 `Timer`（2026-10-24【假設】暫定實作，待 spike S3 決定章節確認後調整），MUST NOT 使用預設 mode 的 `Timer`。
 
 #### Scenario: 展開 60 秒
 - **WHEN** 選單展開 60 秒以上並拖動滑桿

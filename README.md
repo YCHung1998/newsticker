@@ -17,7 +17,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 
 ## 2. 目前狀態
 
-**App 本體還不能執行。** 目前完成的是地基，其餘還在規劃。
+**App 本體還沒有畫面（`.app` 可建置、可簽名，但是空殼）。** 目前完成的是地基，其餘還在規劃。
 
 | 部分 | 狀態 | 說明 |
 |---|---|---|
@@ -25,7 +25,8 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 | 抓取程式 `ticker-connect/`（Rust） | 已完成，可單獨執行 | 輸出標準化訊息到 stdout；已對正式站手動驗證一次 |
 | 顯示邏輯 `Sources/FastBullTickerCore`（Swift） | 已完成（純邏輯） | 沒有視窗，只有排程與狀態機 |
 | 可行性實驗 `spikes/` | **自動部分完成，等你手動操作** | 6 項需人工的實驗尚未執行，結果全是「未執行」 |
-| App 視窗、選單列、渲染、組裝簽名 | **【規劃】尚未開始** | OpenSpec change `app-shell` |
+| 建置與簽名、`FeedClient`（`app-shell` 第 A 段：1.1、2.1、2.2） | 已完成（2026-10-24，自動測試通過；尚未接上畫面） | `make helper && make app && make sign` 可產生 ad-hoc 簽名的 `build/FastBullTicker.app`；`FeedClient` 以假 helper 腳本測過，**沒有連正式網站** |
+| App 視窗、選單列、渲染（`app-shell` 第 B 段：3.x、4.x） | **【規劃】尚未開始** | 這個 `.app` 目前只是空殼，不顯示任何畫面 |
 
 ## 3. 環境需求
 
@@ -87,12 +88,29 @@ cd spikes && swift build
 
 **真正的實驗**（會開視窗，請在不被打擾的時段）：依 `spikes/README.md` 最後一節逐項執行，結果填進 `spikes/RESULTS.md`。共 7 項，其中 2 項需要外接螢幕、2 項需要插電連續跑 1 小時。**其中最重要的是第 1 項（S1，全螢幕可見性）**。
 
-### 4.3 【規劃】App 本體（`app-shell`，開發中）
+### 4.3 App 本體（`app-shell`）：目前可建置、但尚無畫面
 
 ```sh
-make helper && make app && make sign     # 【規劃】app-shell 完成後才有
-open build/FastBullTicker.app
+make helper && make app && make sign     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
+make test                                # 全部自動測試（等同 swift test）
+open build/FastBullTicker.app            # 【目前沒有畫面】
 ```
+
+**現況（誠實說明）**：這個 `.app` 只是**空殼**，啟動後不會出現視窗、選單列圖示或帶子——那些屬 `app-shell` 第 B 段（任務 3.x、4.x），**還沒做**。已完成的是：
+
+- `make helper`：`cargo build --release` 產生 arm64 的 `ticker-connect`。
+- `make app`：用 SwiftPM 以 release／arm64 編 App，組裝 `build/FastBullTicker.app`，內含 `Contents/MacOS/FastBullTicker`、`Contents/MacOS/ticker-connect`、`Contents/Info.plist`（`LSUIElement=YES`、`LSMinimumSystemVersion=14.0`）。
+- `make sign`：由內而外 ad-hoc 簽名（先 helper、再 bundle，**不使用遞迴簽名旗標**），最後 `codesign --verify --strict --verbose=2`；驗證失敗會讓 `make sign` 失敗。不 notarize、不沙盒、不需 sudo。
+- `FeedClient`（`Sources/FastBullTickerApp/`）：管理 helper 行程（退避重啟、卡死判定、喚醒寬限、不可恢復錯誤、優雅結束、pid file）。**還沒有任何程式呼叫它**（組裝屬 4.2）。
+
+可以自己驗證（不連網）：
+
+```sh
+sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過、helper 對 stdin EOF 立即結束
+swift test --filter FeedClient           # FeedClient 測試（假 helper 腳本＋假時鐘）
+```
+
+開發用覆寫：環境變數 `FASTBULL_TICKER_HELPER=/path/to/fake-helper` 讓 `FeedClient` 啟動該路徑而不是 bundle 內的 helper（變數名稱是 2026-10-24 自訂的**【假設】**；正式 bundle 不依賴它）。pid file 位於 `~/Library/Application Support/FastBullTicker/helper.pid`（**【假設】**）。
 
 ## 5. 操作（【規劃】，App 完成後的預期行為）
 
@@ -128,7 +146,8 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 |---|---|---|---|
 | 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 11 個通過 | `protocol/tests/test_contract.py` |
 | 抓取程式（Rust） | `cd ticker-connect && cargo test` | 65 個通過 | `ticker-connect/tests/*.rs` |
-| 顯示邏輯（Swift） | `swift test` | 101 個通過、12 個 suite | `Tests/FastBullTickerCoreTests/*.swift` |
+| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite | `Tests/FastBullTickerCoreTests/*.swift` |
+| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 128 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
 | 規格一致性 | `openspec validate --all --strict` | 5 個 change 全部通過 | `openspec/changes/` |
 
