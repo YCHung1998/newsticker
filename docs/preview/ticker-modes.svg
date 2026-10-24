@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="330" viewBox="0 0 760 330" font-family="-apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
+  <rect width="760" height="330" fill="#f2f2f2"/>
+  <text x="20" y="26" font-size="15" font-weight="700" fill="#222">FastBullTicker 跑馬燈模式預覽（示意圖，非實機截圖）</text>
+
+  <!-- A. REPLAY -->
+  <text x="20" y="58" font-size="13" fill="#444">A. 重播模式 REPLAY：沒有新訊息時，循環播放最新 10 則（含時間），黑底白字</text>
+  <rect x="20" y="66" width="720" height="42" rx="4" fill="#000"/>
+  <polygon points="20,66 150,66 134,108 20,108" fill="#b83a2e"/>
+  <text x="34" y="92" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
+  <text x="162" y="92" font-size="14" fill="#fff">16:28:48 沙烏地阿拉伯民防部門：塔伊夫的危險已解除。</text>
+  <text x="478" y="92" font-size="14" fill="#fff" opacity="0.95">16:27:25 沙烏地阿拉伯民防部門：延…</text>
+  <text x="742" y="124" font-size="11" text-anchor="end" fill="#777">← 帶子向左捲動</text>
+
+  <!-- B. LIVE -->
+  <text x="20" y="152" font-size="13" fill="#444">B. 即時模式 LIVE：有新訊息時，白底黑字（同樣含時間）</text>
+  <rect x="20" y="160" width="720" height="42" rx="4" fill="#fff" stroke="#bbb"/>
+  <polygon points="20,160 150,160 134,202 20,202" fill="#b83a2e"/>
+  <text x="34" y="186" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
+  <text x="162" y="186" font-size="14" fill="#000">16:56:41 沙烏地阿拉伯領導的聯軍表示，已攔截並摧毀了兩枚彈道飛彈。</text>
+
+  <!-- C. transition -->
+  <text x="20" y="246" font-size="13" fill="#444">C. 重播中來了新訊息：已在畫面上的不中斷，新訊息接在尾端，並切換為即時模式</text>
+  <rect x="20" y="254" width="720" height="42" rx="4" fill="#000"/>
+  <polygon points="20,254 150,254 134,296 20,296" fill="#b83a2e"/>
+  <text x="34" y="280" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
+  <text x="162" y="280" font-size="14" fill="#fff">16:27:00 沙烏地阿拉伯民防部門：麥加危險警報解除。</text>
+  <rect x="470" y="254" width="270" height="42" fill="#fff"/>
+  <text x="482" y="280" font-size="14" fill="#000">16:56:41 沙烏地阿拉伯領導的聯…</text>
+  <line x1="470" y1="248" x2="470" y2="300" stroke="#b83a2e" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="464" y="322" font-size="11" text-anchor="end" fill="#b83a2e">新訊息接在這裡 →</text>
+</svg>

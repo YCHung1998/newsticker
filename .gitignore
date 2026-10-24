@@ -29,3 +29,6 @@ protocol/.deps/
 # Claude Code 本機設定與暫存
 .claude/settings.local.json
 .claude/worktrees/
+
+# Xcode 使用者狀態（任何層級）
+**/xcuserdata/
