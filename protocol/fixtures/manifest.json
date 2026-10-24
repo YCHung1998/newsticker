@@ -1,0 +1,414 @@
+{
+  "manifest_version": 1,
+  "max_line_bytes": 1048576,
+  "reasons": [
+    "not_json",
+    "schema",
+    "version",
+    "oversize",
+    "order"
+  ],
+  "samples": [
+    {
+      "name": "snapshot-multi",
+      "file": "valid/snapshot-multi.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_snapshot_multi",
+        "typical_ms"
+      ]
+    },
+    {
+      "name": "snapshot-single",
+      "file": "valid/snapshot-single.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_snapshot_single"
+      ]
+    },
+    {
+      "name": "items-multi",
+      "file": "valid/items-multi.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_items_multi"
+      ]
+    },
+    {
+      "name": "items-single",
+      "file": "valid/items-single.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_items_single"
+      ]
+    },
+    {
+      "name": "items-equal-timestamps",
+      "file": "valid/items-equal-timestamps.jsonl",
+      "expect": "accept",
+      "covers": [
+        "equal_timestamps"
+      ]
+    },
+    {
+      "name": "status-ok",
+      "file": "valid/status-ok.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_status_ok"
+      ]
+    },
+    {
+      "name": "status-ok-empty-message",
+      "file": "valid/status-ok-empty-message.jsonl",
+      "expect": "accept",
+      "covers": [
+        "status_ok_empty_message"
+      ]
+    },
+    {
+      "name": "status-error",
+      "file": "valid/status-error.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_status_error"
+      ]
+    },
+    {
+      "name": "items-cjk",
+      "file": "valid/items-cjk.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_cjk"
+      ]
+    },
+    {
+      "name": "items-escapes",
+      "file": "valid/items-escapes.jsonl",
+      "expect": "accept",
+      "covers": [
+        "valid_escapes"
+      ]
+    },
+    {
+      "name": "missing-v",
+      "file": "invalid/missing-v.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "missing_v"
+      ]
+    },
+    {
+      "name": "missing-type",
+      "file": "invalid/missing-type.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "missing_type"
+      ]
+    },
+    {
+      "name": "unknown-type",
+      "file": "invalid/unknown-type.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "unknown_type"
+      ]
+    },
+    {
+      "name": "unsupported-version",
+      "file": "invalid/unsupported-version.jsonl",
+      "expect": "reject",
+      "reason": "version",
+      "covers": [
+        "unsupported_version"
+      ]
+    },
+    {
+      "name": "version-string",
+      "file": "invalid/version-string.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "toplevel-array",
+      "file": "invalid/toplevel-array.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "item-missing-source",
+      "file": "invalid/item-missing-source.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "item_missing_field"
+      ]
+    },
+    {
+      "name": "item-missing-id",
+      "file": "invalid/item-missing-id.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "item_missing_field"
+      ]
+    },
+    {
+      "name": "item-missing-published-at-ms",
+      "file": "invalid/item-missing-published-at-ms.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "item_missing_field"
+      ]
+    },
+    {
+      "name": "item-missing-text",
+      "file": "invalid/item-missing-text.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "item_missing_field"
+      ]
+    },
+    {
+      "name": "item-id-number",
+      "file": "invalid/item-id-number.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "item-ms-string",
+      "file": "invalid/item-ms-string.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "item-ms-float",
+      "file": "invalid/item-ms-float.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "item-ms-negative",
+      "file": "invalid/item-ms-negative.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "item-text-empty",
+      "file": "invalid/item-text-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_text"
+      ]
+    },
+    {
+      "name": "item-source-empty",
+      "file": "invalid/item-source-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_string_field"
+      ]
+    },
+    {
+      "name": "item-id-empty",
+      "file": "invalid/item-id-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_string_field"
+      ]
+    },
+    {
+      "name": "item-extra-field",
+      "file": "invalid/item-extra-field.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "extra_field"
+      ]
+    },
+    {
+      "name": "status-bad-state",
+      "file": "invalid/status-bad-state.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "bad_state"
+      ]
+    },
+    {
+      "name": "status-missing-message",
+      "file": "invalid/status-missing-message.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "status_missing_field"
+      ]
+    },
+    {
+      "name": "status-source-empty",
+      "file": "invalid/status-source-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_string_field"
+      ]
+    },
+    {
+      "name": "status-extra-field",
+      "file": "invalid/status-extra-field.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "extra_field"
+      ]
+    },
+    {
+      "name": "snapshot-empty-items",
+      "file": "invalid/snapshot-empty-items.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_items"
+      ]
+    },
+    {
+      "name": "items-empty-items",
+      "file": "invalid/items-empty-items.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "empty_items"
+      ]
+    },
+    {
+      "name": "snapshot-missing-items",
+      "file": "invalid/snapshot-missing-items.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "wrong_type"
+      ]
+    },
+    {
+      "name": "items-mixed-invalid-item",
+      "file": "invalid/items-mixed-invalid-item.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "mixed_invalid_item"
+      ]
+    },
+    {
+      "name": "snapshot-mixed-invalid-item",
+      "file": "invalid/snapshot-mixed-invalid-item.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "mixed_invalid_item"
+      ]
+    },
+    {
+      "name": "not-json-text",
+      "file": "invalid/not-json-text.jsonl",
+      "expect": "reject",
+      "reason": "not_json",
+      "covers": [
+        "not_json"
+      ]
+    },
+    {
+      "name": "not-json-truncated",
+      "file": "invalid/not-json-truncated.jsonl",
+      "expect": "reject",
+      "reason": "not_json",
+      "covers": [
+        "not_json"
+      ]
+    },
+    {
+      "name": "not-json-empty-line",
+      "file": "invalid/not-json-empty-line.jsonl",
+      "expect": "reject",
+      "reason": "not_json",
+      "covers": [
+        "not_json"
+      ]
+    },
+    {
+      "name": "non-utf8",
+      "file": "invalid/non-utf8.jsonl",
+      "expect": "reject",
+      "reason": "not_json",
+      "covers": [
+        "non_utf8"
+      ]
+    },
+    {
+      "name": "snapshot-ascending-order",
+      "file": "invalid/snapshot-ascending-order.jsonl",
+      "expect": "reject",
+      "reason": "order",
+      "covers": [
+        "order_snapshot"
+      ]
+    },
+    {
+      "name": "items-descending-order",
+      "file": "invalid/items-descending-order.jsonl",
+      "expect": "reject",
+      "reason": "order",
+      "covers": [
+        "order_items"
+      ]
+    },
+    {
+      "name": "generated-at-limit",
+      "generate": {
+        "kind": "padded_items",
+        "total_bytes": "limit"
+      },
+      "expect": "accept",
+      "covers": [
+        "at_limit"
+      ]
+    },
+    {
+      "name": "generated-over-limit",
+      "generate": {
+        "kind": "padded_items",
+        "total_bytes": "limit+1"
+      },
+      "expect": "reject",
+      "reason": "oversize",
+      "covers": [
+        "oversize"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fastbull-ticker.local/protocol/v1/item.schema.json",
+  "title": "item",
+  "description": "單則訊息。v1 不含「重要」旗標；不允許額外欄位（2026-10-24 已決定）。",
+  "type": "object",
+  "properties": {
+    "source": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "published_at_ms": { "type": "integer", "minimum": 0 },
+    "text": { "type": "string", "minLength": 1 }
+  },
+  "required": ["source", "id", "published_at_ms", "text"],
+  "additionalProperties": false
+}

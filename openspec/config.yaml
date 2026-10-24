@@ -1,0 +1,17 @@
+schema: spec-driven
+
+# Project context
+context: |
+  專案：FastBullTicker —— macOS 桌面浮動跑馬燈，自動取得帶時間的即時財經訊息（第一個來源為 FastBull 快訊）。
+  架構：Connect engine（獨立 Rust 行程 ticker-connect）與 Show engine（Swift App，macOS 14+、arm64、無 WebView）
+  以 stdout JSON-lines 協定單向溝通（helper -> App），協定為版本化 JSON Schema（放在 protocol/）。
+  唯一設計輸入：docs/superpowers/specs/2026-10-24-fastbull-ticker-design.md；與舊文件衝突時以它為準。
+  設計文件中標【假設】的項目尚未經使用者確認，規格中必須原樣標示，不可升級成已確認事實。
+  規格語言：繁體中文（指令、檔名、識別字維持英文）；需求用 SHALL/MUST。
+  工作方式：改了邏輯就要有自動化測試與 fail-then-pass 證據；每個 change 的 tasks 不超過 12 項。
+
+# Per-artifact rules (optional)
+rules:
+  tasks:
+    - 每項任務必須寫明驗證方式（測試指令或驗收方式）
+    - 每個 change 的 tasks 不超過 12 項

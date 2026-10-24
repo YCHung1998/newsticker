@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Rust
+ticker-connect/target/
+
+# SwiftPM / Xcode
+.build/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# 組裝產物（Makefile 產生）
+build/
+dist/
+*.app/
+
+# spike 實驗的暫存輸出（RESULTS.md 與腳本要版控；原始大檔不要）
+spikes/**/out/
+spikes/**/*.csv
+spikes/**/*.log
+
+# Python（protocol 參考驗證器）
+__pycache__/
+*.pyc
+.venv/
+protocol/.deps/
+
+# Claude Code 本機設定與暫存
+.claude/settings.local.json
+.claude/worktrees/
