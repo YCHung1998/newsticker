@@ -131,7 +131,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 
 - `make helper`：`cargo build --release` 產生 arm64 的 `ticker-connect`。
 - `make app`：用 SwiftPM 以 release／arm64 編 App，組裝 `build/FastBullTicker.app`，內含 `Contents/MacOS/FastBullTicker`、`Contents/MacOS/ticker-connect`、`Contents/Info.plist`（`LSUIElement=YES`、`LSMinimumSystemVersion=14.0`）。
-- `make sign`：由內而外 ad-hoc 簽名（先 helper、再 bundle，**不使用遞迴簽名旗標**），最後 `codesign --verify --strict --verbose=2`；驗證失敗會讓 `make sign` 失敗。不 notarize、不沙盒、不需 sudo、不需任何系統權限；程式從不呼叫 `NSApp.activate`。
+- `make sign`：由內而外 ad-hoc 簽名（先 helper、再 bundle，**不使用遞迴簽名旗標**），最後 `codesign --verify --strict --verbose=2`；驗證失敗會讓 `make sign` 失敗。不 notarize、不沙盒、不需 sudo、不需任何系統權限；程式只在 `SingleInstanceGuard.swift` 的重複實例對話框呼叫 `NSApp.activate`，其餘從不呼叫。
 - `FeedClient`（`Sources/FastBullTickerApp/`）：管理 helper 行程（退避重啟、卡死判定、喚醒寬限、不可恢復錯誤、優雅結束、pid file），現已由 `AppDelegate` 啟動。
 
 可以自己驗證（不連網、不開視窗）：
@@ -158,6 +158,8 @@ python3 Tests/shell-mutations.py         # 15 組破壞→變紅→還原
 | 在帶子上按右鍵 | 與選單列同一份選單（後備入口，避免選單列圖示被擠掉） |
 
 App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入的 App 的鍵盤焦點。
+
+**單一實例（`single-instance-guard`，設計意圖；未目視驗證）**：啟動時若已有另一個 `local.fastbull.FastBullTicker` 在執行，新啟動的那個會先跳對話框「FastBullTicker 已在執行」，按鈕「關閉舊的並繼續」（預設）／「取消」。取消 → 新的立即結束、舊的不受影響；關閉 → 對舊的正常結束，最多等 5 秒，仍在則強制結束再等 2 秒，確認消失後才啟動；關不掉會再提示並結束新的。兩個幾乎同時啟動時只有較晚啟動的那個會問【假設：以 launchDate，相同則 pid 較大者】。開發／測試時可設 `FASTBULL_TICKER_ALLOW_MULTIPLE=1`【假設：名稱】略過檢查。這個對話框是全專案**唯一**會啟用（activate）本 App 的地方，只為把對話框帶到最前面；其他操作仍不搶焦點。已知限制：舊實例的優雅結束最多約 6 秒（等 helper 收尾），而這裡只等 5 秒就強制結束，helper 可能短暫殘留，下次啟動會由 pid 檔回收；直接用 `swift run`（沒有 bundle identifier）不會做檢查。
 
 ### 5.2 訊息顯示
 
@@ -256,6 +258,7 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 | 示範 helper 協定 | `python3 Tests/demo-helper-protocol-check.py` | 實跑 6.5 秒，所有輸出行通過協定驗證（含 `url`）；snapshot 12 則中 8 則帶 `url` | `Tests/demo-helper-protocol-check.py` |
 | N3 mutation | `python3 Tests/n3-mutations.py` | 22 組破壞全部變紅（第一輪 A1 存活，加強測試後補跑變紅），還原後 309 個全綠 | `Tests/evidence/n3-mutations.log` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
+| 單一實例（`single-instance-guard`） | `swift test`（全部）；`swift test --filter SingleInstanceGuardTests`；`python3 Tests/g1-mutations.py` | 全部 **498 個、68 個 suite** 通過（新增 17）；14 組 mutation 全部變紅、存活 0 | `Tests/FastBullTickerAppTests/SingleInstanceGuardTests.swift`、`Tests/evidence/g1-mutations.log` |
 | 規格一致性 | `openspec validate --all --strict` | 13 項（含主 specs 與各 change）全部通過 | `openspec/changes/` |
 
 ### 6.1 這些測試有沒有「咬合力」

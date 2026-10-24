@@ -69,7 +69,10 @@ import AppKit
             for f in files where f.pathExtension == "swift" {
                 let text = try String(contentsOf: f, encoding: .utf8)
                     .split(separator: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }.joined(separator: "\n")
-                #expect(!text.contains("activate("), "\(f.lastPathComponent) 呼叫了 activate(")
+                // 唯一例外：SingleInstanceGuard.swift（重複實例對話框；數量由 OpenerGuard.activationViolations 把關）
+                if f.lastPathComponent != OpenerGuard.activationExceptionFile {
+                    #expect(!text.contains("activate("), "\(f.lastPathComponent) 呼叫了 activate(")
+                }
                 #expect(!text.contains("makeKeyAndOrderFront"), "\(f.lastPathComponent) 使用 makeKeyAndOrderFront")
                 if f.lastPathComponent != "ShellConfig.swift" {      // ShellConfig 只在「讀回並命名」時提到 hudWindow
                     #expect(!text.contains(".hudWindow"), "\(f.lastPathComponent) 使用 hudWindow")

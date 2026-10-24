@@ -482,3 +482,12 @@ openspec validate nav-layout-tweaks --strict
 ## 既有斷言的改動（皆為規格改變，沒有刪除斷言）
 - 8 秒 → 1 秒：`ListIdentityTests.newConfigDefaultsDoNotChangeExistingBehaviour`（預設 1）、`AppSmokeTests.arrowButtonsChangePositionAndHoldTimer`（保持 1 秒／0.5 秒仍不動／1.5 秒後恢復／重設為 1）。`SeekHoldTests` 與 `ReconfigureTests.holdIsUnaffectedBySpeedChange` 是「機制」測試，改為在 `make` 內明確指定 `seekHoldSeconds = 8`（原斷言一字不動，仍檢查 8 秒下的機制）；預設值為 1 的行為由新增 `DefaultSeekHoldTests`（3 個）覆蓋。
 - 控制列在右端 → 標籤右側：`HitTestingTests`（整組座標重寫為 150..<250 的版面，並新增 `showLabel=false`、齒輪槽偏移場景）、`ControlStripLayoutTests`、`NavigationViewTests`（座標 530→160、610→240、430→540、570→200）、`AppSmokeTests`（點擊座標與迴紋針座標基準 `tapeLeft`）、`TickerRendererTests.viewLayoutMatchesControlStripLayoutAndHitTesting`／`tapeViewportIsDerivedFromControlStripNotHardCoded`、`StyleApplyTests`（clip 與 scroll 原點、`showLabel=false` 時控制列貼左、標籤回來後回到標籤右側）。
+
+## single-instance-guard（G1 段）
+測試檔：`Tests/FastBullTickerAppTests/SingleInstanceGuardTests.swift`（17 個，全部用假物件：假 provider／terminator／sleeper／alert；不建立真實 `NSAlert`、不呼叫真實 `terminate`、不開視窗）。執行：`swift test --filter SingleInstanceGuardTests`。
+- **紅**：先寫測試、實作不存在 → 編譯失敗（`cannot find type 'ReplaceChoice'／'AlertPresenter'`）；實作後初跑 3 個測試紅（測試自身的浮點下限與暫存檔清理寫錯），修正後綠。
+- **綠**：`swift test` 全部 **498 個、68 個 suite** 通過（原 481，新增 17）。
+- 涵蓋：無其他實例→繼續；取消→結束且未 terminate；關閉→terminate→繼續且不 force；5 秒內不提前繼續；5 秒仍在→force；force 後仍在→第二提示並結束；terminate 只對其他 pid；對方較晚→不詢問；launchDate 相同／缺漏以 pid 判斷；同一世界兩視角最多一邊詢問；`FASTBULL_TICKER_ALLOW_MULTIPLE` 為 `1` 跳過、其他值不跳過；靜態守衛（`NSApp.activate` 只在 `SingleInstanceGuard.swift` 且恰一處、植入他檔會被抓、Tests 不得引用真實實作類別、`AppDelegate` 檢查早於 `PanelShell(`／`startFeed`）。
+- **守衛修改**：`OpenerGuard.activationViolations` 改為「`SingleInstanceGuard.swift` 以外任何啟用呼叫、或該檔超過一處」才算違規；`PanelShellTests.sourcesNeverCallApplicationActivation` 對該檔略過 `activate(` 檢查（次數由前者把關）。
+- **mutation**：`python3 Tests/g1-mutations.py`（輸出 `Tests/evidence/g1-mutations.log`）。14 組全部 KILLED，還原後 GREEN，存活 0：G1 不排除自己、G2 取消仍繼續、G3 不等就繼續、G4 不 force、G5 競態兩邊都詢問、G6 不以 pid 判斷、G7 環境變數不跳過、G8 force 後仍在卻繼續、G9 對自己 terminate、G10 無第二提示、G11 他檔 `NSApp.activate`、G12 例外檔內兩處、G13 檢查晚於面板、G14 結束後不 return。
+- **未自動覆蓋**：真實 `NSAlert` 外觀與預設按鈕、真實 `NSRunningApplication.terminate`、`kill(pid,0)` 存活判定、真實同時啟動競態——見 README「人工驗收」。

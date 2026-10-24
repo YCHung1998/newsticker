@@ -2,12 +2,13 @@ import AppKit
 import FastBullTickerCore
 
 /// 組裝（task 4.2）：FeedClient → Core → TickerScheduler → TickerRenderer／PanelShell／StatusMenu。
-/// 永不呼叫任何 App 啟用 API。
+/// 永不呼叫任何 App 啟用 API（唯一例外：`SingleInstanceGuard.swift` 的重複實例對話框）。
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
     private let config: ShellConfig
     private let environment: [String: String]
     private let log: AppLog
+    private let instanceCheck: @MainActor ([String: String]) -> Bool   // true＝繼續啟動
     private var panel: PanelShell?
     private var view: TickerView?
     private var menu: StatusMenuController?
@@ -28,13 +29,22 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var logNextFrameAfterThaw = false
 
     public init(config: ShellConfig = .provisional,
-                environment: [String: String] = ProcessInfo.processInfo.environment) {
+                environment: [String: String] = ProcessInfo.processInfo.environment,
+                instanceCheck: (@MainActor ([String: String]) -> Bool)? = nil) {
         self.config = config; self.environment = environment
+        self.instanceCheck = instanceCheck ?? { SingleInstanceGuard.makeSystem(environment: $0).run() == .proceed }
         self.log = AppLog(fileURL: AppLog.defaultFileURL(environment: environment))
         super.init()
     }
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
+        // 單一實例檢查（single-instance）：必須早於面板、FeedClient／helper、pid 檔。
+        // 此時 feed == nil，結束不會留下 helper。
+        if !instanceCheck(environment) {
+            log.write("single-instance: quitting this instance before starting helper")
+            NSApp.terminate(nil)
+            return
+        }
         log.write("launch: FastBullTicker (config provisional: level=statusBar renderer=\(config.renderer.rawValue) feedTimer=\(config.feedTimer.rawValue))")
         let store = UserDefaultsStore(defaults: .standard)
         self.store = store
