@@ -12,15 +12,60 @@
 - **THEN** SHALL 無任何 import 或路徑引用【驗收於 `app-shell`】
 
 ### Requirement: 結果紀錄格式
-每一格實驗結果 MUST 記錄在 `spikes/RESULTS.md`，每格至少包含：實驗代號（如 `S1-03`）、日期（ISO 8601）、macOS 版本（`sw_vers` 輸出）、組合參數（level、`canJoinAllApplications`、`collectionBehavior` 完整清單等）、情境、結果（PASS／FAIL／未執行）、觀察文字、證據路徑（截圖或日誌，相對於 `spikes/`）。FAIL 與未執行 MUST 保留，不得刪除；未執行的格 MUST 寫明原因。【`RESULTS.md` 為建議檔名，設計文件未指定。】
+每一格實驗結果 MUST 記錄在 `spikes/RESULTS.md`，每格至少包含：實驗代號（如 `S1-03`）、日期（ISO 8601）、macOS 版本（`sw_vers` 輸出）、組合參數（level、`canJoinAllApplications`、`collectionBehavior` 完整清單等）、情境、結果（PASS／FAIL／未執行）、**原因類別**（見「失敗的歸因規則」）、觀察文字、證據路徑（截圖或日誌，相對於 `spikes/`）、所回應的設計文件清單條目。FAIL 與未執行 MUST 保留，不得刪除；未執行的格 MUST 寫明原因。【`RESULTS.md` 為建議檔名，設計文件未指定。】
 
 #### Scenario: 格式完整性檢查
-- **WHEN** 執行 `spikes/` 內的結果檢查腳本
-- **THEN** 腳本 SHALL 對缺少日期、macOS 版本、組合、結果或證據路徑的格回報錯誤，並確認每個證據路徑指向存在的檔案
+- **WHEN** 執行 `spikes/` 內的結果檢查腳本（`spikes/check_results.sh`）
+- **THEN** 腳本 SHALL 對缺少日期、macOS 版本、組合、結果、原因類別或證據路徑的格回報錯誤，並確認每個證據路徑指向存在的檔案
 
 #### Scenario: 失敗結果保留
 - **WHEN** 某格結果為 FAIL
-- **THEN** 該格 SHALL 留在 `RESULTS.md`，並附觀察與證據
+- **THEN** 該格 SHALL 留在 `RESULTS.md`，並附觀察、證據與原因類別
+
+#### Scenario: 範本不得預填結果
+- **WHEN** 人工輪尚未執行
+- **THEN** `RESULTS.md` 所有格的結果 SHALL 為「未執行」且原因類別為 `-`，不得預填 PASS 或 FAIL
+
+### Requirement: 失敗的歸因規則
+【使用者決定，2026-10-24】`RESULTS.md` 每一格除了結果外 MUST 有「原因類別」欄：PASS 與未執行填 `-`；FAIL MUST 為下列二者之一：
+- `平台限制`：macOS 本身不允許或行為不符，且已排除我方實驗程式問題。判為此類時 MUST 附「佐證」欄，說明為何排除是我方錯誤（例如：同一程式在另一組合通過、對照組格代號、日誌中系統回傳值）。**只有 `平台限制` 可以記入「已知限制」並被接受。**
+- `實作錯誤`：實驗程式或我方 code 的 bug。MUST 修正實驗程式後重跑，MUST NOT 記成已知限制；該格 MUST 以「重跑」欄指向重跑格，且重跑格結果 MUST 為 PASS 或 FAIL（`平台限制`）。
+
+`spikes/check_results.sh` MUST 檢查：原因類別欄存在；FAIL 的原因類別為上述二者之一；`平台限制` 有佐證且佐證引用的格存在；`實作錯誤` 有指向合格重跑格的「重跑」欄；PASS 與未執行的原因類別為 `-`。
+
+#### Scenario: FAIL 缺原因類別
+- **WHEN** 某 FAIL 格原因類別為 `-` 或缺漏
+- **THEN** 檢查腳本 SHALL 回報錯誤並以非零退出碼結束
+
+#### Scenario: 平台限制缺佐證
+- **WHEN** 某 FAIL 格原因類別為 `平台限制` 但佐證欄為空
+- **THEN** 檢查腳本 SHALL 回報錯誤
+
+#### Scenario: 實作錯誤未重跑
+- **WHEN** 某 FAIL 格原因類別為 `實作錯誤` 且沒有指向合格重跑格
+- **THEN** 檢查腳本 SHALL 回報錯誤，且該格 MUST NOT 被列入已知限制
+
+### Requirement: 權限最小化與不打擾
+【使用者決定，2026-10-24】所有實驗與量測 MUST NOT 使用 `sudo`、MUST NOT 使用 `powermetrics`、MUST NOT 需要輔助使用（Accessibility）權限、螢幕錄製權限，或任何會讓使用者彈出權限對話框的 API。具體規則：
+- WindowServer、App 的 CPU 與 RSS 量測 MUST 只用 `ps`（或 `top`）；
+- 截圖與錄影 MUST 由使用者以系統快捷鍵或系統內建工具手動完成並放到指定資料夾（步驟寫於 `spikes/README.md`）；腳本 MUST NOT 呼叫 `screencapture` 或任何螢幕錄製 API，也 MUST NOT 觸發權限提示；
+- S3 的選單操作維持人工，MUST NOT 以 System Events 或其他輔助使用 API 自動化；
+- 實驗程式 MUST NOT 呼叫 `NSApp.activate`。
+
+#### Scenario: 腳本不含需權限的指令
+- **WHEN** 對 `spikes/` 的腳本與程式搜尋 `sudo`、`powermetrics`、`screencapture`、`System Events`、`AXIsProcessTrusted`、`CGWindowListCreateImage`
+- **THEN** SHALL 無任何執行用途的命中（文件中說明「不使用」的敘述除外）
+
+### Requirement: 實驗程式提供不建立視窗的 dry-run
+【使用者決定，2026-10-24；apply 階段的驗證環境限制】每個實驗程式（S1、S2/S5、S3、S4）MUST 提供不建立任何視窗的 `--dry-run` 模式：解析參數、列印並寫入日誌「將會套用的生效值」（`config.expected`），然後結束。無法在不開視窗下驗證的項目（面板實際讀回的 level／collectionBehavior、可見性、Focus、渲染效能、幀間隔）MUST 如實標明留待人工輪，不得以 dry-run 結果冒充實測。參數非法（如 `--level screenSaver`）MUST 以非零退出碼結束且不建立視窗。
+
+#### Scenario: dry-run 列印生效值
+- **WHEN** 以 `spike-s1 --dry-run --level statusBar --join-all-apps on` 執行
+- **THEN** 日誌 SHALL 含 `config.expected`（level、level.raw、collectionBehavior 名稱清單、styleMask），且 `dryrun.done` 的 `window-created` 為 `false`
+
+#### Scenario: 生效值與參數逐項比對
+- **WHEN** 執行 `python3 scripts/analyze.py s1config --dry-run-all`
+- **THEN** 腳本 SHALL 以獨立於 Swift 實作的期望值，逐項比對 8 種組合（2 level × 2 canJoinAllApplications × 2 stationary）的 dry-run 日誌，全數相符才通過
 
 ### Requirement: 每項任務標明自動或需人工
 凡需要使用者在場操作或目視（全螢幕、睡眠喚醒、外接螢幕、拖曳、選單操作、連續一小時實測）的實驗步驟，在 `tasks.md` MUST 標「需人工」並寫明使用者要做什麼、所需硬體與前提；可由命令列或腳本完成並自動判定者標「自動」。MUST NOT 把需人工的步驟寫成自動驗收。
@@ -32,7 +77,7 @@
 ### Requirement: S1 全螢幕可見性矩陣
 S1 MUST 建立測試面板，styleMask `[.borderless, .nonactivatingPanel]`（於 init 設定）、`hidesOnDeactivate = false`、`canBecomeKey/Main = false`、`isOpaque = false`、`backgroundColor` 為高對比純色（便於目視）；基底 `collectionBehavior` 為 `[.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]`。矩陣維度 MUST 為：level（`.floating`、`.statusBar`）× 有無 `canJoinAllApplications`，共 4 種組合；另 MUST 針對**通過全部必要情境的組合**（若無則針對任一組合）再各跑一次「移除 `.stationary`」的對照，以驗證 `stationary` 與 `canJoinAllSpaces`／`fullScreen*` 的互斥或相互影響。不使用 `.screenSaver` level。組合 MUST 可由命令列參數切換，不需重新編譯。
 
-情境 MUST 包含：全螢幕 Safari；全螢幕 Keynote 或 QuickTime（擇一以上，擇用者記錄於 RESULTS）；Split View；Stage Manager 開／關；外接螢幕（系統設定「螢幕有獨立 Space」開與關各一次）；睡眠喚醒後；切換 Space 後。每一格 MUST 以截圖或螢幕錄影作為證據。
+情境 MUST 包含：全螢幕 Safari；全螢幕 Keynote 或 QuickTime（擇一以上，擇用者記錄於 RESULTS）；Split View；Stage Manager 開／關；外接螢幕（系統設定「螢幕有獨立 Space」開與關各一次）；睡眠喚醒後；切換 Space 後。每一格 MUST 以截圖或螢幕錄影作為證據；截圖與錄影由使用者以系統快捷鍵／內建工具手動取得（見「權限最小化與不打擾」）。
 
 #### Scenario: 組合以參數切換
 - **WHEN** 以 `--level statusBar --join-all-apps on` 之類參數啟動 S1 實驗
@@ -68,7 +113,7 @@ S2 MUST 在另一個 App（建議 TextEdit，擇用者記錄）持續打字的�
 - **THEN** 兩者的 frontmost 變化 SHALL 並列記錄於 RESULTS
 
 ### Requirement: S3 選單展開期間補料計時器
-S3 MUST 實作一條簡易假帶子與補料計時器：帶子以固定速度捲動，計時器在尾端有空位時補下一則假訊息。MUST 比較三種計時器：預設 run loop mode 的 `Timer`、加入 `.common` mode 的 `Timer`、`DispatchSourceTimer`。每種 MUST 在選單展開（`NSStatusItem` 選單，含內嵌滑桿的 `NSMenuItem.view`）不少於 60 秒期間量測，同時拖動滑桿改變 `alphaValue`。日誌 MUST 記錄每次補料的預定時間與實際觸發時間，以及補料當下帶子尾端空位寬度。
+S3 MUST 實作一條簡易假帶子與補料計時器：帶子以固定速度捲動，計時器在尾端有空位時補下一則假訊息。MUST 比較三種計時器：預設 run loop mode 的 `Timer`、加入 `.common` mode 的 `Timer`、`DispatchSourceTimer`。每種 MUST 在選單展開（`NSStatusItem` 選單，含內嵌滑桿的 `NSMenuItem.view`，由使用者人工操作、不使用輔助使用 API 自動化）不少於 60 秒期間量測，同時拖動滑桿改變 `alphaValue`。日誌 MUST 記錄每次補料的預定時間與實際觸發時間，以及補料當下帶子尾端空位寬度。
 
 通過標準：帶子無空白（尾端空位未出現使可見區出現空白的情況）、滑桿即時生效（`alphaValue` 變更於操作當下可見）、補料誤差（實際減預定）< 100ms。
 
@@ -85,7 +130,7 @@ S3 MUST 實作一條簡易假帶子與補料計時器：帶子以固定速度捲
 - **THEN** 日誌 SHALL 記錄滑桿回呼時間戳，且 `alphaValue` 變更 SHALL 於目視可見，否則記 FAIL
 
 ### Requirement: S4 渲染方案 A/B 實測
-S4 MUST 實作兩個渲染方案並以相同條件各跑 1 小時：A = `NSView.displayLink`（macOS 14+）逐幀設定 container layer 位置；B = 單一線性 `CABasicAnimation`。內容為 10 則假訊息，其中至少一則為 400 字元 CJK 長句；每則預渲染為 bitmap layer。兩方案 MUST 在同一台機器、同一螢幕、插電、無其他重負載、相同面板尺寸（約 620×42【假設】）下執行。量測 MUST 以固定間隔（不超過 10 秒）取樣並寫入 CSV：App 的 CPU%、常駐記憶體（RSS）、`WindowServer` 行程的 CPU%。額外 MUST 驗證：(1) `preferredFrameRateRange` 設為 30fps 的實效（以實測幀間隔分佈判定，記錄實際落在 30 或其他值）；(2) 長句 bitmap 寬度是否超過紋理上限（約 16384px，記憶待實測），超過則驗證切塊方案是否消除問題；(3) 凍結／恢復（隱藏再顯示）時是否有可見跳動。
+S4 MUST 實作兩個渲染方案並以相同條件各跑 1 小時：A = `NSView.displayLink`（macOS 14+）逐幀設定 container layer 位置；B = 單一線性 `CABasicAnimation`。內容為 10 則假訊息，其中至少一則為 400 字元 CJK 長句；每則預渲染為 bitmap layer。兩方案 MUST 在同一台機器、同一螢幕、插電、無其他重負載、相同面板尺寸（約 620×42【假設】）下執行。量測 MUST 以固定間隔（不超過 10 秒）取樣並寫入 CSV：App 的 CPU%、常駐記憶體（RSS）、`WindowServer` 行程的 CPU%。CPU 與 RSS 取樣 MUST 只用 `ps`（以累計 CPU time 的區間增量換算 CPU%），不得使用 `powermetrics`／sudo。額外 MUST 驗證：(1) `preferredFrameRateRange` 設為 30fps 的實效（以實測幀間隔分佈判定，記錄實際落在 30 或其他值）；(2) 長句 bitmap 寬度是否超過紋理上限（約 16384px，記憶待實測），超過則驗證切塊方案是否消除問題；(3) 凍結／恢復（隱藏再顯示）時是否有可見跳動。
 
 通過標準（設計文件）：CPU 穩定偏低、記憶體曲線平坦、長時間文字不抖、凍結／恢復無可見跳動。上述形容詞的數字門檻【待確認】；在使用者確認前，本規格暫定以「記錄全部數字並以相對比較決定」處理，不設絕對門檻。
 

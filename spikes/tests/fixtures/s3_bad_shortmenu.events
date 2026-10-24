@@ -1,0 +1,18 @@
+2026-10-24T10:00:00.000+08:00	refiller.start	timer=common interval=1.5 t0=100.0
+2026-10-24T10:00:00.000+08:00	menu.open	t=100.000
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=1 scheduled=101.500 actual=101.508 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=2 scheduled=103.000 actual=103.008 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=3 scheduled=104.500 actual=104.508 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=4 scheduled=106.000 actual=106.008 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=5 scheduled=107.500 actual=107.508 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=6 scheduled=109.000 actual=109.008 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=7 scheduled=110.500 actual=110.508 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=8 scheduled=112.000 actual=112.008 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=9 scheduled=113.500 actual=113.508 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	refill	timer=common slot=10 scheduled=115.000 actual=115.008 gap_before=296.0 gap_after=386.0 appended=1
+2026-10-24T10:00:00.000+08:00	slider	t=100.000 value=0.50
+2026-10-24T10:00:00.000+08:00	slider	t=101.000 value=0.50
+2026-10-24T10:00:00.000+08:00	slider	t=102.000 value=0.50
+2026-10-24T10:00:00.000+08:00	slider	t=103.000 value=0.50
+2026-10-24T10:00:00.000+08:00	slider	t=104.000 value=0.50
+2026-10-24T10:00:00.000+08:00	menu.close	t=115.000
