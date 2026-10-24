@@ -1,0 +1,42 @@
+[T1 seek 停留預設值退回 8 秒]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer', 'defaultIsOneSecond', 'holdsForOneSecondThenResumesWithoutJump', 'newConfigDefaultsDoNotChangeExistingBehaviour', 'secondSeekResetsToOneSecondNotAccumulates']
+  ['✘ Test run with 481 tests in 67 suites failed after 5.015 seconds with 11 issues.']
+[T2 可視寬度公式忘了扣控制列左側占用寬]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['gearSlotCanBeInsertedByShiftingTheSingleOffset', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'noFileMeansDefaultStyleAndNothingApplied', 'resetFromTheMenuRestoresDefaultsAndKeepsABackup', 'shellConfigBuildsTheSchedulerConfigFromTheStyle', 'tapeViewportIsDerivedFromControlStripNotHardCoded', 'tapeViewportWidthFormula', 'viewLayersMatchPrototypeConstants', 'viewLayoutMatchesControlStripLayoutAndHitTesting']
+  ['✘ Test run with 481 tests in 67 suites failed after 6.172 seconds with 14 issues.']
+[T3 控制列範圍不隨標籤寬（退回貼面板左緣）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer', 'buttonBeatsLinkBeneathIt', 'buttonsAreInTheControlStripRightOfTheLabel', 'buttonsFireOnMouseUpNotMouseDown', 'linkHiddenByLabelOrStripIsNotALink', 'onlyDragTargetCallsPerformDrag', 'previousAtListStartDoesNothing', 'rangesTileTheStripRightOfTheLabel', 'viewLayoutMatchesControlStripLayoutAndHitTesting']
+  ['✘ Test run with 481 tests in 67 suites failed after 4.620 seconds with 18 issues.']
+[T4 `>` 命中範圍少 4pt]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['buttonsAreInTheControlStripRightOfTheLabel', 'buttonsFollowLabelWidthWhenLabelHidden', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'linkHiddenByLabelOrStripIsNotALink', 'rangesTileTheStripRightOfTheLabel', 'rangesWithoutLabelStartAtPanelLeft']
+  ['✘ Test run with 481 tests in 67 suites failed after 5.040 seconds with 6 issues.']
+[T5 迴紋針命中區忘了加控制列寬（沿用舊的標籤右緣）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['buttonBeatsLinkBeneathIt', 'buttonsAreInTheControlStripRightOfTheLabel', 'buttonsFollowLabelWidthWhenLabelHidden', 'clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse', 'failedOpenIsNotRetried', 'firstMatchingLinkWinsWhenSlopsOverlap', 'linkFiresOnMouseUpWithItsSeq', 'linkHiddenByLabelOrStripIsNotALink', 'linkOnlyWithinVisibleBandNotUnderControlStrip', 'linkZoneIncludingHitSlop', 'onlyDragTargetCallsPerformDrag', 'policyBlockedURLNeverReachesTheOpener']
+  ['✘ Test run with 481 tests in 67 suites failed after 6.091 seconds with 19 issues.']
+[T6 `showLabel` 切換不更新命中幾何]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions']
+  ['✘ Test run with 481 tests in 67 suites failed after 5.162 seconds with 1 issue.']
+[T7 帶子 clip 左緣寫死標籤寬（showLabel=false 座標錯）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions', 'startupLoadsTheFileAndAppliesThroughTheSamePath']
+  ['✘ Test run with 481 tests in 67 suites failed after 6.945 seconds with 2 issues.']
+[T8 控制列底不延伸到標籤斜切下方]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['viewLayoutMatchesControlStripLayoutAndHitTesting']
+  ['✘ Test run with 481 tests in 67 suites failed after 6.864 seconds with 1 issue.']
+[T9 chevron 垂直偏離中心 3pt（對齊量測要咬到）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['alignmentHoldsForOtherTexts', 'alignmentHoldsWithoutLabelAndWithRoundedCorners', 'threeGlyphsShareOneVerticalCenter']
+  ['✘ Test run with 481 tests in 67 suites failed after 6.456 seconds with 8 issues.']
+[T10 位置指示不依墨跡外框置中（以基線置於中線）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['alignmentHoldsForOtherTexts', 'alignmentHoldsWithoutLabelAndWithRoundedCorners', 'threeGlyphsShareOneVerticalCenter']
+  ['✘ Test run with 481 tests in 67 suites failed after 4.527 seconds with 7 issues.']
+
+還原後 rc=0 ['✔ Test run with 481 tests in 67 suites passed after 5.290 seconds.']  存活的 mutation 數=0

@@ -152,7 +152,7 @@ import Foundation
     }
 
     @Test func holdIsUnaffectedBySpeedChange() {
-        var (clock, s) = make()
+        var (clock, s) = make { $0.seekHoldSeconds = 8 }       // 機制測試：明確指定 8 秒（預設值已於 nav-layout-tweaks 改為 1 秒，另有測試）
         guard case .moved(let target, _) = s.seek(.previous) else { Issue.record("expected moved"); return }
         let off = s.scrollOffset
         s.reconfigure(tunables(s) { $0.speed = 250 }, measurer: flatMeasure)

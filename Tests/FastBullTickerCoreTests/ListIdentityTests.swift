@@ -14,7 +14,7 @@ import Foundation
 
     @Test func newConfigDefaultsDoNotChangeExistingBehaviour() {
         let c = SchedulerConfig()
-        #expect(c.seekHoldSeconds == 8 && c.readingInset == 24 && c.linkSlotWidth == 0 && c.retainPlacedCount == 64)
+        #expect(c.seekHoldSeconds == 1 && c.readingInset == 24 && c.linkSlotWidth == 0 && c.retainPlacedCount == 64)
     }
 
     @Test func replayRoundSequenceAndListIndex() {

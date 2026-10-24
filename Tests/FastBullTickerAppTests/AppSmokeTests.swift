@@ -109,6 +109,9 @@ import FastBullTickerCore
         (0..<n).map { Item(source: "t", id: "\(n - $0)", publishedAtMs: 1_761_292_800_000 + Int64(n - $0) * 1000, text: "訊息\(n - $0)", url: url(n - $0)) }
     }
 
+    /// 帶子座標 0 的面板 x（標籤右側的控制列之後）。
+    private var tapeLeft: Double { cfg.strip.tapeLeft(leftInset: Double(cfg.labelWidth)) }
+
     private func click(_ r: Rig, _ x: Double) {
         r.router.mouseDown(at: CGPoint(x: x, y: 21), button: .left, performDrag: {})
         r.router.mouseUp(at: CGPoint(x: x, y: 21), button: .left)
@@ -117,7 +120,7 @@ import FastBullTickerCore
     private func advanceUntilLinkVisible(_ r: inout Rig, minSeq: Int = 0) -> HitItem? {
         for _ in 0..<200 {
             r.clock.t += 0.25; r.driver.step()
-            if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && $0.seq >= minSeq && cfg.labelWidth + $0.visualLeft + $0.width < 520 && $0.visualLeft >= 0 }) { return h }
+            if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && $0.seq >= minSeq && tapeLeft + $0.visualLeft + $0.width < 600 && $0.visualLeft >= 0 }) { return h }
         }
         return nil
     }
@@ -127,7 +130,7 @@ import FastBullTickerCore
         r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
         r.driver.step()
         let h = try #require(advanceUntilLinkVisible(&r, minSeq: 3))      // 不是第一則：能分辨「開了別則的連結」
-        let x = Double(cfg.labelWidth) + h.visualLeft + h.width - cfg.linkSlotWidth / 2
+        let x = tapeLeft + h.visualLeft + h.width - cfg.linkSlotWidth / 2
         click(r, x)
         #expect(r.opener.opened.count == 1)
         let u = try #require(r.opener.opened.first)
@@ -146,7 +149,7 @@ import FastBullTickerCore
         for _ in 0..<80 { r.clock.t += 0.25; r.driver.step() }
         #expect(r.driver.hitItems().allSatisfy { !$0.hasLinkSlot })
         #expect(r.driver.scheduler.placed.allSatisfy { !$0.hasLinkSlot })
-        for x in stride(from: 150.0, to: 520.0, by: 7.0) { click(r, x) }
+        for x in stride(from: 250.0, to: 620.0, by: 7.0) { click(r, x) }
         #expect(r.opener.opened.isEmpty)
     }
 
@@ -156,7 +159,7 @@ import FastBullTickerCore
         r.driver.receive(.snapshot(items(10) { _ in "javascript:alert(1)" }))
         r.driver.step()
         let h = try #require(advanceUntilLinkVisible(&r))
-        click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+        click(r, tapeLeft + h.visualLeft + h.width - 13)
         #expect(r.opener.opened.isEmpty)
         #expect(r.actions.linkResults == [.blockedByPolicy])
     }
@@ -167,7 +170,7 @@ import FastBullTickerCore
         r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
         r.driver.step()
         let h = try #require(advanceUntilLinkVisible(&r))
-        click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+        click(r, tapeLeft + h.visualLeft + h.width - 13)
         #expect(r.opener.opened.count == 1 && r.actions.linkResults == [.openerFailed])
     }
 
@@ -177,19 +180,19 @@ import FastBullTickerCore
         r.driver.step()
         while (r.driver.scheduler.readingPosition?.index ?? 0) < 4 { r.clock.t += 0.25; r.driver.step() }
         let before = try #require(r.driver.scheduler.readingPosition)
-        click(r, 530)                                           // <
+        click(r, 160)                                           // <
         let afterPrev = try #require(r.driver.scheduler.readingPosition)
         #expect(afterPrev.index == before.index - 1 && afterPrev.total == 10)
         #expect(r.renderer.controlStates.last?.text == "(\(before.index - 1)/10)")
-        #expect(r.driver.scheduler.holdRemaining == 8)
+        #expect(r.driver.scheduler.holdRemaining == 1)
         let off = r.driver.scheduler.scrollOffset
-        r.clock.t += 5; r.driver.step()
+        r.clock.t += 0.5; r.driver.step()
         #expect(r.driver.scheduler.scrollOffset == off, "保持期間不捲動")
-        r.clock.t += 4; r.driver.step()
-        #expect(r.driver.scheduler.scrollOffset > off, "第 8 秒後恢復捲動")
-        click(r, 610)                                           // >
+        r.clock.t += 1; r.driver.step()
+        #expect(r.driver.scheduler.scrollOffset > off, "第 1 秒後恢復捲動")
+        click(r, 240)                                           // >
         #expect(r.driver.scheduler.readingPosition?.index == before.index)
-        #expect(r.driver.scheduler.holdRemaining == 8, "再次切換重設為 8 秒")
+        #expect(r.driver.scheduler.holdRemaining == 1, "再次切換重設為 1 秒")
     }
 
     @Test func previousAtListStartDoesNothing() throws {
@@ -199,7 +202,7 @@ import FastBullTickerCore
         while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
         #expect(r.driver.scheduler.readingPosition?.index == 1)
         let off = r.driver.scheduler.scrollOffset
-        click(r, 530)
+        click(r, 160)
         #expect(r.driver.scheduler.scrollOffset == off && r.driver.scheduler.holdRemaining == 0)
         #expect(r.actions.seekOutcomes.last == .atListStart)
     }
@@ -246,7 +249,7 @@ import FastBullTickerCore
         while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
         r.router.isEnabled = false
         let off = r.driver.scheduler.scrollOffset
-        click(r, 530); click(r, 610)
+        click(r, 160); click(r, 240)
         #expect(r.driver.scheduler.scrollOffset == off && r.opener.opened.isEmpty)
         _ = advanceUntilLinkVisible(&r)
     }
@@ -313,7 +316,7 @@ import FastBullTickerCore
         #expect(r.env.store.style.fontSize == 20)
         #expect(r.applier.current == r.env.store.style && r.applies.count == 1 && r.applies[0].contains("source=startup"))
         let l = r.view.layoutSnapshot
-        #expect(l.labelHidden && l.cornerRadius == 8 && Double(l.clipFrame.maxX) == 520)
+        #expect(l.labelHidden && l.cornerRadius == 8 && Double(l.clipFrame.minX) == 100 && Double(l.clipFrame.maxX) == 620)
         #expect(r.driver.scheduler.config.speed == 150 && r.driver.scheduler.config.viewportWidth == 520)
         #expect(r.env.listing == ["style.json"], "啟動只讀不寫（沒有 .bak、沒有暫存檔）")
     }

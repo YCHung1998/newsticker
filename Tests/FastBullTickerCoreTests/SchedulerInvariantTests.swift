@@ -41,7 +41,7 @@ func runInvariantScenario(seed: UInt64, steps: Int, withReconfigure: Bool = fals
     var rng = SplitMix64(state: seed)
     let clock = FakeClock()
     var cfg = SchedulerConfig.test
-    cfg.seekHoldSeconds = 2          // 預設 8 秒會讓隨機 seek 幾乎總在保持中；這裡縮短以免帶子長期靜止
+    cfg.seekHoldSeconds = 2          // 縮短保持（預設已是 1 秒，這裡固定為 2 秒讓不變量測試的時間軸穩定，不依賴預設值）
     var a = makeScheduler(clock, config: cfg), b = makeScheduler(clock, config: cfg)
     var tr = Transcript()
     var nextId = 11

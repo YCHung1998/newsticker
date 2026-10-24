@@ -49,9 +49,10 @@ public final class TickerView: NSView, TickerRenderer {
     private let labelLayer = CAShapeLayer()
     private let labelText = CATextLayer()
     private let stripLayer = CALayer()
-    private let previousText = CATextLayer()
-    private let indicatorText = CATextLayer()
-    private let nextText = CATextLayer()
+    private let previousChevron = CAShapeLayer()
+    private let nextChevron = CAShapeLayer()
+    private let indicatorLayer = CALayer()
+    private var indicatorString = ""
     private var track = TrackModel()
     private var layers: [Int: CALayer] = [:]
     private var offset: Double = 0
@@ -59,7 +60,6 @@ public final class TickerView: NSView, TickerRenderer {
     private var paused = false
     /// 斜切造成的左緣突出量（pt）。標籤隱藏時為 0。
     private let labelSlant: CGFloat = 12
-    private var slant: CGFloat { style.showLabel ? labelSlant : 0 }
     private var labelW: CGFloat { style.showLabel ? config.labelWidth : 0 }
 
     /// 逐幀回呼（由 App 設為 `driver.step`）。
@@ -92,11 +92,24 @@ public final class TickerView: NSView, TickerRenderer {
     public var isLinkPaused: Bool { link?.isPaused ?? true }
 
     private func buildLayers() {
-        let h = config.panelSize.height, w = config.panelSize.width
         clipLayer.masksToBounds = true
         scrollLayer.anchorPoint = .zero
         clipLayer.addSublayer(scrollLayer)
         layer?.addSublayer(clipLayer)
+
+        // 控制列（純色底，與訊息樣式無關）：標籤右側的 `<`、`(n/N)`、`>`。位置與尺寸見 `layoutStyleLayers`（隨 `showLabel` 改變）。
+        // 圖層順序：帶子 < 控制列底 < 符號 < 標籤（標籤蓋住控制列底延伸到斜切邊下方的部分）。
+        stripLayer.backgroundColor = CGColor(gray: 0.15, alpha: 1)                              // 【假設】配色
+        layer?.addSublayer(stripLayer)
+        for chev in [previousChevron, nextChevron] {
+            chev.fillColor = nil
+            chev.strokeColor = CGColor(gray: 1, alpha: 1)
+            chev.lineWidth = ControlStripGlyphs.chevronLineWidth
+            chev.lineCap = .round; chev.lineJoin = .round
+            layer?.addSublayer(chev)
+        }
+        indicatorLayer.contentsGravity = .center
+        layer?.addSublayer(indicatorLayer)
 
         layer?.addSublayer(labelLayer)      // 紅色斜切標籤【假設】；路徑、顏色、顯示與否見 `layoutStyleLayers`
 
@@ -106,25 +119,6 @@ public final class TickerView: NSView, TickerRenderer {
         labelText.truncationMode = .end
         labelText.contentsScale = 2
         layer?.addSublayer(labelText)
-
-        // 控制列（最上層、純色底，與訊息樣式無關）：`<`、`(n/N)`、`>`。
-        let pw = Double(w), st = config.strip
-        stripLayer.frame = CGRect(x: pw - st.controlStripWidth, y: 0, width: st.controlStripWidth, height: Double(h))
-        stripLayer.backgroundColor = CGColor(gray: 0.15, alpha: 1)                              // 【假設】配色
-        layer?.addSublayer(stripLayer)
-        func place(_ t: CATextLayer, _ r: Range<Double>, _ text: String, size: CGFloat) {
-            t.string = text
-            t.font = CTFontCreateWithName("PingFangTC-Semibold" as CFString, size, nil)
-            t.fontSize = size
-            t.foregroundColor = CGColor(gray: 1, alpha: 1)
-            t.alignmentMode = .center
-            t.contentsScale = 2
-            t.frame = CGRect(x: r.lowerBound, y: (Double(h) - 20) / 2, width: r.upperBound - r.lowerBound, height: 20)
-            layer?.addSublayer(t)
-        }
-        place(previousText, st.previousButtonRange(panelWidth: pw), "<", size: 16)
-        place(indicatorText, st.indicatorRange(panelWidth: pw), "", size: 13)
-        place(nextText, st.nextButtonRange(panelWidth: pw), ">", size: 16)
         setControlStrip(ControlStripState.from(position: nil))
     }
 
@@ -155,10 +149,20 @@ public final class TickerView: NSView, TickerRenderer {
             labelLayer.frame = CGRect(x: 0, y: 0, width: lw, height: h)
             labelText.frame = CGRect(x: 0, y: (h - 20) / 2, width: lw - labelSlant, height: 20)
         }
-        // 帶子裁切在控制列之外：右緣 = 標籤寬 + 可視寬度 = 面板寬 − 控制列寬。
-        clipLayer.frame = CGRect(x: lw - slant, y: 0, width: CGFloat(config.tapeViewport(showLabel: showLabel)) + slant, height: h)
-        scrollLayer.frame = CGRect(x: slant, y: 0, width: 1, height: h)
-        scrollLayer.position = CGPoint(x: slant - offset, y: 0)
+        // 控制列在標籤右側：[lw, lw + 控制列寬)；帶子可視區 = [控制列右緣, 面板右緣)，帶子座標 0 對應可視區左緣。
+        let st = config.strip, left = Double(lw)
+        let slant = showLabel ? labelSlant : 0
+        stripLayer.frame = CGRect(x: lw - slant, y: 0, width: CGFloat(st.controlStripWidth) + slant, height: h)   // 底延伸到標籤斜切下方
+        func frame(_ r: Range<Double>) -> CGRect { CGRect(x: r.lowerBound, y: 0, width: r.upperBound - r.lowerBound, height: Double(h)) }
+        previousChevron.frame = frame(st.previousButtonRange(leftInset: left))
+        nextChevron.frame = frame(st.nextButtonRange(leftInset: left))
+        indicatorLayer.frame = frame(st.indicatorRange(leftInset: left))
+        previousChevron.path = ControlStripGlyphs.chevronPath(pointingLeft: true, in: previousChevron.bounds)
+        nextChevron.path = ControlStripGlyphs.chevronPath(pointingLeft: false, in: nextChevron.bounds)
+        renderIndicator()
+        clipLayer.frame = CGRect(x: st.tapeLeft(leftInset: left), y: 0, width: CGFloat(config.tapeViewport(showLabel: showLabel)), height: h)
+        scrollLayer.frame = CGRect(x: 0, y: 0, width: 1, height: h)
+        scrollLayer.position = CGPoint(x: -offset, y: 0)
         CATransaction.commit()
     }
 
@@ -230,10 +234,18 @@ public final class TickerView: NSView, TickerRenderer {
 
     public func setControlStrip(_ state: ControlStripState) {
         CATransaction.begin(); CATransaction.setDisableActions(true)
-        indicatorText.string = state.text
-        previousText.opacity = state.previousEnabled ? 1 : 0.3
-        nextText.opacity = state.nextEnabled ? 1 : 0.3
+        indicatorString = state.text
+        renderIndicator()
+        previousChevron.opacity = state.previousEnabled ? 1 : 0.3
+        nextChevron.opacity = state.nextEnabled ? 1 : 0.3
         CATransaction.commit()
+    }
+
+    /// 位置指示改為位圖（墨跡外框置中，見 `ControlStripGlyphs`）；文字或 backing scale 改變時重畫。
+    private func renderIndicator() {
+        let scale = backingScale
+        indicatorLayer.contentsScale = scale
+        indicatorLayer.contents = ControlStripGlyphs.indicatorImage(text: indicatorString, size: indicatorLayer.bounds.size, scale: scale)
     }
 
     /// 診斷與測試用：各圖層的版面與狀態。
@@ -252,10 +264,10 @@ public final class TickerView: NSView, TickerRenderer {
         public var scrollOriginX: CGFloat
     }
     public var layoutSnapshot: LayoutSnapshot {
-        LayoutSnapshot(clipFrame: clipLayer.frame, stripFrame: stripLayer.frame, previousFrame: previousText.frame,
-                       indicatorFrame: indicatorText.frame, nextFrame: nextText.frame,
-                       previousOpacity: previousText.opacity, nextOpacity: nextText.opacity,
-                       indicatorText: (indicatorText.string as? String) ?? "",
+        LayoutSnapshot(clipFrame: clipLayer.frame, stripFrame: stripLayer.frame, previousFrame: previousChevron.frame,
+                       indicatorFrame: indicatorLayer.frame, nextFrame: nextChevron.frame,
+                       previousOpacity: previousChevron.opacity, nextOpacity: nextChevron.opacity,
+                       indicatorText: indicatorString,
                        labelString: (labelText.string as? String) ?? "", labelHidden: labelText.isHidden && labelLayer.isHidden,
                        labelFill: labelLayer.fillColor, labelTextColor: labelText.foregroundColor, tapeColor: layer?.backgroundColor,
                        cornerRadius: layer?.cornerRadius ?? -1, masksToBounds: layer?.masksToBounds ?? false,
@@ -287,7 +299,7 @@ public final class TickerView: NSView, TickerRenderer {
     public func setScrollOffset(_ x: Double) {
         offset = x
         CATransaction.begin(); CATransaction.setDisableActions(true)
-        scrollLayer.position = CGPoint(x: slant - x, y: 0)
+        scrollLayer.position = CGPoint(x: -x, y: 0)
         for seq in track.prune(offset: x) { layers.removeValue(forKey: seq)?.removeFromSuperlayer(); placedBySeq.removeValue(forKey: seq) }
         CATransaction.commit()
     }
@@ -311,6 +323,7 @@ public final class TickerView: NSView, TickerRenderer {
     public override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         link?.invalidate(); link = nil
+        renderIndicator()                                       // backing scale 可能隨視窗改變
         guard window != nil else { return }
         let l = displayLink(target: self, selector: #selector(frameTick(_:)))
         l.preferredFrameRateRange = CAFrameRateRange(minimum: 30, maximum: config.maxFrameRate, preferred: config.maxFrameRate)

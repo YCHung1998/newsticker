@@ -5,27 +5,40 @@
   <!-- A. REPLAY -->
   <text x="20" y="58" font-size="13" fill="#444">A. 重播模式 REPLAY：沒有新訊息時，循環播放最新 10 則（含時間），黑底白字</text>
   <rect x="20" y="66" width="720" height="42" rx="4" fill="#000"/>
+  <rect x="134" y="66" width="116" height="42" fill="#262626"/>
+  <polyline points="170,81 164,87 170,93" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="200" y="92" font-size="13" font-weight="600" text-anchor="middle" fill="#fff">(4/10)</text>
+  <polyline points="230,81 236,87 230,93" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   <polygon points="20,66 150,66 134,108 20,108" fill="#b83a2e"/>
   <text x="34" y="92" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
-  <text x="162" y="92" font-size="14" fill="#fff">16:28:48 沙烏地阿拉伯民防部門：塔伊夫的危險已解除。</text>
-  <text x="478" y="92" font-size="14" fill="#fff" opacity="0.95">16:27:25 沙烏地阿拉伯民防部門：延…</text>
+  <text x="262" y="92" font-size="14" fill="#fff">16:28:48 沙烏地民防部門：塔伊夫危險已解除。</text>
+  <text x="610" y="92" font-size="14" fill="#fff" opacity="0.95">16:27:25 沙烏地民防…</text>
+  <text x="150" y="124" font-size="11" fill="#777">↑ 控制列在標籤右側：&lt; (n/N) &gt;（齒輪位置預留在標籤左側，尚未實作）</text>
   <text x="742" y="124" font-size="11" text-anchor="end" fill="#777">← 帶子向左捲動</text>
 
   <!-- B. LIVE -->
   <text x="20" y="152" font-size="13" fill="#444">B. 即時模式 LIVE：有新訊息時，白底黑字（同樣含時間）</text>
   <rect x="20" y="160" width="720" height="42" rx="4" fill="#fff" stroke="#bbb"/>
+  <rect x="134" y="160" width="116" height="42" fill="#262626"/>
+  <polyline points="170,175 164,181 170,187" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="200" y="186" font-size="13" font-weight="600" text-anchor="middle" fill="#fff">(4/10)</text>
+  <polyline points="230,175 236,181 230,187" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   <polygon points="20,160 150,160 134,202 20,202" fill="#b83a2e"/>
   <text x="34" y="186" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
-  <text x="162" y="186" font-size="14" fill="#000">16:56:41 沙烏地阿拉伯領導的聯軍表示，已攔截並摧毀了兩枚彈道飛彈。</text>
+  <text x="262" y="186" font-size="14" fill="#000">16:56:41 沙烏地阿拉伯領導的聯軍表示，已攔截並摧毀了兩枚彈道飛彈。</text>
 
   <!-- C. transition -->
   <text x="20" y="246" font-size="13" fill="#444">C. 重播中來了新訊息：已在畫面上的不中斷，新訊息接在尾端，並切換為即時模式</text>
   <rect x="20" y="254" width="720" height="42" rx="4" fill="#000"/>
+  <rect x="134" y="254" width="116" height="42" fill="#262626"/>
+  <polyline points="170,269 164,275 170,281" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="200" y="280" font-size="13" font-weight="600" text-anchor="middle" fill="#fff">(4/10)</text>
+  <polyline points="230,269 236,275 230,281" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   <polygon points="20,254 150,254 134,296 20,296" fill="#b83a2e"/>
   <text x="34" y="280" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
-  <text x="162" y="280" font-size="14" fill="#fff">16:27:00 沙烏地阿拉伯民防部門：麥加危險警報解除。</text>
-  <rect x="470" y="254" width="270" height="42" fill="#fff"/>
-  <text x="482" y="280" font-size="14" fill="#000">16:56:41 沙烏地阿拉伯領導的聯…</text>
-  <line x1="470" y1="248" x2="470" y2="300" stroke="#b83a2e" stroke-width="2" stroke-dasharray="4 3"/>
-  <text x="464" y="322" font-size="11" text-anchor="end" fill="#b83a2e">新訊息接在這裡 →</text>
+  <text x="262" y="280" font-size="14" fill="#fff">16:27:00 沙烏地民防部門：警報解除。</text>
+  <rect x="560" y="254" width="180" height="42" fill="#fff"/>
+  <text x="570" y="280" font-size="14" fill="#000">16:56:41 沙烏地聯軍…</text>
+  <line x1="560" y1="248" x2="560" y2="300" stroke="#b83a2e" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="554" y="322" font-size="11" text-anchor="end" fill="#b83a2e">新訊息接在這裡 →</text>
 </svg>
