@@ -77,22 +77,45 @@ import Foundation
         let p = ShellConfig.provisional, d = TickerStyle.default
         // 仍留在 ShellConfig 的值（不屬於 TickerStyle，值不得變動）
         #expect(p.panelSize.width == 620 && p.panelSize.height == 42)
-        #expect(p.labelWidth == 150 && p.itemPadding == 14 && p.defaultAlpha == 0.9)
+        #expect(p.labelWidth == 150 && p.itemPadding == 10 && p.defaultAlpha == 0.9)
         #expect(p.alphaRange.lowerBound == 0.3 && p.alphaRange.upperBound == 1.0)
-        // 即將移入 TickerStyle 的值（4.1 從 ShellConfig 移除後，這三行改由渲染斷言取代）
-        #expect(Double(p.fontSize) == d.fontSize && p.scrollSpeed == d.scrollSpeed && p.labelText == d.labelText)
+        // fontSize／scrollSpeed／labelText 已從 ShellConfig 移除（4.1）；原本比對 ShellConfig 的這一行改為渲染斷言，
+        // 見 StyleApplyTests.swift 的 DefaultStyleRendersLikePrototypeTests（字級、速度、標籤文字、顏色、像素）。
         // 圓角範圍上限 = 面板高的一半
         #expect(StyleRanges.cornerRadius.upperBound == Double(p.panelSize.height) / 2)
     }
 
-    @Test func prototypeColorLiteralsStillInTickerViewSource() throws {
-        // 原型色彩字面值目前寫在 TickerView.swift；若有人改了字面值，這裡紅，提醒同步改 TickerStyle.default。
-        // （4.1 把 TickerView 改為讀取 TickerStyle 後，這個測試改為斷言渲染結果。）
-        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Sources/FastBullTickerApp/TickerView.swift")
-        let src = try String(contentsOf: url, encoding: .utf8)
-        #expect(src.contains("red: 0.09, green: 0.09, blue: 0.10"))
-        #expect(src.contains("red: 0.85, green: 0.10, blue: 0.13"))
+    // 原本的 `prototypeColorLiteralsStillInTickerViewSource`（grep TickerView.swift 的色彩字面值）已在 4.1 改為
+    // StyleApplyTests.swift 的渲染斷言（實際圖層顏色與原型常數比較），因為字面值已不在 TickerView.swift。
+
+    // MARK: 文件（7.1）：README 的欄位表與 TickerStyle.keys 一致
+
+    /// 讀取 README.md 第 5.5 節 `style.json` 欄位表（表頭 `| 鍵 |` 之後、空行之前）每列第一欄的鍵名。
+    static func readmeFieldTableKeys(readme: String) -> [String] {
+        var keys: [String] = [], inTable = false
+        for line in readme.split(separator: "\n", omittingEmptySubsequences: false) {
+            if line.hasPrefix("| 鍵 |") { inTable = true; continue }
+            guard inTable else { continue }
+            if !line.hasPrefix("|") { break }
+            if line.hasPrefix("|---") { continue }
+            let first = line.split(separator: "|", omittingEmptySubsequences: false).dropFirst().first.map { $0.trimmingCharacters(in: .whitespaces) } ?? ""
+            keys.append(first.trimmingCharacters(in: CharacterSet(charactersIn: "`")))
+        }
+        return keys
+    }
+
+    @Test func readmeFieldTableListsExactlyTheStyleKeys() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("README.md")
+        let readme = try String(contentsOf: url, encoding: .utf8)
+        let keys = Self.readmeFieldTableKeys(readme: readme)
+        #expect(Set(keys) == Set(TickerStyle.keys) && keys.count == TickerStyle.keys.count, "README 欄位表：\(keys)")
+        #expect(readme.contains("style.json"))
+    }
+
+    @Test func readmeTableParserDetectsMissingAndExtraKeys() {
+        let doc = "| 鍵 | 型別 |\n|---|---|\n| `a` | x |\n| `b` | y |\n\n| 其他 | z |\n"
+        #expect(Self.readmeFieldTableKeys(readme: doc) == ["a", "b"])
+        #expect(Self.readmeFieldTableKeys(readme: "no table") == [])
     }
 
     // MARK: 範圍

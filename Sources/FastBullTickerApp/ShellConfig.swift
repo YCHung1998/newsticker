@@ -29,8 +29,6 @@ public struct ShellConfig: Sendable {
     public var panelSize: CGSize
     /// 左側標籤寬度（pt）【假設，來自使用者提供的參考截圖】。
     public var labelWidth: CGFloat
-    public var labelText: String
-    public var fontSize: CGFloat
     /// 每則訊息左右留白（pt）。
     public var itemPadding: CGFloat
     /// 透明度範圍：下限 30%【假設，規格區間 20–30%】；預設 0.9【假設】。
@@ -40,8 +38,6 @@ public struct ShellConfig: Sendable {
     public var persistDebounce: TimeInterval
     /// 補料計時器間隔（秒）。
     public var feedInterval: TimeInterval
-    /// 與 `SchedulerConfig` 對應：捲動速度 px/s（固定常數，目測調整）。
-    public var scrollSpeed: Double
     public var screenMargin: CGFloat
     /// 「不可見」須持續超過此秒數才凍結（遮蔽防抖，吸收切換 Space 轉場的狀態翻動）【假設】。
     public var occludedConfirmDelay: TimeInterval
@@ -53,7 +49,7 @@ public struct ShellConfig: Sendable {
     public var hitSlop: Double = HitTesting.defaultHitSlop
 
     public static let provisional = ShellConfig(
-        level: .screenSaver,
+        level: .statusBar,
         collectionBehavior: [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle],
         renderer: .displayLink,
         feedTimer: .commonModeTimer,
@@ -61,36 +57,39 @@ public struct ShellConfig: Sendable {
         maxFrameRate: 60,
         panelSize: CGSize(width: 620, height: 42),
         labelWidth: 150,
-        labelText: "即時財經快訊",
-        fontSize: 16,
-        itemPadding: 14,
+        itemPadding: 10,
         alphaRange: 0.3...1.0,
         defaultAlpha: 0.9,
         persistDebounce: 0.5,
         feedInterval: 0.1,
-        scrollSpeed: 90,   // 【假設】目測調整；60 時單則約 9–10 秒才走完，8 秒一則的示範會一直堆積在 LIVE
         screenMargin: 8,
         occludedConfirmDelay: 1.0
     )
 
     public var controlStripWidth: Double { strip.controlStripWidth }
 
-    /// 帶子可視寬度＝面板寬 − 標籤寬 − 控制列寬（預設 620 − 150 − 100 = 370；由 `strip` 推導，不重複寫死）。
-    public var tapeViewportWidth: Double {
-        strip.tapeViewportWidth(panelWidth: Double(panelSize.width), labelWidth: Double(labelWidth))
+    /// 帶子可視寬度＝面板寬 − （`showLabel` 時的標籤寬）− 控制列寬（預設 620 − 150 − 100 = 370；由 `strip` 推導，不重複寫死）。
+    public func tapeViewport(showLabel: Bool) -> Double {
+        strip.tapeViewportWidth(panelWidth: Double(panelSize.width), labelWidth: showLabel ? Double(labelWidth) : 0)
     }
+    /// 標籤顯示時的可視寬度（預設樣式）。
+    public var tapeViewportWidth: Double { tapeViewport(showLabel: true) }
 
-    /// 命中測試用的幾何（與 `TickerView` 的圖層版面同源）。
-    public var hitGeometry: HitGeometry {
-        HitGeometry(panelSize: panelSize, labelWidth: Double(labelWidth), strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
+    /// 命中測試用的幾何（與 `TickerView` 的圖層版面同源）；標籤隱藏時標籤寬為 0。
+    public func makeHitGeometry(showLabel: Bool) -> HitGeometry {
+        HitGeometry(panelSize: panelSize, labelWidth: showLabel ? Double(labelWidth) : 0, strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
     }
+    public var hitGeometry: HitGeometry { makeHitGeometry(showLabel: true) }
 
-    /// 依本設定建立 Core 的排程設定。時間以本機時區顯示。
-    public func schedulerConfig(timeZone: TimeZone = .current) -> SchedulerConfig {
+    /// 依本設定與樣式建立 Core 的排程設定。時間以本機時區顯示。
+    public func schedulerConfig(style: TickerStyle = .default, timeZone: TimeZone = .current) -> SchedulerConfig {
+        let viewport = tapeViewport(showLabel: style.showLabel)
         var c = SchedulerConfig()
-        c.speed = scrollSpeed
-        c.viewportWidth = tapeViewportWidth
-        c.maxItemWidth = max(tapeViewportWidth, 600)
+        c.speed = style.scrollSpeed
+        c.viewportWidth = viewport
+        c.maxItemWidth = max(viewport, 600)
+        c.replayCount = style.replayCount
+        c.showTime = style.showTime
         c.linkSlotWidth = linkSlotWidth
         c.timeZone = timeZone
         return c

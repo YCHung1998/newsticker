@@ -3,7 +3,7 @@
 來源：使用者第一次目視原型後的回饋（樣式未來要可調：圓角、即時快訊顏色、文字內容、字級、速度、訊息量）、設計文件第 5 節、現行主 specs，以及 app-shell 已實作的程式（`ShellConfig.swift`、`TickerView.swift`、`ItemBitmap.swift`、`StatusMenu.swift`、`AppDelegate.swift`）。標【假設】者是本文件替使用者做的設計選擇，尚未確認；標【待確認】者是矛盾或缺漏，不自行補猜。
 
 現況（已讀程式）：
-- 外觀常數散在三處：`ShellConfig`（`fontSize` 16、`labelText`、`scrollSpeed` 90、`itemPadding` 14、`labelWidth` 150、`panelSize` 620×42、`defaultAlpha` 0.9、`alphaRange` 0.3…1.0）、`TickerView`（空隙底色 RGB(0.09, 0.09, 0.10)、標籤紅 RGB(0.85, 0.10, 0.13)、標籤白字 15pt Semibold）、`ItemBitmapRenderer.render`（`live` 白底黑字、`replay` 黑底白字，寫死為 0/1 灰階）。
+- 外觀常數散在三處：`ShellConfig`（`fontSize` 16、`labelText`、`scrollSpeed` 90、`itemPadding` 10（原為 14，使用者 2026-10-25 手動改為 10）、`labelWidth` 150、`panelSize` 620×42、`defaultAlpha` 0.9、`alphaRange` 0.3…1.0）、`TickerView`（空隙底色 RGB(0.09, 0.09, 0.10)、標籤紅 RGB(0.85, 0.10, 0.13)、標籤白字 15pt Semibold）、`ItemBitmapRenderer.render`（`live` 白底黑字、`replay` 黑底白字，寫死為 0/1 灰階）。
 - `TickerScheduler.config` 是 `let`；measurer 在建構時注入（`ItemBitmapRenderer.measurer` 內含字級與留白），所以字級改變時**必須**能換 measurer。
 - `StatusMenuController.items` 恰為四項，`StatusMenuTests` 斷言 `kinds == [.opacity, .toggleVisibility, .clickThrough, .quit]`。
 - 位置存檔已有 `PlacementSaver`（debounce 0.5 秒）、`FeedClock` 測試替身、`AppLog`、`~/Library/Application Support/FastBullTicker/` 目錄；環境變數覆寫的命名慣例為 `FASTBULL_TICKER_*`。

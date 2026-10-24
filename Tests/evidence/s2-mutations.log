@@ -1,0 +1,153 @@
+[B1 showTime=false 仍偵測時間粗體（量測端）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['showTimeFalseBodyThatLooksLikeATimeIsNeverBold']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.779 seconds with 2 issues.']
+[B2 繪製端回到偵測字串內容（不用 timeString）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['showTimeFalseBodyThatLooksLikeATimeIsNeverBold']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.619 seconds with 2 issues.']
+[B3 showTime=false 時仍多一個前導空白]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['showTimeFalseBodyThatLooksLikeATimeIsNeverBold']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.877 seconds with 2 issues.']
+[B4 bitmap 配色寫死（忽略 colors）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeKeepsPositionsAndRedrawsBitmapsInPlace', 'yellowLiveBackgroundWithBlackText']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.294 seconds with 3 issues.']
+[B5 色碼改用 sRGB 建構（與原型的 Generic RGB 不同）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeKeepsPositionsAndRedrawsBitmapsInPlace', 'defaultStyle', 'viewLayersMatchPrototypeConstants', 'yellowLiveBackgroundWithBlackText']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.937 seconds with 5 issues.']
+[V1 顏色變更時不重繪已排入訊息]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeAfterFontChangeStillUsesTheOldFontForOldItems', 'colorChangeKeepsPositionsAndRedrawsBitmapsInPlace', 'yellowLiveBackgroundWithBlackText']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.882 seconds with 6 issues.']
+[V2 重繪一律用目前字級（不分世代）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeAfterFontChangeStillUsesTheOldFontForOldItems', 'prunedItemReaddedAfterFontChangeIsRebuiltWithItsOriginalFont']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.887 seconds with 3 issues.']
+[V3 字級改變時不記錄舊世代]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeAfterFontChangeStillUsesTheOldFontForOldItems', 'prunedItemReaddedAfterFontChangeIsRebuiltWithItsOriginalFont']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.519 seconds with 3 issues.']
+[V4 圓角不夾制]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['cornerRadiusIsClampedToHalfPanelHeightAndMasksAllLayers']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.262 seconds with 2 issues.']
+[V5 圓角不裁切（masksToBounds 關）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['cornerRadius21LeavesCornersTransparentToTheBackdrop', 'cornerRadiusIsClampedToHalfPanelHeightAndMasksAllLayers']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.735 seconds with 4 issues.']
+[V6 showLabel 改變時不更新命中幾何]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.607 seconds with 2 issues.']
+[V7 帶子裁切範圍不隨 showLabel 改變]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.263 seconds with 2 issues.']
+[V8 空隙底色不套用]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['labelTextAndColorsApplyImmediately', 'viewLayersMatchPrototypeConstants']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.818 seconds with 3 issues.']
+[V9 標籤文字不套用]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['labelTextAndColorsApplyImmediately', 'viewLayersMatchPrototypeConstants']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.781 seconds with 3 issues.']
+[V10 showLabel=false 不隱藏標籤]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions', 'labelHidden', 'startupLoadsTheFileAndAppliesThroughTheSamePath']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.607 seconds with 4 issues.']
+[V11 顏色變更時改動 tapeX（位置跳動）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['colorChangeKeepsPositionsAndRedrawsBitmapsInPlace', 'fakeHelperFeedThenStyleChangeKeepsLayersAndPositions']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.610 seconds with 3 issues.']
+[A1 套用時不呼叫 Core reconfigure]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply', 'endToEndSchedulerWithShowTimeFalseDrawsNoLeadingSpaceAndNoBold', 'fakeHelperFeedThenStyleChangeKeepsLayersAndPositions', 'fontSizeOnlyAffectsItemsPlacedAfterTheChange', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite', 'replayCountAndShowTimeReachTheScheduler', 'speedChangeKeepsVisualPositionsThenAdvancesAtNewSpeed']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.241 seconds with 13 issues.']
+[A2 可視寬度不隨 showLabel]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hidingTheLabelWidensViewportAndKeepsTapePositions', 'startupLoadsTheFileAndAppliesThroughTheSamePath']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.997 seconds with 3 issues.']
+[A3 相同樣式也重套]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['applyingTheSameStyleTwiceIsANoOp', 'noFileMeansDefaultStyleAndNothingApplied']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.866 seconds with 4 issues.']
+[A4 replayCount 沒傳給排程器]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['fakeHelperFeedThenStyleChangeKeepsLayersAndPositions', 'replayCountAndShowTimeReachTheScheduler']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.632 seconds with 4 issues.']
+[A5 reconfigure 用舊 measurer（字級不更新）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['endToEndSchedulerWithShowTimeFalseDrawsNoLeadingSpaceAndNoBold', 'fontSizeOnlyAffectsItemsPlacedAfterTheChange']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.950 seconds with 3 issues.']
+[A6 scrollSpeed 沒傳給排程器]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply', 'menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite', 'speedChangeKeepsVisualPositionsThenAdvancesAtNewSpeed', 'startupLoadsTheFileAndAppliesThroughTheSamePath']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.864 seconds with 5 issues.']
+[D1 ShellConfig 排程設定忽略 style.scrollSpeed]
+  破壞後 rc=1 !!! 仍然綠（測試沒抓到）
+  失敗測試=[]
+  ['✘ Test run with 197 tests in 30 suites failed after 3.653 seconds with 1 issue.']
+[M1 字級檔位 20 改為 21]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['actionItemsAndSlidersCallOnAction', 'fontSizeStepsAndCheckmarks', 'hotReloadedValuesAreVisibleToTheMenuOnNextOpen', 'menuNeedsUpdateRefreshesFromTheLatestStyle']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.288 seconds with 8 issues.']
+[M2 字級勾選永遠不勾]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['buildsMenuFromModelAndMirrorsCheckmarks', 'fontSizeStepsAndCheckmarks', 'hotReloadedValuesAreVisibleToTheMenuOnNextOpen', 'menuNeedsUpdateRefreshesFromTheLatestStyle']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.255 seconds with 8 issues.']
+[M3 即時配色預設連重播配色一起改]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['actionsChangeOnlyTheirOwnFieldsAndStayValidAfterClamp', 'menuLivePresetWritesBothLiveColorsOnly']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.847 seconds with 3 issues.']
+[M4 速度滑桿範圍放寬到 0…300]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['actionItemsAndSlidersCallOnAction', 'slidersCarryTheValidRangesAndCurrentValues']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.764 seconds with 3 issues.']
+[M5 設定檔有誤的提示行可點選]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['configProblemAddsADisabledNoticeFirst']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.715 seconds with 2 issues.']
+[M6 訊息量檔位 20 改為 40（超出範圍）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['replayCountStepsAndCheckmarks']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.571 seconds with 4 issues.']
+（第一輪在 M7 因腳本裡的檔案路徑寫錯而中止，改正路徑後從 M7 補跑，結果接在下面）
+[M7 開啟設定檔不先建立檔案]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['menuOpenFileUsesOnlyTheRecordingOpener', 'openFileWhenMissingCreatesItFirstThenOpensExactlyOnce']
+  ['✘ Test run with 197 tests in 30 suites failed after 4.492 seconds with 4 issues.']
+[M8 開啟設定檔呼叫 opener 兩次]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['menuOpenFileUsesOnlyTheRecordingOpener', 'openFileOpenerFailureIsOnlyLogged', 'openFileWhenMissingCreatesItFirstThenOpensExactlyOnce', 'openFileWhenPresentDoesNotRewriteIt']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.727 seconds with 5 issues.']
+[M9 重設為預設改成只 update（不備份）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['resetBacksUpThenWritesDefault', 'resetFromTheMenuRestoresDefaultsAndKeepsABackup']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.474 seconds with 3 issues.']
+[M10 選單不在展開前重建]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hotReloadedValuesAreVisibleToTheMenuOnNextOpen', 'menuNeedsUpdateRefreshesFromTheLatestStyle']
+  ['✘ Test run with 197 tests in 30 suites failed after 3.830 seconds with 5 issues.']
+[M11 StatusMenu 少了樣式項目]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=[]
+  ['FastBullTickerAppTests/StyleMenuTests.swift:1: Fatal error: Unexpectedly found nil while unwrapping an Optional value', "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --filter StyleApply|DefaultStyleRenders|StyleMenu|StyleAction|StatusMenu|AppSmoke|StyleSnapshot|TickerRenderer|PanelShell|NavigationView|LinkOpenerGuard|TickerStyleTests|StyleParser|StyleStore /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[M12 熱重載／選單變更沒有接到套用端]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['corruptFileKeepsTheEffectiveStyleAndLogsTheError', 'editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply', 'fakeHelperFeedThenStyleChangeKeepsLayersAndPositions', 'menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite', 'resetFromTheMenuRestoresDefaultsAndKeepsABackup']
+  ['✘ Test run with 197 tests in 30 suites failed after 9.023 seconds with 12 issues.']
+[M13 滑桿動作不寫回（onAction 被略過）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['actionItemsAndSlidersCallOnAction', 'menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite']
+  ['✘ Test run with 197 tests in 30 suites failed after 5.196 seconds with 4 issues.']
+
+還原後（完整 swift test）rc=1 除基準線已知失敗外的失敗測試=[] ['✘ Test run with 468 tests in 65 suites failed after 8.044 seconds with 1 issue.']  存活的 mutation 數=0
+[D1 ShellConfig 排程設定忽略 style.scrollSpeed]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['shellConfigBuildsTheSchedulerConfigFromTheStyle']
+  ['✘ Test run with 198 tests in 30 suites failed after 4.976 seconds with 2 issues.']
+
+還原後（完整 swift test）rc=1 除基準線已知失敗外的失敗測試=[] ['✘ Test run with 469 tests in 65 suites failed after 5.849 seconds with 1 issue.']  存活的 mutation 數=0

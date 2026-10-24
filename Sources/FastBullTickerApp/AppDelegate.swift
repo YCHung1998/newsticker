@@ -14,6 +14,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var driver: TickerDriver?
     private var coordinator: AppCoordinator?
     private var navigation: NavigationActions?
+    private var styleStore: StyleStore?
+    private var styleApplier: StyleApplier?
+    private var styleRunner: StyleActionRunner?
     private var feed: FeedClient?
     private var wake: WakeObserver?
     private var saver: PlacementSaver?
@@ -37,7 +40,13 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         self.store = store
         let alpha = config.clampAlpha(store.loadAlpha() ?? config.defaultAlpha)
 
-        // 面板與帶子
+        // 樣式（ticker-style-settings 6.1）：先載入檔案（損壞或不存在 → 預設，保留檔案不動）；監看在接好回呼後才開始。
+        let styleStore = StyleStore(fileURL: StyleStore.defaultFileURL(environment: environment), watcher: DispatchSourceStyleWatcher(), log: log)
+        styleStore.load()
+        self.styleStore = styleStore
+        log.write("style: file=\(styleStore.fileURL.path)")
+
+        // 面板與帶子（以預設樣式建構，隨後經與熱重載／選單相同的 `StyleApplier` 路徑套用目前樣式）
         let frame = PlacementMath.restore(store.loadPlacement(), size: config.panelSize, screens: ScreenInfo.current(),
                                           defaultMargin: config.screenMargin)
             ?? CGRect(origin: CGPoint(x: 100, y: 100), size: config.panelSize)
@@ -63,7 +72,12 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         view.router.hitItems = { [weak driver] in driver?.hitItems() ?? [] }
         view.onPointerInside = { [weak self] inside in self?.driver?.setPointerInside(inside) }
         self.navigation = actions
-        self.log.write("layout: tapeViewport=\(Int(config.tapeViewportWidth)) controlStrip=\(Int(config.controlStripWidth)) linkSlot=\(Int(config.linkSlotWidth)) hitSlop=\(Int(config.hitSlop)) panel=\(Int(config.panelSize.width))x\(Int(config.panelSize.height))")
+        let applier = StyleApplier(config: config, view: view, driver: driver, log: log)
+        self.styleApplier = applier
+        applier.apply(styleStore.style, source: "startup")
+        let viewport = config.tapeViewport(showLabel: styleStore.style.showLabel)
+        self.log.write("layout: tapeViewport=\(Int(viewport)) controlStrip=\(Int(config.controlStripWidth)) linkSlot=\(Int(config.linkSlotWidth)) hitSlop=\(Int(config.hitSlop)) panel=\(Int(config.panelSize.width))x\(Int(config.panelSize.height))")
+        self.log.write("style: effective \(styleStore.style.summary)")
 
         // 選單（選單列與面板右鍵共用）
         let menu = StatusMenuController(config: config, initialAlpha: alpha)
@@ -76,6 +90,10 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menu.onClickThroughChanged = { [weak self] on in self?.panel?.ignoresMouseEvents = on; self?.view?.router.isEnabled = !on; self?.log.write("menu: clickThrough=\(on)") }
         menu.onQuit = { NSApp.terminate(nil) }
+        let runner = StyleActionRunner(store: styleStore, opener: WorkspaceFileOpener(onFailure: { log.write("style: open file failed: \($0.localizedDescription)") }), log: log)
+        self.styleRunner = runner
+        StyleWiring.connect(store: styleStore, applier: applier, menu: menu.styleMenu, runner: runner)
+        styleStore.startWatching()
         menu.install()
         view.contextMenu = menu.menu
         self.menu = menu
@@ -203,6 +221,8 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
 
     public func applicationWillTerminate(_ notification: Notification) {
         feedTimer?.invalidate(); statsTimer?.invalidate(); view?.stop()
+        styleStore?.stopWatching()
+        styleStore?.flushWrite()
         if let c = coordinator { log.write("final " + c.statsLine) }
         log.write("terminate")
     }

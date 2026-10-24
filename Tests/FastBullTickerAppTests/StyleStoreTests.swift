@@ -51,26 +51,62 @@ final class RecordingFS: StyleFileSystem, @unchecked Sendable {
     func remove(_ url: URL) { rec("remove"); disk.remove(url) }
 }
 
+/// 在呼叫 `advance` 的執行緒上就地執行到期計時器的假時鐘（忽略 queue）：給需要在主執行緒套用樣式的測試用
+/// （`StyleStore(queue: .main)` 搭配 `FakeClock` 的 `queue.sync` 會死鎖）。
+final class InlineFakeClock: FeedClock, @unchecked Sendable {
+    private final class Entry: FeedTimer, @unchecked Sendable {
+        let due: TimeInterval; let block: @Sendable () -> Void
+        var cancelled = false
+        init(due: TimeInterval, block: @escaping @Sendable () -> Void) { self.due = due; self.block = block }
+        func cancel() { cancelled = true }
+    }
+    private let lock = NSLock()
+    private var t: TimeInterval = 1000
+    private var entries: [Entry] = []
+    func now() -> TimeInterval { lock.withLock { t } }
+    func schedule(after delay: TimeInterval, on queue: DispatchQueue, _ block: @escaping @Sendable () -> Void) -> FeedTimer {
+        lock.withLock { let e = Entry(due: t + delay, block: block); entries.append(e); return e }
+    }
+    func advance(by seconds: TimeInterval) {
+        let target = lock.withLock { t + seconds }
+        while true {
+            let next: Entry? = lock.withLock {
+                entries.removeAll { $0.cancelled }
+                guard let e = entries.filter({ $0.due <= target + 1e-9 }).min(by: { $0.due < $1.due }) else { return nil }
+                entries.removeAll { $0 === e }
+                t = max(t, e.due)
+                return e
+            }
+            guard let e = next else { break }
+            e.block()
+        }
+        lock.withLock { t = target }
+    }
+}
+
 /// 一個完整的測試環境：暫存目錄、假監看器、假時鐘、私有序列佇列。
 final class StyleEnv {
     let dir: URL
     let file: URL
     let watcher = FakeStyleWatcher()
     let clock = FakeClock()
+    /// `inline: true` 時改用 `InlineFakeClock`＋`.main` 佇列（回呼在呼叫 `advance` 的主執行緒執行）。
+    let inlineClock: InlineFakeClock?
     let queue = DispatchQueue(label: "StyleStoreTests")
     let log = AppLog(fileURL: nil, toStderr: false)
     let changes = ChangeLog()
     let fs = RecordingFS()
     let store: StyleStore
 
-    init(subdirectory: String? = nil) {
+    init(subdirectory: String? = nil, inline: Bool = false) {
+        inlineClock = inline ? InlineFakeClock() : nil
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("stylestore-\(UUID().uuidString)")
         try! FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         dir = root
         let target = subdirectory.map { root.appendingPathComponent($0) } ?? root
         file = target.appendingPathComponent("style.json")
         precondition(file.path.hasPrefix(FileManager.default.temporaryDirectory.path), "測試只能使用暫存目錄")
-        store = StyleStore(fileURL: file, watcher: watcher, clock: clock, queue: queue, fileSystem: fs, log: log)
+        store = StyleStore(fileURL: file, watcher: watcher, clock: inlineClock ?? clock, queue: inline ? .main : queue, fileSystem: fs, log: log)
         store.onChange = { [changes] s, src in changes.add(s, src) }
     }
     deinit {
@@ -84,8 +120,9 @@ final class StyleEnv {
     var bakBytes: Data? { try? Data(contentsOf: store.backupURL) }
     var listing: [String] { ((try? FileManager.default.contentsOfDirectory(atPath: file.deletingLastPathComponent().path)) ?? []).sorted() }
     /// 模擬目錄事件並走完 debounce。
-    func fireAndSettle() { watcher.fire(); clock.advance(by: StyleStore.reloadDebounce + 0.01) }
-    func settleWrite() { clock.advance(by: StyleStore.writeDebounce + 0.01) }
+    func advance(by s: TimeInterval) { if let i = inlineClock { i.advance(by: s) } else { clock.advance(by: s) } }
+    func fireAndSettle() { watcher.fire(); advance(by: StyleStore.reloadDebounce + 0.01) }
+    func settleWrite() { advance(by: StyleStore.writeDebounce + 0.01) }
     var logs: [String] { log.recorded }
 }
 

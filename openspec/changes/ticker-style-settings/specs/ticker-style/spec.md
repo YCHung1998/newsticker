@@ -36,7 +36,7 @@ App SHALL 以單一 `Codable`、`Equatable`、`Sendable` 的 `TickerStyle` 結�
 - **THEN** SHALL 只有 `Foundation`
 
 ### Requirement: 預設值與目前原型一致
-`TickerStyle.default` MUST 使不改設定時的畫面與目前原型相同。目前原型的值（取自 `ShellConfig.provisional` 與 `TickerView`／`ItemBitmapRenderer`）：面板 620×42、標籤寬 150pt、標籤文字「即時財經快訊」、字型 PingFang TC 16pt（標籤 15pt Semibold 維持固定，不在本 change 範圍）、捲動速度 90 px/s、重播則數 10、透明度預設 0.9 且下限 0.3、單則左右留白 14pt、即時為白底黑字（`#FFFFFF`／`#000000`）、重播為黑底白字（`#000000`／`#FFFFFF`）、空隙底色 RGB(0.09, 0.09, 0.10)、標籤紅色 RGB(0.85, 0.10, 0.13)。其中面板尺寸、標籤寬度、留白、透明度範圍與預設不屬於 `TickerStyle`，MUST 維持在 `ShellConfig` 且值不變；屬於 `TickerStyle` 的預設值 MUST 逐項等於上述原型值。十六進位色碼與原型 RGB 浮點值的量化誤差 MUST 不超過 1/255【假設：`#17171A` 對應 (0.09, 0.09, 0.10)、`#D91A21` 對應 (0.85, 0.10, 0.13)，浮點值無法以 8 位元精確表示】。tasks 以斷言測試保證：修改任一原型常數或預設值而未同步另一端時測試 MUST 失敗。
+`TickerStyle.default` MUST 使不改設定時的畫面與目前原型相同。目前原型的值（取自 `ShellConfig.provisional` 與 `TickerView`／`ItemBitmapRenderer`）：面板 620×42、標籤寬 150pt、標籤文字「即時財經快訊」、字型 PingFang TC 16pt（標籤 15pt Semibold 維持固定，不在本 change 範圍）、捲動速度 90 px/s、重播則數 10、透明度預設 0.9 且下限 0.3、單則左右留白 10pt（使用者於 2026-10-25 手動將 `ShellConfig.itemPadding` 由 14 改為 10，故以 10 為準【假設】）、即時為白底黑字（`#FFFFFF`／`#000000`）、重播為黑底白字（`#000000`／`#FFFFFF`）、空隙底色 RGB(0.09, 0.09, 0.10)、標籤紅色 RGB(0.85, 0.10, 0.13)。其中面板尺寸、標籤寬度、留白、透明度範圍與預設不屬於 `TickerStyle`，MUST 維持在 `ShellConfig` 且值不變；屬於 `TickerStyle` 的預設值 MUST 逐項等於上述原型值。十六進位色碼與原型 RGB 浮點值的量化誤差 MUST 不超過 1/255【假設：`#17171A` 對應 (0.09, 0.09, 0.10)、`#D91A21` 對應 (0.85, 0.10, 0.13)，浮點值無法以 8 位元精確表示】。tasks 以斷言測試保證：修改任一原型常數或預設值而未同步另一端時測試 MUST 失敗。
 
 #### Scenario: 預設值逐項斷言
 - **WHEN** 讀取 `TickerStyle.default`
