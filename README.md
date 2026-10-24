@@ -92,7 +92,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test，164 個）
+make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N2 段後為 269 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
@@ -177,7 +177,7 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 |---|---|---|---|
 | 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
 | 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
-| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite | `Tests/FastBullTickerCoreTests/*.swift` |
+| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N2 段後 `swift test` 全部 269 個通過、40 個 suite（Core + App，含新增 81 個） | `Tests/FastBullTickerCoreTests/*.swift` |
 | App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 128 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
 | 規格一致性 | `openspec validate --all --strict` | 5 個 change 全部通過 | `openspec/changes/` |

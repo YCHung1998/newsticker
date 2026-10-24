@@ -1,0 +1,98 @@
+    |                                                                                 `- error: cannot find type 'HitTarget' in scope
+    |                                                             `- error: cannot find type 'HitItem' in scope
+    |                                          `- error: cannot find 'ControlStripLayout' in scope
+    |                             `- error: cannot find 'HitItem' in scope
+    |                           `- error: cannot find 'HitItem' in scope
+    |                          `- error: cannot find 'HitItem' in scope
+    |                         `- error: cannot find 'HitItem' in scope
+    |                        `- error: cannot find 'HitItem' in scope
+    |                       `- error: cannot find 'HitGeometry' in scope
+    |                      `- error: cannot find 'HitItem' in scope
+    |                     `- error: cannot find 'HitItem' in scope
+    |                 `- error: cannot find 'ControlStripLayout' in scope
+    |                 `- error: cannot find 'HitItem' in scope
+    |                 `- error: cannot find 'HitTesting' in scope
+    |         `- error: cannot find 'HitTesting' in scope
+   |                                               `- error: cannot find 'LinkPolicy' in scope
+   |                                             `- error: 'nil' requires a contextual type
+   |                                  `- error: 'nil' requires a contextual type
+   |                                 `- error: cannot find type 'URLOpener' in scope
+   |                               `- error: 'PlacedItem' initializer is inaccessible due to 'internal' protection level
+   |                               `- error: cannot find 'LinkOpening' in scope
+   |                             `- error: cannot find 'LinkOpening' in scope
+   |                      `- error: cannot find type 'OpenableURL' in scope
+   |                     `- error: cannot find 'LinkPolicy' in scope
+   |                  `- error: cannot find 'PointerHover' in scope
+   |                 `- error: cannot find 'LinkOpening' in scope
+   |                 `- error: cannot find 'LinkPolicy' in scope
+   |                 `- error: cannot find 'PointerHover' in scope
+   |                 `- error: cannot find 'PositionIndicator' in scope
+   |         `- error: 'ReadingPosition' initializer is inaccessible due to 'internal' protection level
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:10:23: error: cannot find 'HitGeometry' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:101:17: error: cannot find 'ControlStripLayout' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:11:42: error: cannot find 'ControlStripLayout' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:14:26: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:15:25: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:17:61: error: cannot find type 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:17:81: error: cannot find type 'HitTarget' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:18:9: error: cannot find 'HitTesting' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:43:21: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:44:22: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:46:27: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:53:26: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:55:29: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:59:24: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:61:21: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:65:29: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:78:17: error: cannot find 'HitTesting' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:82:17: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:83:17: error: cannot find 'HitItem' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:91:17: error: cannot find 'ControlStripLayout' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:96:17: error: cannot find 'ControlStripLayout' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/HitTestingTests.swift:97:17: error: cannot find 'ControlStripLayout' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:10:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:11:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:12:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:18:21: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:25:21: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:27:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:33:47: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:34:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:40:21: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:49:17: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:56:31: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:58:17: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:59:17: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:59:34: error: 'nil' requires a contextual type
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:65:29: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:7:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:73:17: error: cannot find 'LinkOpening' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkPolicyTests.swift:9:17: error: cannot find 'LinkPolicy' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkTestSupport.swift:6:33: error: cannot find type 'URLOpener' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/LinkTestSupport.swift:9:22: error: cannot find type 'OpenableURL' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:10:17: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:11:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:12:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:13:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:17:17: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:18:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:19:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:23:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:27:18: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:32:17: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:33:17: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PointerHoverTests.swift:34:17: error: cannot find 'PointerHover' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:13:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:14:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:15:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:19:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:20:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:21:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:25:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:25:45: error: 'nil' requires a contextual type
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:29:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:30:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:34:17: error: cannot find 'PositionIndicator' in scope
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:8:31: error: 'PlacedItem' initializer is inaccessible due to 'internal' protection level
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/PositionIndicatorTests.swift:8:9: error: 'ReadingPosition' initializer is inaccessible due to 'internal' protection level
+error: emit-module command failed with exit code 1 (use -v to see invocation)

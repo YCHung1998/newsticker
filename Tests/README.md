@@ -220,3 +220,45 @@ swift test --filter ItemURLTests --filter ContractFixturesTests
 
 ### 三端一致性
 三端皆直接讀 `protocol/fixtures/manifest.json`（現有 58 個樣本，含新增 13 個）：Python `test_all_samples_match_manifest`、Rust `emitter_contract_all_manifest_samples_match_reference_verdict`、Swift `ContractFixturesTests.everySampleMatchesManifest`，全部判定與原因類別一致。
+
+## ticker-navigation-link 第 N2 段：Core 版面與識別、閱讀位置與 seek、App 純函式（tasks 4.1、5.1、6.1，2026-10-24，分支 `change/ticker-navigation-link`）
+
+規格：`openspec/changes/ticker-navigation-link/design.md` 決定 3–9、11。測試不開視窗、不開瀏覽器、不連網。標【假設】者（8 秒保持、24pt 內縮、保留 64 則、控制列 100pt、hitSlop 4pt）尚未經使用者確認。
+
+### 重現指令
+```sh
+swift test                                                   # 269 個（原 188 + 新增 81），40 個 suite
+swift test --filter ListIdentityTests --filter LinkSlotLayoutTests --filter ReadingPositionTests --filter SeekHoldTests
+swift test --filter SchedulerInvariantTests --filter RebaseTests --filter FreezeResumeTests
+swift test --filter HitTesting --filter ControlStripLayout --filter PositionIndicator --filter PointerHover --filter LinkPolicy --filter LinkOpening --filter LinkOpenerGuard
+python3 Tests/n2-mutations.py                                # 25 個 mutation，約 6 分鐘；完整輸出存於 Tests/evidence/n2-mutations.log
+```
+測試檔：`Tests/FastBullTickerCoreTests/{ListIdentityTests,ReadingPositionTests,SeekHoldTests,TickerLayoutTests(LinkSlotLayoutTests),RebaseTests,SchedulerInvariantTests}.swift`、
+`Tests/FastBullTickerAppTests/{HitTestingTests,PositionIndicatorTests,PointerHoverTests,LinkPolicyTests,LinkOpenerGuardTests,LinkTestSupport}.swift`。
+
+### fail-then-pass
+- **紅**（先寫測試、實作尚未存在）：Core 測試編譯失敗，`Tests/evidence/N2-core-red.log`（例如 `extra argument 'linkSlotWidth' in call`、`PlacedItem has no member 'listID'`、`TickerScheduler has no member 'seek'`）；
+  App 測試編譯失敗，`Tests/evidence/N2-app-red.log`（`cannot find 'HitItem'`、`ControlStripLayout`、`HitTarget` 等，98 行）。
+- **綠**：實作後 `swift test` → `Test run with 269 tests in 40 suites passed`；`swift build` 0 warning。
+- 實作後唯一一個既有測試需要改動：`RebaseTests.visualPositionsUnchangedAndMagnitudesShrink` 的 `abs(tapeX) < 5000` 界線。
+  原因：預設 `retainPlacedCount = 64` 使 rebase 後保留最近 64 則（座標為負、每則約 150），界線放寬為 `5000 + 64 × 150`（其餘斷言不變）。這是規格要求（rebase 須保留以供 `<` 回溯）造成的必要變更，不是為了讓測試通過而放寬。
+- **mutation**（`python3 Tests/n2-mutations.py`，逐一破壞 → 跑全部測試 → 還原）：25 個破壞全部變紅，還原後 269 個全綠。摘要：
+  S1 seek 改動某個 tapeX → 紅（不變量 1、`seekNeverChangesAnyTapeXOrWidth` 類測試與 `SchedulerInvariantTests`）；S2 對齊偏 1pt → 紅；S3 指標停留不凍結 → 紅；
+  S4 凍結期間仍消耗保持 → 紅（`pointerInsideFreezesAndDoesNotConsumeHold`、`SchedulerInvariantTests`）；S5 保持累加而非重設 → 紅；S6 強制排入少 gap → 紅；
+  S7 rebase 不保留最近 N 則 → 紅；S8 內縮線 `>=` → 紅（`rightEdgeEqualToInsetMeansNextOne`）；S9 即時批次總數不含佇列 → 紅；S10 清單第一則 `<` 不停住 → 紅；
+  S11 隱藏中 seek 仍動作 → 紅；S12 `setPointerInside` 不先推進時鐘 → 紅；S13 seq 重複 → 紅；L1 連結欄位未扣截斷預算 → 紅；L2 無 url 也保留欄位 → 紅；
+  P1 `LinkPolicy` 放行 `javascript:` → 紅；P2 放行 userinfo → 紅；P3 不限長度 → 紅；P4 按鈕不再優先 → 紅；P5 忽略 hitSlop → 紅；P6 標籤內迴紋針有效 → 紅；
+  P7 `(n/N)` 格式 → 紅；P8 隱藏面板仍算在內 → 紅；P9 失敗時重試 → 紅；P10 守衛放寬 → 紅。
+  S13 在第一輪時以 helper 崩潰（`Duplicate values for key`）呈現，同樣是紅；已把輔助函式改為不崩潰後重跑，變成 16 個測試的斷言失敗（見 log 末尾補記）。
+
+### 守衛
+`LinkOpenerGuardTests` 掃描 `Tests/` 不得出現真實開啟連結的呼叫（`NSWorkspace` 加 `.shared.open`；守衛自己以拼接組字串避免掃到自己），`Sources/` 只有 `Workspace*Opener.swift` 可以出現（目前尚無，`WorkspaceURLOpener.swift` 屬 N3），
+並掃描 `Sources/` 不得有 `NSApp.activate`／`activate(ignoringOtherApps`。守衛會失敗這件事以「暫存目錄植入違規」證明（`plantedViolationInTestsFails` 等），不修改真實檔案。
+
+### 不變量對應（design.md 決定 4）
+`SchedulerInvariantTests`（固定種子 20261024，30,000 步；另 5 個種子各 8,000 步）以 A（會 rebase）／B（對照，不 rebase）兩個排程器吃同一串 tick／items／hide／show／seek（連按 1–4 次）／指標進出／rebase，逐步斷言：
+1 既有訊息 tapeX／width 不因 seek 改變（A、B 皆驗）；2 相鄰間距恆為 gap（含強制排入）；3 兩次 seek／rebase 之間 `scrollOffset` 為 tape 時間純函數；
+4 隱藏與指標停留不推進時間、不消耗保持，隱藏 ≥1 小時恢復不跳動；5 rebase 前後視覺位置相同、保留最近 `retainPlacedCount` 則、清單總數仍可查；
+6 每則即時訊息只播一次（含 `>` 強制排入）；7 `readingPosition` 為純函數且 A、B 一致；8 seek 成功後 `readingItem == target`、目標貼齊視覺左緣 0、保持重設。
+涵蓋計數也被斷言（seek >1000、成功 >300、強制排入 >50、指標進入 >100、凍結 tick >1000、保持中 tick >100），避免空轉通過。
+該場景把 `seekHoldSeconds` 設為 2（預設 8 會讓隨機 seek 幾乎總在保持中、帶子長期靜止）；預設值本身由 `SeekHoldTests` 驗證。
