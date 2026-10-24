@@ -2,6 +2,8 @@
 # 離線示範用假 helper：輸出符合協定 v1 的 JSON-lines，不連網。
 #   export FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh"; open/執行 build/FastBullTicker.app
 # 行為：啟動立即輸出 snapshot（12 則，新到舊）；之後每 8 秒一則 items；每 25 秒一則 status；stdin EOF 即結束。
+# 連結：多數訊息帶 `url`（https://example.com/demo/<id>，不屬於任何正式站）；每三則故意有一則不帶，
+# 用來驗證「無連結不顯示迴紋針」。
 # 可用環境變數調整（測試用）：DEMO_ITEM_INTERVAL（預設 8）、DEMO_STATUS_INTERVAL（預設 25）。
 ITEM_EVERY=${DEMO_ITEM_INTERVAL:-8}
 STATUS_EVERY=${DEMO_STATUS_INTERVAL:-25}
@@ -23,8 +25,10 @@ TEXTS=(
 N=${#TEXTS[@]}
 now_ms() { echo $(( $(date +%s) * 1000 )); }
 
-emit_item() { # id published_at_ms text
-  printf '{"source":"demo","id":"%s","published_at_ms":%s,"text":"%s"}' "$1" "$2" "$3"
+emit_item() { # id published_at_ms text [with_url=1]
+  local url=""
+  [ "${4:-1}" = "1" ] && url=",\"url\":\"https://example.com/demo/$1\""
+  printf '{"source":"demo","id":"%s","published_at_ms":%s,"text":"%s"%s}' "$1" "$2" "$3" "$url"
 }
 
 # snapshot：新到舊，每則相隔 3 分鐘。
@@ -32,7 +36,7 @@ NOW=$(now_ms)
 SNAP=""
 for ((i = 0; i < N; i++)); do
   [ -n "$SNAP" ] && SNAP="$SNAP,"
-  SNAP="$SNAP$(emit_item "$((9000 - i))" "$((NOW - 180000 * (i + 1)))" "${TEXTS[$i]}")"
+  SNAP="$SNAP$(emit_item "$((9000 - i))" "$((NOW - 180000 * (i + 1)))" "${TEXTS[$i]}" "$((i % 3 == 2 ? 0 : 1))")"
 done
 printf '{"v":1,"type":"snapshot","items":[%s]}\n' "$SNAP"
 printf '{"v":1,"type":"status","source":"demo","state":"ok","message":"demo helper started"}\n'
@@ -48,7 +52,7 @@ while true; do
   t=$((t + 1))
   if [ $((t % ITEM_EVERY)) -eq 0 ]; then
     seq=$((seq + 1))
-    printf '{"v":1,"type":"items","items":[%s]}\n' "$(emit_item "$((9100 + seq))" "$(now_ms)" "最新快訊 #${seq}：${TEXTS[$((seq % N))]}")"
+    printf '{"v":1,"type":"items","items":[%s]}\n' "$(emit_item "$((9100 + seq))" "$(now_ms)" "最新快訊 #${seq}：${TEXTS[$((seq % N))]}" "$((seq % 3 == 0 ? 0 : 1))")"
   fi
   if [ $((t % STATUS_EVERY)) -eq 0 ]; then
     printf '{"v":1,"type":"status","source":"demo","state":"ok","message":"demo heartbeat"}\n'

@@ -13,6 +13,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menu: StatusMenuController?
     private var driver: TickerDriver?
     private var coordinator: AppCoordinator?
+    private var navigation: NavigationActions?
     private var feed: FeedClient?
     private var wake: WakeObserver?
     private var saver: PlacementSaver?
@@ -55,6 +56,15 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         self.driver = driver; self.coordinator = coordinator
         view.onFrame = { [weak self] in self?.step() }
 
+        // 導覽與連結：箭頭→seek、迴紋針→唯一的真實 opener（WorkspaceURLOpener）、指標進出→暫停捲動。
+        let log = self.log
+        let actions = NavigationActions(driver: driver, opener: WorkspaceURLOpener(onFailure: { log.write("nav: open failed: \($0.localizedDescription)") }), log: log)
+        actions.bind(to: view.router)
+        view.router.hitItems = { [weak driver] in driver?.hitItems() ?? [] }
+        view.onPointerInside = { [weak self] inside in self?.driver?.setPointerInside(inside) }
+        self.navigation = actions
+        self.log.write("layout: tapeViewport=\(Int(config.tapeViewportWidth)) controlStrip=\(Int(config.controlStripWidth)) linkSlot=\(Int(config.linkSlotWidth)) hitSlop=\(Int(config.hitSlop)) panel=\(Int(config.panelSize.width))x\(Int(config.panelSize.height))")
+
         // 選單（選單列與面板右鍵共用）
         let menu = StatusMenuController(config: config, initialAlpha: alpha)
         menu.onAlphaChanged = { [weak self] a in self?.panel?.alphaValue = CGFloat(a); self?.store?.saveAlpha(a) }
@@ -64,7 +74,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             self.driver?.setUserHidden(hidden)
             self.log.write("menu: hidden=\(hidden)")
         }
-        menu.onClickThroughChanged = { [weak self] on in self?.panel?.ignoresMouseEvents = on; self?.log.write("menu: clickThrough=\(on)") }
+        menu.onClickThroughChanged = { [weak self] on in self?.panel?.ignoresMouseEvents = on; self?.view?.router.isEnabled = !on; self?.log.write("menu: clickThrough=\(on)") }
         menu.onQuit = { NSApp.terminate(nil) }
         menu.install()
         view.contextMenu = menu.menu
@@ -144,7 +154,15 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         return "tape=\(tape) offset=\(off) frame=\(f) alpha=\(a)"
     }
 
+    /// 以 `NSEvent.mouseLocation`（不需任何權限）核對指標是否在面板內，避免 exit 事件遺失造成永久凍結。
+    private func reconcilePointer() {
+        guard let panel, let driver else { return }
+        driver.reconcilePointer(mouse: NSEvent.mouseLocation, panelFrame: panel.frame, panelVisible: panel.isVisible,
+                                clickThrough: panel.ignoresMouseEvents)
+    }
+
     private func step() {
+        reconcilePointer()
         if logNextFrameAfterThaw {
             logNextFrameAfterThaw = false
             driver?.step()

@@ -12,3 +12,19 @@ public enum PositionIndicator {
         return "(" + String(index) + "/" + String(total) + ")"
     }
 }
+
+/// 控制列的顯示狀態（純值）：位置指示文字與兩個按鈕是否可用（不可用者淡化）。
+public struct ControlStripState: Equatable, Sendable {
+    public var text: String
+    public var previousEnabled: Bool
+    public var nextEnabled: Bool
+    public init(text: String, previousEnabled: Bool, nextEnabled: Bool) {
+        self.text = text; self.previousEnabled = previousEnabled; self.nextEnabled = nextEnabled
+    }
+
+    /// 清單第一則時 `<` 停用；沒有閱讀中的訊息時兩者皆停用；最後一則仍可按 `>`（跳下一輪起點，見 design 決定 6）。
+    public static func from(position: ReadingPosition?) -> ControlStripState {
+        guard let p = position else { return ControlStripState(text: "", previousEnabled: false, nextEnabled: false) }
+        return ControlStripState(text: PositionIndicator.text(for: p), previousEnabled: p.index > 1, nextEnabled: true)
+    }
+}

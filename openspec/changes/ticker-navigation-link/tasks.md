@@ -28,11 +28,11 @@
 
 ## 7. 渲染與視圖
 
-- [ ] 7.1 【自動＋需人工目視】`ItemBitmap.swift`：共用的屬性字串建構函式（時間 8 字元粗體、其餘一般）同時供 measurer 與繪製使用，迴紋針圖示繪入連結欄位（有 `url` 才畫，顏色同文字）；`TickerDriver.swift`／`TickerView.swift`：`TrackModel` 改以 Core 的 `seq` 為鍵、`TickerRenderer.add` 冪等、控制列圖層（`<`、`(n/N)`、`>`、停用淡化）、帶子裁切在控制列之外、`mouseDown`／`mouseUp`／tracking area 改為依 `HitTarget` 分派（`.drag` 才 `performDrag`；按鈕與迴紋針在 mouse-up 且命中區未變才觸發）、`TickerDriver.seek`／`setPointerInside`／seek 後補建圖層、`ShellConfig` 新增 `controlStripWidth`／`linkSlotWidth`／`hitSlop` 並以新公式計算 `tapeViewportWidth`。驗證方式：`swift test --filter TickerRenderer`（呼叫序列、`add` 冪等、向後 seek 後重建圖層、量測寬度等於 bitmap 寬度、時間粗體屬性區段、有無迴紋針的像素取樣、控制列不被訊息蓋住的版面斷言）、`swift test --filter NavigationView`（新增，不開視窗，直接呼叫處理方法：按鈕 mouse-up 觸發、移出後放開不觸發、右鍵不觸發、`.drag` 才呼叫 drag 注入點）；fail-then-pass 與 mutation（改成 mouse-down 觸發、讓迴紋針命中區忽略優先序，測試須變紅）。**需人工目視**（併入 9.1）：粗體字重觀感、迴紋針與箭頭外觀、控制列配色。依賴：5.1、6.1。
+- [x] 7.1 【自動＋需人工目視】`ItemBitmap.swift`：共用的屬性字串建構函式（時間 8 字元粗體、其餘一般）同時供 measurer 與繪製使用，迴紋針圖示繪入連結欄位（有 `url` 才畫，顏色同文字）；`TickerDriver.swift`／`TickerView.swift`：`TrackModel` 改以 Core 的 `seq` 為鍵、`TickerRenderer.add` 冪等、控制列圖層（`<`、`(n/N)`、`>`、停用淡化）、帶子裁切在控制列之外、`mouseDown`／`mouseUp`／tracking area 改為依 `HitTarget` 分派（`.drag` 才 `performDrag`；按鈕與迴紋針在 mouse-up 且命中區未變才觸發）、`TickerDriver.seek`／`setPointerInside`／seek 後補建圖層、`ShellConfig` 新增 `controlStripWidth`／`linkSlotWidth`／`hitSlop` 並以新公式計算 `tapeViewportWidth`。驗證方式：`swift test --filter TickerRenderer`（呼叫序列、`add` 冪等、向後 seek 後重建圖層、量測寬度等於 bitmap 寬度、時間粗體屬性區段、有無迴紋針的像素取樣、控制列不被訊息蓋住的版面斷言）、`swift test --filter NavigationView`（新增，不開視窗，直接呼叫處理方法：按鈕 mouse-up 觸發、移出後放開不觸發、右鍵不觸發、`.drag` 才呼叫 drag 注入點）；fail-then-pass 與 mutation（改成 mouse-down 觸發、讓迴紋針命中區忽略優先序，測試須變紅）。**需人工目視**（併入 9.1）：粗體字重觀感、迴紋針與箭頭外觀、控制列配色。依賴：5.1、6.1。
 
 ## 8. 組裝與煙霧測試
 
-- [ ] 8.1 【自動】`AppDelegate.swift`／`AppCoordinator.swift`：組裝 `WorkspaceURLOpener`（唯一真實 opener）、tracking area 與補料計時器的 `PointerHover` 核對、按鈕與迴紋針動作串接 `TickerDriver`；headless 煙霧測試（假 helper 或直接餵 `Message`，不顯示 UI）：含 `url` 的 snapshot／items → 模擬 `.link` 動作時假 opener 收到的 URL 皆為 http(s) 且恰一次；模擬 `<` `>` 使 `(n/N)` 與保持計時符合預期；指標進出與保持期間 `scrollOffset` 行為；點穿模式下無動作。驗證方式：`swift test --filter AppSmoke`、`make test`；`grep -rn "activate(" Sources/` 無對 `NSApp`／`NSApplication` 的啟用呼叫；`swift build` 無警告；擴充既有 `Tests/FastBullTickerAppTests/AppSmokeTests.swift`。依賴：7.1、2.1（假 helper 輸出含 `url`）。
+- [x] 8.1 【自動】`AppDelegate.swift`／`AppCoordinator.swift`：組裝 `WorkspaceURLOpener`（唯一真實 opener）、tracking area 與補料計時器的 `PointerHover` 核對、按鈕與迴紋針動作串接 `TickerDriver`；headless 煙霧測試（假 helper 或直接餵 `Message`，不顯示 UI）：含 `url` 的 snapshot／items → 模擬 `.link` 動作時假 opener 收到的 URL 皆為 http(s) 且恰一次；模擬 `<` `>` 使 `(n/N)` 與保持計時符合預期；指標進出與保持期間 `scrollOffset` 行為；點穿模式下無動作。驗證方式：`swift test --filter AppSmoke`、`make test`；`grep -rn "activate(" Sources/` 無對 `NSApp`／`NSApplication` 的啟用呼叫；`swift build` 無警告；擴充既有 `Tests/FastBullTickerAppTests/AppSmokeTests.swift`。依賴：7.1、2.1（假 helper 輸出含 `url`）。
 
 ## 9. 人工驗收
 
@@ -40,4 +40,4 @@
 
 ## 10. 收尾
 
-- [ ] 10.1 【自動】整體驗證與文件：`make helper app sign` 成功；`cd ticker-connect && cargo test`、`python3 -m unittest discover -s protocol/tests`、`swift test`（或 `make test`）全綠；更新 `README.md` 與 `Tests/README.md` 的測試清單與證據路徑；`openspec validate ticker-navigation-link --strict` 與 `openspec validate --all --strict` 通過；核對 specs 中仍標【假設】／【待確認】的項目並在回報中列出（含 design.md 待釐清 1–12）；app-shell archive 後補 `panel-shell` 拖曳 requirement 的 MODIFIED（見 design.md「待處理」）。驗證方式：以上指令的實際輸出貼入回報並附測試檔路徑清單；未完成或未驗證之處照實說。依賴：1–9。
+- [x] 10.1 【自動】整體驗證與文件：`make helper app sign` 成功；`cd ticker-connect && cargo test`、`python3 -m unittest discover -s protocol/tests`、`swift test`（或 `make test`）全綠；更新 `README.md` 與 `Tests/README.md` 的測試清單與證據路徑；`openspec validate ticker-navigation-link --strict` 與 `openspec validate --all --strict` 通過；核對 specs 中仍標【假設】／【待確認】的項目並在回報中列出（含 design.md 待釐清 1–12）；app-shell archive 後補 `panel-shell` 拖曳 requirement 的 MODIFIED（見 design.md「待處理」）。驗證方式：以上指令的實際輸出貼入回報並附測試檔路徑清單；未完成或未驗證之處照實說。依賴：1–9。

@@ -35,7 +35,7 @@
 - **THEN** App SHALL 寫日誌並繼續運作，SHALL NOT 重試、SHALL NOT 彈出對話框
 
 ### Requirement: 只允許開啟 http 與 https 連結
-開啟前 MUST 以純函式 `LinkPolicy.openableURL(from: String) -> URL?` 驗證：scheme MUST 為 `http` 或 `https`、host 非空、MUST NOT 含 userinfo（`user:pass@`）【假設：避免誤導性網址】、字串長度不超過 2048 位元組、`URL(string:)` 解析成功；任一不符回傳 `nil`，此時 MUST NOT 呼叫 opener（僅寫日誌）。此驗證是對協定層 `url` 規則的第二道防線，不得因協定層已驗證而省略。`LinkPolicy` MUST NOT 提供繞過驗證的 API；opener 的參數型別 MUST 是通過驗證才能構造的包裝型別，使「未驗證的 URL 無法被開啟」在型別層即成立。
+開啟前 MUST 以純函式 `LinkPolicy.openableURL(from: String) -> OpenableURL?` 驗證：scheme MUST 為 `http` 或 `https`、host 非空、MUST NOT 含 userinfo（`user:pass@`）【假設：避免誤導性網址】、字串長度不超過 2048 位元組、`URL(string:)` 解析成功；任一不符回傳 `nil`，此時 MUST NOT 呼叫 opener（僅寫日誌）。此驗證是對協定層 `url` 規則的第二道防線，不得因協定層已驗證而省略。`LinkPolicy` MUST NOT 提供繞過驗證的 API；opener 的參數型別 MUST 是通過驗證才能構造的包裝型別，使「未驗證的 URL 無法被開啟」在型別層即成立。
 
 #### Scenario: 合法連結
 - **WHEN** 輸入 `https://www.fastbull.com/tw/fastshort/4334051_1_2`

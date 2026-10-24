@@ -3,7 +3,7 @@
 macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](https://www.fastbull.com/tw/express-news)（帶發布時間的即時訊息），顯示在永遠置頂的視窗上，可以拖曳位置、調整透明度。
 
 > **這份文件分兩部分**：前半（第 1–5 節）是「怎麼用」：目標、目前狀態、環境、啟動、操作；後半（第 6–9 節）是「怎麼確認它是真的」：驗證、架構、功能規則、預覽。
-> 最後更新：2026-10-24。文中標 **【規劃】** 的是還沒做出來的東西，沒有標的都已實際跑過。
+> 最後更新：2026-10-25。文中標 **【規劃】** 的是還沒做出來的東西，沒有標的都已實際跑過。
 
 ---
 
@@ -26,6 +26,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 | 顯示邏輯 `Sources/FastBullTickerCore`（Swift） | 已完成（純邏輯） | 沒有視窗，只有排程與狀態機 |
 | 可行性實驗 `spikes/` | **自動部分完成，等你手動操作** | 6 項需人工的實驗尚未執行，結果全是「未執行」 |
 | 建置與簽名、`FeedClient`（`app-shell` 第 A 段：1.1、2.1、2.2） | 已完成（2026-10-24，自動測試通過；尚未接上畫面） | `make helper && make app && make sign` 可產生 ad-hoc 簽名的 `build/FastBullTicker.app`；`FeedClient` 以假 helper 腳本測過，**沒有連正式網站** |
+| 導覽與連結（`ticker-navigation-link`：粗體時間、`(n/N)`、`<` `>`、迴紋針；分支 `change/ticker-navigation-link`，2026-10-25 實作完成） | 已實作，自動測試通過；**未目視驗證，9.1 人工驗收未做**（使用者尚未在機器前確認） | 協定 `url`、Rust 取 `data-href`、Core `seek`／閱讀位置、控制列與迴紋針渲染、命中測試、`WorkspaceURLOpener`；點迴紋針會真的開啟瀏覽器，**自動測試從未開過瀏覽器**；細節見第 5.4 節 |
 | App 視窗、選單列、渲染（`app-shell` 第 B 段：3.1–4.2） | 已實作（2026-10-24，自動測試通過；**未目視驗證**） | 面板／選單／渲染的 level、collectionBehavior 等為**暫定值**，尚未通過全螢幕可見性實驗（S1）；離線示範 helper 見第 4.3 節 |
 
 ## 3. 環境需求
@@ -92,7 +93,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N2 段後為 269 個，`main` 較少）
+make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
@@ -108,11 +109,11 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 # 結束：選單列圖示 →「結束」，或 kill 該行程。（`open` 不會把環境變數傳給 App，所以示範用直接執行。）
 ```
 
-示範 helper（`scripts/demo-helper.sh`）輸出協定 v1：啟動立即送 12 則中文財經快訊示意的 `snapshot`、之後**每 8 秒一則**新的 `items`（內容以「最新快訊 #N：」開頭）、**每 25 秒一則** `status` 心跳；stdin 關閉就結束。
+示範 helper（`scripts/demo-helper.sh`）輸出協定 v1：啟動立即送 12 則中文財經快訊示意的 `snapshot`、之後**每 8 秒一則**新的 `items`（內容以「最新快訊 #N：」開頭）、**每 25 秒一則** `status` 心跳；stdin 關閉就結束。多數訊息帶 `url`（`https://example.com/demo/<id>`，不是任何正式站，點了只會開 example.com 的示範頁），**每三則故意有一則不帶**，用來驗證「無連結不顯示迴紋針」。
 
 **預期看到什麼（設計意圖；除下表「已驗證」外，都是未目視驗證）**
 
-- 螢幕上方中間出現一條約 620×42 的浮動帶子；最左邊是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，右邊是由右向左捲動的訊息。
+- 螢幕上方中間出現一條約 620×42 的浮動帶子；最左邊是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，中間是由右向左捲動的訊息（可視寬度 370pt），**最右端是 100pt 的控制列：`<`、`(n/N)`、`>`**【假設，待你看實物後確認；替代方案為加寬面板】。每則訊息開頭的時間是**粗體**，有連結的訊息最右側有**迴紋針**。
 - 重播訊息：**黑底白字**；即時訊息：**白底黑字**；每則前面有 `HH:mm:ss`（本機時區）。
 - 剛啟動先是重播（最新 10 則循環）；示範 helper 約 8 秒後送來新訊息，輪到它時會以白底黑字出現；這些即時訊息播完後回到黑底白字的重播，如此循環。因為訊息要排隊接在前一則後面，所以即時訊息不會在到達的瞬間出現，要等前面已排上帶子的訊息讓出位置（未量測實際延遲）。
 - 選單列有報紙圖示：透明度滑桿（下限 30%【假設】）、隱藏／顯示、點穿模式、結束；在帶子上按右鍵是同一份選單。拖曳帶子移動位置；重啟後回到同一個螢幕位置與透明度。點穿模式每次啟動都是關。
@@ -121,7 +122,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 |---|---|
 | 程式邏輯（夾制、debounce、選單項目、點穿不持久化、渲染位移／凍結／rebase、REPLAY→LIVE→REPLAY 串接） | **已驗證**：`swift test`，見 `Tests/README.md` |
 | 面板屬性實際值（level=25 即 `.statusBar`、styleMask、不成為 key／main、alpha 等）與啟動不 crash、收到 snapshot 與 items、模式變為 live、結束時 helper 收尾無殘留 | **已驗證**：受控啟動日誌（`Tests/README.md`「真機啟動驗證」） |
-| 帶子與標籤是否真的出現、顏色與文字、捲動平順度、拖曳、選單列圖示與選單操作、右鍵選單、透明度、隱藏／顯示、點穿、位置還原、中文字型 | **未目視驗證，待你確認** |
+| 帶子與標籤是否真的出現、顏色與文字、捲動平順度、拖曳、選單列圖示與選單操作、右鍵選單、透明度、隱藏／顯示、點穿、位置還原、中文字型；以及粗體時間、迴紋針與箭頭外觀、控制列配色、點迴紋針開瀏覽器、點箭頭跳轉、hover 暫停的實際手感 | **未目視驗證，待你確認**（離屏渲染的 PNG 我看過，見第 5.4 節，但那不等於螢幕上的實際畫面） |
 | 全螢幕 App 上是否看得到、是否搶焦點、選單展開時是否斷料、長時間記憶體 | **未驗證**（level／collectionBehavior 為暫定值；屬 5.1–5.4 人工驗收） |
 | 真 helper 接上畫面 | **未驗證**（本次只用示範 helper 跑；真 helper 只在第 A 段手動連過一次） |
 
@@ -136,7 +137,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 
 ```sh
 sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過
-swift test                               # 164 個
+swift test                               # 309 個（含 N3 段）
 python3 Tests/shell-mutations.py         # 15 組破壞→變紅→還原
 ```
 
@@ -160,6 +161,21 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 
 見第 8 節。
 
+### 5.4 導覽與連結（`ticker-navigation-link`，設計意圖；**未目視驗證**）
+
+| 動作 | 預期 |
+|---|---|
+| 看帶子最右端的控制列 | `<`、`(n/N)`、`>`。`(n/N)` 是「閱讀中那一則」在目前清單的名次（重播＝最新 N 則的一輪，預設 N=10；即時＝當前批次，N 含尚在佇列的）。沒有閱讀中的訊息時不顯示。第一則時 `<` 淡化 |
+| 點 `<` / `>` | 把前一則／下一則對齊到帶子左緣，**捲動暫停 8 秒**【假設】後平順恢復；再點一次重設為 8 秒。清單第一則按 `<` 無動作；`>` 在下一則尚未排入時會強制排入供料器下一個會取的那一則 |
+| 點訊息最右側的迴紋針 | 以**預設瀏覽器**開啟該則完整頁面（真 helper：`https://www.fastbull.com/tw/fastshort/<id>`；示範 helper：`https://example.com/demo/<id>`）。瀏覽器成為前景【假設】，**本 App 不會被啟用**。按鈕與迴紋針都在**放開滑鼠（mouse-up）**時才觸發；按下後移到別處放開則取消 |
+| 沒有 `url` 的訊息 | 不顯示迴紋針，點該處等同拖曳 |
+| 滑鼠停在面板上 | 帶子暫停捲動，移出立即恢復；另以 `NSEvent.mouseLocation` 每 0.1 秒核對，避免漏掉離開事件而卡住。**點穿模式下不暫停、也不可點擊** |
+| 拖曳標籤、訊息文字、`(n/N)` | 移動視窗（與以前相同）；右鍵＝同一份選單 |
+
+已知限制與待確認：控制列使帶子可視寬度由 470 縮為 370pt，長訊息更常被截斷（【待確認】要不要改成加寬面板）；滑鼠停在帶子上（例如拖曳後忘了移開）帶子就不動，這是預設行為（【待確認】是否改成只在命中區上暫停）；mouse-up 觸發在非啟用面板上是否可靠**尚未在真機實測**（若不可靠會改成 mouse-down 觸發，那是我方實作要修的問題，不是平台限制）；`url` 在協定中是選填欄位，`v` 維持 1【假設】——新 helper 搭舊 App 會被嚴格解碼丟棄含 `url` 的訊息，兩者必須一起更新（同一個 `.app` 發行所以實務上成立）；FastBull 頁面若改版使 `data-href` 消失，會降級為沒有迴紋針，且不會發警告；FastBull 服務條款仍未逐條閱讀。
+
+離屏渲染檢查（**不是實機畫面**）：`Tests/evidence/n3-panel-offscreen.png` 是把 `TickerView` 的圖層樹畫成 PNG（`N3_SNAPSHOT_DIR=<目錄> swift test --filter PanelSnapshot` 可重新輸出），我看過該圖：時間為粗體、迴紋針出現在有連結訊息的右側、右端控制列顯示 `<`、`(4/10)`、`>`。
+
 ### 5.3 已知風險（尚未驗證）
 
 - **蓋過全螢幕 App 沒有官方保證**：Apple 文件只定義各視窗旗標的語意，沒有保證組合效果；開發者論壇有人回報類似設定在全螢幕 Space 看不到視窗（我們沒有核對那些回報）。必須先做第 4.2 節的實驗。
@@ -171,16 +187,18 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 
 ## 6. 驗證
 
-下表的數字是 2026-10-24 在 `main` 上實際重跑的結果。你可以自己重現：
+下表的數字是 2026-10-25 在分支 `change/ticker-navigation-link`（N3 段完成後）實際重跑的結果。你可以自己重現：
 
 | 範圍 | 指令 | 結果 | 測試檔 |
 |---|---|---|---|
-| 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
-| 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（分支 `change/ticker-navigation-link` 加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
-| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N2 段後 `swift test` 全部 269 個通過、40 個 suite（Core + App，含新增 81 個） | `Tests/FastBullTickerCoreTests/*.swift` |
-| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 128 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
+| 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
+| 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
+| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N3 段後 `swift test` 全部 309 個通過、48 個 suite（Core + App；N2 為 269，N3 新增 40 個） | `Tests/FastBullTickerCoreTests/*.swift` |
+| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 309 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
+| 示範 helper 協定 | `python3 Tests/demo-helper-protocol-check.py` | 實跑 6.5 秒，所有輸出行通過協定驗證（含 `url`）；snapshot 12 則中 8 則帶 `url` | `Tests/demo-helper-protocol-check.py` |
+| N3 mutation | `python3 Tests/n3-mutations.py` | 22 組破壞全部變紅（第一輪 A1 存活，加強測試後補跑變紅），還原後 309 個全綠 | `Tests/evidence/n3-mutations.log` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
-| 規格一致性 | `openspec validate --all --strict` | 5 個 change 全部通過 | `openspec/changes/` |
+| 規格一致性 | `openspec validate --all --strict` | 13 項（含主 specs 與各 change）全部通過 | `openspec/changes/` |
 
 ### 6.1 這些測試有沒有「咬合力」
 
@@ -253,6 +271,7 @@ flowchart LR
 | 3 | `panel-feasibility-spikes` | 5／12：自動項完成，其餘 7 項等人工 |
 | 4 | `show-engine-core` | 完成 |
 | 5 | `app-shell` | 第 A 段（1.1、2.1、2.2）與第 B 段（3.1–4.2）已實作，共 7／12；5.1–5.4 為人工驗收，未做 |
+| 6 | `ticker-navigation-link` | 1.1–8.1 與 10.1 已實作（9／10 項；N1–N3 三段）；**9.1 人工驗收未做**，未 archive；分支 `change/ticker-navigation-link`，尚未合併進 `main` |
 
 版本控管規則見 `CLAUDE.md` 的「Git workflow」：一個 change 一條 `change/<名稱>` 分支，驗證後用 `--no-ff` 合併進 `main`，不 force-push。
 
@@ -280,7 +299,7 @@ flowchart LR
 
 ### 8.2 v1 不做
 
-通知、搜尋、歷史瀏覽、多來源同時顯示、設定頁、全域快捷鍵、Intel、App Store 發行與 notarization、每個螢幕各一個視窗、可調寬度、點擊開啟詳情、可調捲動速度、SQLite 持久化。
+通知、搜尋、歷史瀏覽、多來源同時顯示、設定頁、全域快捷鍵、Intel、App Store 發行與 notarization、每個螢幕各一個視窗、可調寬度、App 內詳情視窗／內嵌網頁（點迴紋針改由預設瀏覽器開啟，見 5.4）、可調捲動速度、SQLite 持久化。
 
 ---
 

@@ -34,7 +34,7 @@ App MUST 為 accessory（Info.plist `LSUIElement=YES`，無 Dock 圖示）。程
 - **THEN** `frontmostApplication` SHALL 不變、本 App 啟用通知 SHALL 為零（此為需人工驗收，見 `app-acceptance`）
 
 ### Requirement: 拖曳以 performDrag 實作
-點擊帶子 MUST 等同拖曳（v1 不做開啟詳情）。拖曳 MUST 使用 `performDrag(with:)`。由於 mouse-up 可能不送達，MUST NOT 依賴 mouse-up 觸發任何狀態更新（位置存檔見 `window-persistence`）。若 spike S5 發現 `performDrag` 在非 key 的 nonactivating panel 上行為異常，MUST 依決定章節的處置實作【依 spike-decisions】。
+點擊控制列的箭頭按鈕或訊息的迴紋針命中區為動作（於 mouse-up 且目標未變時觸發，不拖曳）；其餘點擊（標籤、訊息文字、位置指示等）MUST 等同拖曳。命中測試以純函式決定，優先序為按鈕 > 迴紋針 > 拖曳（見 `ticker-navigation-link` 的「命中測試與拖曳區分」）。拖曳 MUST 使用 `performDrag(with:)`。由於 mouse-up 可能不送達，拖曳 MUST NOT 依賴 mouse-up 觸發任何狀態更新（位置存檔見 `window-persistence`）。【2026-10-24 修訂，來源 change：`ticker-navigation-link`；取代原「點擊帶子 MUST 等同拖曳（v1 不做開啟詳情）」，該句與本 change 的箭頭與迴紋針動作衝突】若 spike S5 發現 `performDrag` 在非 key 的 nonactivating panel 上行為異常，MUST 依決定章節的處置實作【依 spike-decisions】。
 
 #### Scenario: 拖曳移動視窗
 - **WHEN** 使用者按住帶子並拖動

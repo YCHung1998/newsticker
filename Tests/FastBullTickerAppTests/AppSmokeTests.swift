@@ -71,3 +71,199 @@ import FastBullTickerCore
         #expect(waitUntil(timeout: 5) { !processIsAlive(pid) })
     }
 }
+
+// MARK: N3（task 8.1）：導覽與連結的 headless 煙霧測試。執行：swift test --filter AppSmoke
+// 全程無視窗、假 opener；示範 helper 的輸出經 FeedClient 的嚴格解碼（含 url 規則）。
+
+@MainActor
+@Suite struct AppSmokeNavigationTests {
+    private let cfg = ShellConfig.provisional
+
+    private struct Rig {
+        var driver: TickerDriver
+        var renderer: RecordingRenderer
+        var clock: ManualClock
+        var opener: RecordingURLOpener
+        var actions: NavigationActions
+        var router: NavigationInputRouter
+        var log: AppLog
+    }
+
+    private func makeRig(measurer: @escaping TextMeasurer = { Double($0.count) * 10 }) -> Rig {
+        let clock = ManualClock()
+        var sc = cfg.schedulerConfig(timeZone: TimeZone(secondsFromGMT: 0)!)
+        sc.speed = 60
+        let sched = TickerScheduler(config: sc, clock: { clock.t }, measurer: measurer)
+        let renderer = RecordingRenderer()
+        let driver = TickerDriver(scheduler: sched, renderer: renderer)
+        let opener = RecordingURLOpener()
+        let log = AppLog(fileURL: nil, toStderr: false)
+        let actions = NavigationActions(driver: driver, opener: opener, log: log)
+        let router = NavigationInputRouter(geometry: cfg.hitGeometry)
+        router.hitItems = { [unowned driver] in driver.hitItems() }
+        actions.bind(to: router)
+        return Rig(driver: driver, renderer: renderer, clock: clock, opener: opener, actions: actions, router: router, log: log)
+    }
+
+    private func items(_ n: Int, url: (Int) -> String?) -> [Item] {
+        (0..<n).map { Item(source: "t", id: "\(n - $0)", publishedAtMs: 1_761_292_800_000 + Int64(n - $0) * 1000, text: "訊息\(n - $0)", url: url(n - $0)) }
+    }
+
+    private func click(_ r: Rig, _ x: Double) {
+        r.router.mouseDown(at: CGPoint(x: x, y: 21), button: .left, performDrag: {})
+        r.router.mouseUp(at: CGPoint(x: x, y: 21), button: .left)
+    }
+
+    private func advanceUntilLinkVisible(_ r: inout Rig, minSeq: Int = 0) -> HitItem? {
+        for _ in 0..<200 {
+            r.clock.t += 0.25; r.driver.step()
+            if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && $0.seq >= minSeq && cfg.labelWidth + $0.visualLeft + $0.width < 520 && $0.visualLeft >= 0 }) { return h }
+        }
+        return nil
+    }
+
+    @Test func clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse() throws {
+        var r = makeRig()
+        r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+        r.driver.step()
+        let h = try #require(advanceUntilLinkVisible(&r, minSeq: 3))      // 不是第一則：能分辨「開了別則的連結」
+        let x = Double(cfg.labelWidth) + h.visualLeft + h.width - cfg.linkSlotWidth / 2
+        click(r, x)
+        #expect(r.opener.opened.count == 1)
+        let u = try #require(r.opener.opened.first)
+        #expect(u.scheme == "https" && u.host == "example.com")
+        let clicked = try #require(r.driver.placedItem(seq: h.seq))
+        #expect(u.absoluteString == "https://example.com/demo/\(clicked.id)", "開啟的是被點擊那一則的連結，不是別則")
+        #expect(r.actions.linkResults == [.opened])
+        click(r, x)
+        #expect(r.opener.opened.count == 2, "每次點擊恰一次")
+    }
+
+    @Test func itemsWithoutURLShowNoPaperclipAndCannotOpen() throws {
+        var r = makeRig()
+        r.driver.receive(.snapshot(items(10) { _ in nil }))
+        r.driver.step()
+        for _ in 0..<80 { r.clock.t += 0.25; r.driver.step() }
+        #expect(r.driver.hitItems().allSatisfy { !$0.hasLinkSlot })
+        #expect(r.driver.scheduler.placed.allSatisfy { !$0.hasLinkSlot })
+        for x in stride(from: 150.0, to: 520.0, by: 7.0) { click(r, x) }
+        #expect(r.opener.opened.isEmpty)
+    }
+
+    @Test func policyBlockedURLNeverReachesTheOpener() throws {
+        var r = makeRig()
+        // 協定層之外再塞一個壞網址（模擬資料被竄改）：第二道防線擋下。
+        r.driver.receive(.snapshot(items(10) { _ in "javascript:alert(1)" }))
+        r.driver.step()
+        let h = try #require(advanceUntilLinkVisible(&r))
+        click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+        #expect(r.opener.opened.isEmpty)
+        #expect(r.actions.linkResults == [.blockedByPolicy])
+    }
+
+    @Test func failedOpenIsNotRetried() throws {
+        var r = makeRig()
+        r.opener.result = false
+        r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+        r.driver.step()
+        let h = try #require(advanceUntilLinkVisible(&r))
+        click(r, Double(cfg.labelWidth) + h.visualLeft + h.width - 13)
+        #expect(r.opener.opened.count == 1 && r.actions.linkResults == [.openerFailed])
+    }
+
+    @Test func arrowButtonsChangePositionAndHoldTimer() throws {
+        var r = makeRig()
+        r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+        r.driver.step()
+        while (r.driver.scheduler.readingPosition?.index ?? 0) < 4 { r.clock.t += 0.25; r.driver.step() }
+        let before = try #require(r.driver.scheduler.readingPosition)
+        click(r, 530)                                           // <
+        let afterPrev = try #require(r.driver.scheduler.readingPosition)
+        #expect(afterPrev.index == before.index - 1 && afterPrev.total == 10)
+        #expect(r.renderer.controlStates.last?.text == "(\(before.index - 1)/10)")
+        #expect(r.driver.scheduler.holdRemaining == 8)
+        let off = r.driver.scheduler.scrollOffset
+        r.clock.t += 5; r.driver.step()
+        #expect(r.driver.scheduler.scrollOffset == off, "保持期間不捲動")
+        r.clock.t += 4; r.driver.step()
+        #expect(r.driver.scheduler.scrollOffset > off, "第 8 秒後恢復捲動")
+        click(r, 610)                                           // >
+        #expect(r.driver.scheduler.readingPosition?.index == before.index)
+        #expect(r.driver.scheduler.holdRemaining == 8, "再次切換重設為 8 秒")
+    }
+
+    @Test func previousAtListStartDoesNothing() throws {
+        var r = makeRig()
+        r.driver.receive(.snapshot(items(10) { _ in nil }))
+        r.driver.step()
+        while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
+        #expect(r.driver.scheduler.readingPosition?.index == 1)
+        let off = r.driver.scheduler.scrollOffset
+        click(r, 530)
+        #expect(r.driver.scheduler.scrollOffset == off && r.driver.scheduler.holdRemaining == 0)
+        #expect(r.actions.seekOutcomes.last == .atListStart)
+    }
+
+    @Test func pointerInsideFreezesScrollingAndLeavingResumes() {
+        let r = makeRig()
+        r.driver.receive(.snapshot(items(10) { _ in nil }))
+        r.driver.step()
+        r.clock.t += 3; r.driver.step()
+        let off = r.driver.scheduler.scrollOffset
+        r.driver.setPointerInside(true)
+        r.clock.t += 20; r.driver.step()
+        #expect(r.driver.scheduler.scrollOffset == off)
+        r.driver.setPointerInside(false)
+        r.clock.t += 1; r.driver.step()
+        #expect(r.driver.scheduler.scrollOffset == off + 60)
+    }
+
+    @Test func lostExitEventIsRecoveredByMouseLocationReconcile() {
+        let r = makeRig()
+        r.driver.receive(.snapshot(items(10) { _ in nil }))
+        r.driver.step()
+        let frame = CGRect(x: 100, y: 800, width: 620, height: 42)
+        // 追蹤區說「在內」，且實際指標也在內 → 維持暫停。
+        r.driver.setPointerInside(true)
+        r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+        #expect(r.driver.scheduler.isPointerInside)
+        // exit 事件遺失：指標其實已在外 → 核對後恢復。
+        r.driver.reconcilePointer(mouse: CGPoint(x: 5, y: 5), panelFrame: frame, panelVisible: true, clickThrough: false)
+        #expect(!r.driver.scheduler.isPointerInside)
+        // 指標在內但面板點穿或隱藏 → 不暫停。
+        r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: true)
+        #expect(!r.driver.scheduler.isPointerInside)
+        r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: false, clickThrough: false)
+        #expect(!r.driver.scheduler.isPointerInside)
+        r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
+        #expect(r.driver.scheduler.isPointerInside, "指標在內且面板可見：由核對補上 enter")
+    }
+
+    @Test func clickThroughDisablesRouter() {
+        var r = makeRig()
+        r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+        r.driver.step()
+        while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
+        r.router.isEnabled = false
+        let off = r.driver.scheduler.scrollOffset
+        click(r, 530); click(r, 610)
+        #expect(r.driver.scheduler.scrollOffset == off && r.opener.opened.isEmpty)
+        _ = advanceUntilLinkVisible(&r)
+    }
+
+    @Test func coordinatorCountsItemsWithURLFromDemoHelper() async throws {
+        let sb = Sandbox()
+        let wrapper = sb.script("wrapped-demo-url.sh", "DEMO_ITEM_INTERVAL=1 DEMO_STATUS_INTERVAL=30 exec \"\(AppSmokeTests.demoHelper.path)\"")
+        let rig = makeRig()
+        let coord = AppCoordinator(driver: rig.driver, log: AppLog(fileURL: nil, toStderr: false))
+        let client = FeedClient(config: FeedClientConfig(helperURL: wrapper, pidFileURL: nil), onEvent: AppCoordinator.bridge(to: coord))
+        client.start()
+        defer { client.shutdown() }
+        let ok = await AppSmokeTests().awaitCondition { coord.snapshots >= 1 && coord.itemBatches >= 3 }
+        #expect(ok)
+        #expect(coord.itemsReceived > 12)
+        #expect(coord.itemsWithURL > 0 && coord.itemsWithURL < coord.itemsReceived, "示範訊息有些帶 url、有些故意不帶")
+        #expect(coord.badLines == 0, "示範 helper 輸出（含 url）通過 Swift 端嚴格解碼")
+        #expect(coord.statsLine.contains("withUrl=\(coord.itemsWithURL)"))
+    }
+}
