@@ -1,0 +1,2 @@
+$ swift test --filter TickerLayoutTests
+✔ Test run with 12 tests in 1 suite passed after 0.025 seconds.

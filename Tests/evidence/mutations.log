@@ -1,0 +1,23 @@
+== M1 隱藏時仍推進 tape 時間
+✘ Test run with 101 tests in 12 suites failed after 1.753 seconds with 8 issues.
+✘ Test differentSeedsAlsoHold()
+✘ Test hideForOneHourDoesNotJump()
+== M2 rebase 不調整 baseOffset
+✘ Test run with 101 tests in 12 suites failed after 1.704 seconds with 10 issues.
+✘ Test differentSeedsAlsoHold()
+✘ Test invariantsHoldOverLongRandomRun()
+✘ Test keepsTailAndContinuesFillingWithGapLikeControl()
+✘ Test rebaseWhileHiddenDoesNotJumpOnResume()
+== M3 佇列溢出丟最新而非最舊
+✘ Test run with 101 tests in 12 suites failed after 1.853 seconds with 2 issues.
+✘ Test droppedItemsStillInLatestTenAndReplayLater()
+✘ Test over30DropsOldest()
+✘ Test run with 101 tests in 12 suites
+== M4 補料位置少了 gap
+✘ Test fillsWhenTailHasRoomAtGap()
+✘ Test spacingIsConstantWithIrregularTicks()
+(另有測試因 index out of range 使 test process 崩潰 = 紅)
+== M5 LIVE 播完不回 REPLAY 游標歸零
+✘ Test run with 101 tests in 12 suites failed after 1.556 seconds with 1 issue.
+✘ Test afterLiveQueueDrainsReturnsToReplayStartingFromNewest()
+✘ Test run with 101 tests in 12 suites

@@ -1,0 +1,4 @@
+$ swift test --filter LiveQueueLimitTests
+✘ Test run with 4 tests in 1 suite failed after 0.007 seconds with 10 issues.
+✘ Test droppedCountAccumulatesAcrossMessages() recorded an issue at LiveQueueLimitTests.swift:33:9: Expectation failed: (ev → []) == ([.liveQueueOverflow(dropped: 3)] → [FastBullTickerCore.SchedulerEvent.liveQueueOverflow(dropped:
+✘ Test droppedCountAccumulatesAcrossMessages() recorded an issue at LiveQueueLimitTests.swift:34:9: Expectation failed: (s.totalDropped → 0) == 3

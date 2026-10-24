@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: SwiftPM 專案結構
-專案 SHALL 以 SwiftPM 組成，至少含：`FastBullTickerCore`（library）、`FastBullTickerCoreTests`（測試 target）、`FastBullTicker`（executable）。`FastBullTicker` 在本 change 僅為可編譯的空殼，其正式內容屬 `app-shell`，本 change MUST NOT 實作視窗、選單、渲染、`FeedClient` 或 Makefile。最低部署目標 SHALL 為 macOS 14【假設：設計文件第 8 節標明 macOS 14 最低版本待使用者確認】；`FastBullTickerCore` SHALL 使用 Swift 6 語言模式，AppKit 部分日後再議。`Package.swift` 的位置（倉庫根目錄）供 `app-shell` 的 Makefile 引用【假設：設計文件未指定位置，暫放倉庫根目錄；待確認】。
+專案 SHALL 以 SwiftPM 組成，至少含：`FastBullTickerCore`（library）、`FastBullTickerCoreTests`（測試 target）、`FastBullTicker`（executable）。`FastBullTicker` 在本 change 僅為可編譯的空殼，其正式內容屬 `app-shell`，本 change MUST NOT 實作視窗、選單、渲染、`FeedClient` 或 Makefile。最低部署目標 SHALL 為 macOS 14【假設：設計文件第 8 節標明 macOS 14 最低版本；使用者 2026-10-24 維持暫定，仍標假設】；`FastBullTickerCore` SHALL 使用 Swift 6 語言模式，AppKit 部分日後再議。`Package.swift` 的位置（倉庫根目錄）供 `app-shell` 的 Makefile 引用【假設：設計文件未指定位置，暫放倉庫根目錄；使用者 2026-10-24 維持暫定，仍標假設】。
 
 #### Scenario: 命令列可建置
 - **WHEN** 在倉庫根目錄執行 `swift build`

@@ -1,0 +1,20 @@
+2 | import FastBullTickerCore
+3 | 
+4 | print("FastBullTicker shell (Core protocol v\(CoreInfo.supportedProtocolVersion))")
+  |                                               `- error: cannot find 'CoreInfo' in scope
+5 | 
+[5/14] Emitting module FastBullTicker
+/Users/eason.hung/Documents/github/newsticker/Sources/FastBullTicker/main.swift:4:47: error: cannot find 'CoreInfo' in scope
+2 | import FastBullTickerCore
+3 | 
+4 | print("FastBullTicker shell (Core protocol v\(CoreInfo.supportedProtocolVersion))")
+  |                                               `- error: cannot find 'CoreInfo' in scope
+5 | 
+[6/14] Compiling FastBullTicker main.swift
+/Users/eason.hung/Documents/github/newsticker/Sources/FastBullTicker/main.swift:4:47: error: cannot find 'CoreInfo' in scope
+2 | import FastBullTickerCore
+3 | 
+4 | print("FastBullTicker shell (Core protocol v\(CoreInfo.supportedProtocolVersion))")
+  |                                               `- error: cannot find 'CoreInfo' in scope
+5 | 
+error: fatalError

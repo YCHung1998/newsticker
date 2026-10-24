@@ -1,0 +1,6 @@
+$ swift test --filter ReplayLiveStateTests
+error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/
+Swift/Array.swift:430: Fatal error: Array index is out of range
+Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range
+✘ Test afterLiveQueueDrainsReturnsToReplayStartingFromNewest() recorded an issue at ReplayLiveStateTests.swift:62:9: Expectation failed: (Array(ids.prefix(2)) == ["11", "12"] → false) && (Array(styles.prefix(2)) == [.live, .live] 
+✘ Test eachLiveItemPlaysLiveExactlyOnce() recorded an issue at ReplayLiveStateTests.swift:76:13: Expectation failed: (placed.filter { $0.id == n && $0.style == .live }.count → 0) == 1

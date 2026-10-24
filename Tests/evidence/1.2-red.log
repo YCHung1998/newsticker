@@ -1,0 +1,8 @@
+(對空實作 decodeLine：永遠回傳 .failure(.notJSON "stub"))
+$ swift test --filter ProtocolDecodingTests
+✘ Suite ProtocolDecodingTests failed after 0.002 seconds with 28 issues.
+✘ Test run with 19 tests in 1 suite failed after 0.002 seconds with 28 issues.
+$ swift test --filter ContractFixturesTests
+✘ Test everySampleMatchesManifest() failed after 0.035 seconds with 41 issues.
+✘ Suite ContractFixturesTests failed after 0.035 seconds with 41 issues.
+✘ Test run with 4 tests in 1 suite failed after 0.035 seconds with 41 issues.
