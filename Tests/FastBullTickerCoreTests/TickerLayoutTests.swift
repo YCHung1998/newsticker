@@ -132,4 +132,31 @@ func item(_ text: String, ms: Int64 = 1792832201957) -> Item {
         let t2 = layoutItem(item(String(repeating: "x", count: 100)), timeZone: utc8, maxWidth: 300, linkSlotWidth: 26, measurer: flatMeasure)
         #expect(t1 == t2, "無 url 的截斷不扣欄位")
     }
+
+    // MARK: showTime（ticker-style-settings 2.1）
+
+    @Test func showTimeFalseDisplaysOnlyText() {
+        let l = layoutItem(item("T"), timeZone: utc8, maxWidth: 10_000, showTime: false, measurer: flatMeasure)
+        #expect(l.timeString.isEmpty && l.text == "T" && l.displayString == "T")
+        #expect(l.width == flatMeasure("T") && !l.truncated)
+    }
+
+    @Test func showTimeDefaultsToTrueAndIsIdentical() {
+        let a = layoutItem(item("hello"), timeZone: utc8, maxWidth: 10_000, measurer: flatMeasure)
+        let b = layoutItem(item("hello"), timeZone: utc8, maxWidth: 10_000, showTime: true, measurer: flatMeasure)
+        #expect(a == b && a.displayString == "16:56:41 hello")
+    }
+
+    @Test func showTimeFalseTruncationHasNoTimePrefix() {
+        // 無時間：預算 100 = 10 字，含「…」→ 9 字 + …
+        let l = layoutItem(item(String(repeating: "x", count: 50)), timeZone: utc8, maxWidth: 100, showTime: false, measurer: flatMeasure)
+        #expect(l.truncated && l.text == String(repeating: "x", count: 9) + "…")
+        #expect(l.timeString.isEmpty && l.width <= 100)
+        #expect(flatMeasure(String(repeating: "x", count: 10) + "…") > 100, "再多一個 Character 就超過")
+    }
+
+    @Test func showTimeFalseWithLinkSlotStillReservesSlot() {
+        let l = layoutItem(withURL("hello"), timeZone: utc8, maxWidth: 10_000, linkSlotWidth: 26, showTime: false, measurer: flatMeasure)
+        #expect(l.width == 50 + 26 && l.hasLinkSlot && l.displayString == "hello")
+    }
 }

@@ -1,0 +1,8 @@
+    |                                                                                                `- error: reference to member 'file' cannot be resolved without a contextual type
+    |                                                                                `- error: cannot infer contextual base in reference to member 'menu'
+    |                                                                               `- error: reference to member 'file' cannot be resolved without a contextual type
+    |                                                                        `- error: reference to member 'menu' cannot be resolved without a contextual type
+    |                                                                     `- error: reference to member 'menu' cannot be resolved without a contextual type
+    |                                                                  `- error: cannot infer key path type from context; consider explicitly specifying a root type
+    |                                                              `- error: cannot find 'StyleStore' in scope
+    |                                                           `- error: cannot infer key path type from context; consider explicitly specifying a root type

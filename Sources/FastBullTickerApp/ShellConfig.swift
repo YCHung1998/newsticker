@@ -53,7 +53,7 @@ public struct ShellConfig: Sendable {
     public var hitSlop: Double = HitTesting.defaultHitSlop
 
     public static let provisional = ShellConfig(
-        level: .statusBar,
+        level: .screenSaver,
         collectionBehavior: [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle],
         renderer: .displayLink,
         feedTimer: .commonModeTimer,

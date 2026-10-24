@@ -325,3 +325,51 @@ feed: items count=1 withUrl=1      mode -> live
 final stats: … withUrl=25/37 badLines=0 placed=3 …     quit: helper shutdown completed     terminate
 ```
 注意（環境因素，不是本段程式缺陷）：這台機器在我啟動前已有一個舊的 `FastBullTicker`（pid 39445，22:38 啟動，使用者或協調者開的）與其 helper 在執行，兩個實例共用同一個 pid file（`~/Library/Application Support/FastBullTicker/helper.pid`）。我的實例啟動時依既有「回收殘留 helper」邏輯**終止了該舊實例的 helper**（日誌 `reclaimed stale helper pid=39512`），雙方因此互相回收、日誌中 helper 反覆 `exited`／重啟（`snapshots=3`）。舊實例（39445）及其新 helper 在我結束後仍在執行，我沒有動它。**我自己啟動的行程已全部結束**。
+
+
+---
+
+# ticker-style-settings 第 S1 段（1.1、2.1、3.1）的驗證與重現（2026-10-25）
+
+全部不開真實視窗、不連網、不開瀏覽器、不碰真實 `~/Library/Application Support/FastBullTicker/style.json`（StyleStore 測試一律用 `FileManager.default.temporaryDirectory` 下的暫存目錄，`StyleEnv` 以 `precondition` 強制）。熱重載用假監看器（`FakeStyleWatcher`）＋假時鐘（`FakeClock`）；另有 3 個用真實 `DispatchSource` 的測試，但同樣只在暫存目錄。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                              # 410 tests in 55 suites（基準 309 + 101）
+swift test --filter TickerStyleTests                    # 1.1  15 個
+swift test --filter StyleParserTests                    # 1.1  25 個
+swift test --filter ReconfigureTests                    # 2.1  19 個
+swift test --filter TickerLayoutTests                   # 2.1  含新增 4 個 showTime
+swift test --filter SchedulerInvariantTests             # 2.1  含 2 個 reconfigure 長序列（固定種子，30,000 步／5 個種子各 8,000 步）
+swift test --filter StyleStore                          # 3.1  StyleStoreLoadTests／HotReloadTests／WriteBackTests
+swift test --filter DispatchSourceWatcherTests          # 3.1  真實 DispatchSource（暫存目錄）
+python3 Tests/s1-mutations.py                           # 36 組 mutation（約 40 分鐘；每組破壞→紅→還原）
+```
+
+| task | 測試檔 | 內容 |
+|---|---|---|
+| 1.1 | `Tests/FastBullTickerAppTests/TickerStyleTests.swift` | 15 鍵齊全、往返、正規化輸出（鍵排序／大寫／結尾換行）、僅 import Foundation、預設值逐項、與原型常數（`ShellConfig.provisional`、`TickerView` 內色彩字面值）一致且 ≤ 1/255、範圍、色碼合法／非法、WCAG 參考值（21、4.48、1.07）、三組預設配色 ≥ 4.5 |
+| 1.1 | `Tests/FastBullTickerAppTests/StyleParserTests.swift` | 缺鍵／未知鍵、越界夾制（含 `1e30`）、型別錯誤、`replayCount` 整數規則、非法色碼、`labelText`（修剪／截斷／grapheme）、對比度警告但照用、整份失敗（語法／非物件／非 UTF-8／version／64KB）、BOM、固定種子 3,000 組隨機輸入永遠得到合法樣式、2,000 組隨機位元組不崩潰 |
+| 2.1 | `Tests/FastBullTickerCoreTests/ReconfigureTests.swift`、`TickerLayoutTests.swift`、`SchedulerInvariantTests.swift` | 改速度視覺連續（含「流逝但未 tick 的時間以舊速度結算」、速度 0 往返）、已排入不變、新設定只影響之後排入且間距仍為 gap、縮小／放大 `replayCount`、放大可視寬度補料、隱藏中呼叫、保持不受速度影響、seek／rebase 與 reconfigure 交錯、六欄位限制、`showTime` 與 `layoutItem` |
+| 3.1 | `Tests/FastBullTickerAppTests/StyleStoreTests.swift` | 載入（無檔案不建立／損壞保留／越界夾制／過大／環境變數）、熱重載（debounce、50 次觸發合併、位元組相同不解析、樣式相等不通知、改名取代、刪檔保留、語法錯誤保留再恢復、欄位層級錯誤）、寫回（滑桿連發只寫一次、暫存檔→取代的順序、正規化輸出、`.bak` 三種情況與兩種不備份、自寫入不重套也不重新解析、寫入失敗、重設為預設、`ensureFileExists`） |
+
+## fail-then-pass 證據（誠實說明）
+| task | 紅 | 綠 | 檔案 |
+|---|---|---|---|
+| 1.1 | 先寫完整實作才補測試，故紅是**對 stub**：把 `parse` 改成恆回預設、`hex` 恆回 `#000000`、`ratio` 恆回 1 → TickerStyleTests／StyleParserTests 多項斷言失敗；還原後綠 | 40 tests passed | `Tests/evidence/s1-1.1-red.log`、`s1-1.1-green.log` |
+| 2.1 | 測試先於實作：`SchedulerTunables`／`reconfigure` 不存在 → **編譯失敗型**紅 | 實作後 50 tests（5 suites）passed | `s1-2.1-red.log`、`s1-2.1-green.log` |
+| 3.1 | 實作先於測試，故紅是**對移除 StyleStore.swift／StyleFileWatching.swift**：`cannot find 'StyleStore' in scope`（編譯失敗型）；還原後綠 | 36 tests passed（重跑 3 次皆綠） | `s1-3.1-red.log`、`s1-3.1-green.log` |
+
+## mutation（`Tests/s1-mutations.py`，輸出 `Tests/evidence/s1-mutations.log`）
+36 組破壞全部變紅（存活 0），還原後 `swift test` 410 個全綠。
+| 範圍 | mutation → 抓到它的測試（代表） |
+|---|---|
+| 1.1 | T1 預設 `fontSize` 17→`defaultsAreExactlyThePrototypeValues`；T2 放寬上限→`rangesAreTheSpecifiedOnes`；T3 接受 8 位色碼→`invalidHexForms`；T5 亮度係數對調→`contrastRatioMatchesWCAGReferenceValues`；T6 低對比度不照用→`lowContrastWarnsButKeepsValues`；T9 `version` 2 也接受→`wholeFileFailures`；T12 鍵不排序→`normalizedJSONIsSorted…`；其餘見 log |
+| 2.1 | C1 改速度不調整 `baseOffset`→`speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed`、`invariantsHoldWithRuntimeReconfigure` 等；C2 不結算舊速度流逝時間→`timeElapsedBeforeReconfigureIsCountedAtOldSpeed`；C3 重新量測已排入訊息→`placedItemsUnchangedAndNewOnesUseNewTunables`；C8 解除隱藏→`reconfigureWhileHiddenIsLegal…` |
+| 3.1 | S1 移除自寫入辨識→`ownWriteIsNotReappliedAndNotEvenReparsed`；S2 載入時改寫→`partialOutOfRangeFields…`；S3 失敗載入覆蓋舊值→`syntaxErrorKeepsOldValueThenRecovers`；S4 無 debounce→`editAppliesAfterDebounceExactlyOnce`；S5 不備份→`backups…`；S6 寫回無 debounce→`sliderBurstAppliesEveryTimeButWritesOnce`；S13 不訂閱事件→`realWatcherFiresOnCreateAndOnRenameReplace` |
+
+誠實註記：
+- S1 mutation 一開始設計時預期「S1 移除自寫入辨識」可能被「樣式相等不通知」遮蔽（兩層去重）；因此測試額外斷言 `parseCount` 不增加（內容比對先於解析），mutation 才能被咬到。
+- 測試過程中我方測試的 bug（非實作問題）：`#"…"#` 原始字串遇到 `"#FF0000"` 提前結束（改 `##"…"##`）；`URL` 比較因結尾斜線不同（改比 `.path`）；真實 watcher 測試的 `afterReplace` 計數有競態（先睡 0.3 秒再取值）；`gap` 不變量在 `reconfigure` 速度 ≥ 160 時會被「尾端已捲出左緣就改排到右緣」的既有規則打破，故隨機序列速度限制 ≤ 100（單元測試另以 250 測保持）。
+- 以上均未改動任何實作行為；309 個既有測試未減少、未放寬（唯一的既有測試檔改動：`TickerRendererTests.swift` 一處 `TickerStyle` 改寫為 `FastBullTickerCore.TickerStyle`，因 App 新增同名型別造成型別查找歧義）。
+- 仍為【需人工】：正式 `DispatchSource` 監看器對 TextEdit／vim 儲存方式的相容性（自動測試只證明改名取代式更新在暫存目錄中有事件）。

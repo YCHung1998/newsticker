@@ -93,7 +93,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`main` 較少）
+make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段（1.1／2.1／3.1）後為 410 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
@@ -137,7 +137,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 
 ```sh
 sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過
-swift test                               # 309 個（含 N3 段）
+swift test                               # 410 個（含 N3 段 309 個 + ticker-style-settings S1 段 101 個）
 python3 Tests/shell-mutations.py         # 15 組破壞→變紅→還原
 ```
 
@@ -193,8 +193,8 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 |---|---|---|---|
 | 協定契約（Python 參考驗證器） | `python3 -m unittest discover -s protocol/tests` | 12 個通過（加入 `url` 後；`main` 為 11） | `protocol/tests/test_contract.py` |
 | 抓取程式（Rust） | `cd ticker-connect && cargo test` | 76 個通過（加入 `url` 後；`main` 為 65） | `ticker-connect/tests/*.rs` |
-| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N3 段後 `swift test` 全部 309 個通過、48 個 suite（Core + App；N2 為 269，N3 新增 40 個） | `Tests/FastBullTickerCoreTests/*.swift` |
-| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 309 個）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
+| 顯示邏輯（Swift） | `swift test --filter FastBullTickerCoreTests` | Core 101 個通過、12 個 suite（`main`）；分支 `change/ticker-navigation-link` N3 段後 `swift test` 全部 309 個通過、48 個 suite（Core + App；N2 為 269，N3 新增 40 個）；`change/ticker-style-settings` S1 段後 410 個、55 個 suite（新增 101 個：Core 25〔`ReconfigureTests` 19 + `TickerLayoutTests` 4 + `SchedulerInvariantTests` 2〕、App 76〔`TickerStyleTests` 15 + `StyleParserTests` 25 + `StyleStoreTests` 檔 36〕） | `Tests/FastBullTickerCoreTests/*.swift` |
+| App 層（FeedClient、打包） | `swift test --filter FeedClient`；`sh Tests/app-packaging-check.sh` | 27 個通過（`swift test` 全部 410 個，S1 段後）；打包腳本 ALL PASS | `Tests/FastBullTickerAppTests/*.swift`、`Tests/app-packaging-check.sh`；mutation 見 `Tests/README.md` |
 | 示範 helper 協定 | `python3 Tests/demo-helper-protocol-check.py` | 實跑 6.5 秒，所有輸出行通過協定驗證（含 `url`）；snapshot 12 則中 8 則帶 `url` | `Tests/demo-helper-protocol-check.py` |
 | N3 mutation | `python3 Tests/n3-mutations.py` | 22 組破壞全部變紅（第一輪 A1 存活，加強測試後補跑變紅），還原後 309 個全綠 | `Tests/evidence/n3-mutations.log` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
