@@ -1,0 +1,46 @@
+[S1 夾制函式不夾制 (3.1)] filter='PersistenceClamp'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['clampPullsFullyOffscreenFrameBackInside', 'missingScreenFallsBackToPrimaryAndIsVisible', 'offsetOutsideVisibleAreaIsClampedToPartiallyVisibleAtLeast', 'reclampAfterScreenUnplugMovesPanelOntoPrimary']
+  ['✘ Test run with 9 tests in 1 suite failed after 0.001 seconds with 5 issues.']
+[S2 debounce 不合併 (3.1)] filter='PersistenceDebounce'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['fiftyMovesWithinOneHundredMillisecondsWriteOnceWithFinalPosition']
+  ['✘ Test run with 2 tests in 1 suite failed after 0.002 seconds with 1 issue.']
+[S3 透明度下限改 0 (3.2/3.3)] filter='shellConfigClampsAlphaToFloor|StatusMenuTests|alphaValueDrives'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['alphaValueDrivesOpacityAndNoVisualEffectView', 'shellConfigClampsAlphaToFloor', 'sliderRangeMatchesFloorAndAlphaIsClamped']
+  ['✘ Test run with 7 tests in 3 suites failed after 0.170 seconds with 3 issues.']
+[S4 styleMask 加 hudWindow (3.2)] filter='PanelShellTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['sourcesNeverCallApplicationActivation', 'styleMaskIsBorderlessNonactivatingOnlyAndNotHud']
+  ['✘ Test run with 6 tests in 1 suite failed after 0.170 seconds with 3 issues.']
+[S5 canBecomeKey 回 true (3.2)] filter='PanelShellTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['fixedAttributes']
+  ['✘ Test run with 6 tests in 1 suite failed after 0.149 seconds with 1 issue.']
+[S6 level 改 .screenSaver (3.2)] filter='levelAndBehavior'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['levelAndBehaviorComeFromShellConfigProvisionalValues']
+  ['✘ Test run with 1 test in 1 suite failed after 0.088 seconds with 1 issue.']
+[S7 隱藏不改選單標題 (3.3)] filter='hideTogglesTitle'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['hideTogglesTitleToShowAndFiresCallback']
+  ['✘ Test run with 1 test in 1 suite failed after 0.081 seconds with 1 issue.']
+[S8 點穿狀態不記錄 (3.3)] filter='clickThroughIsNeverPersisted'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['clickThroughIsNeverPersistedAndResetsOnRecreate']
+  ['✘ Test run with 1 test in 1 suite failed after 0.076 seconds with 1 issue.']
+[S9 隱藏時 Scheduler 不凍結 (4.1)] filter='hiddenFreezesAndResumes'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['hiddenFreezesAndResumesWithoutJump']
+  ['✘ Test run with 1 test in 1 suite failed after 0.001 seconds with 4 issues.']
+[S10 rebase 不通知 renderer (4.1)] filter='rebaseKeepsEveryScreenPosition'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['rebaseKeepsEveryScreenPositionUnchanged']
+  ['✘ Test run with 1 test in 1 suite failed after 0.001 seconds with 6 issues.']
+[S11 TrackModel.rebase 空實作 (4.1)] filter='TrackModelTests|rebaseKeepsEveryScreenPosition'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['rebaseKeepsEveryScreenPositionUnchanged', 'rebasePreservesVisualPositionsAndPrunesScrolledOut']
+  ['✘ Test run with 2 tests in 2 suites failed after 0.001 seconds with 8 issues.']
+[S12 紋理不切塊 (4.1)] filter='TilingTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['bitmapRendererProducesTilesWhoseWidthsEqualPlan', 'tileWidthsSumToTotalAndNeverExceedLimit']
+  ['✘ Test run with 2 tests in 1 suite failed after 0.022 seconds with 5 issues.']
+[S13 不清除已捲出的 layer (4.1)] filter='prunesScrolledOut|TrackModelTests'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['prunesScrolledOutLayersSoMemoryDoesNotGrow', 'rebasePreservesVisualPositionsAndPrunesScrolledOut']
+  ['✘ Test run with 2 tests in 2 suites failed after 0.001 seconds with 3 issues.']
+[S14 Coordinator 不轉給 driver (4.2)] filter='AppSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['snapshotThenItemsDriveSchedulerReplayToLiveToReplay']
+  ['✘ Test run with 2 tests in 1 suite failed after 3.441 seconds with 5 issues.']
+[S15 呼叫 App 啟用 API (3.2)] filter='sourcesNeverCallApplicationActivation'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['sourcesNeverCallApplicationActivation']
+  ['✘ Test run with 1 test in 1 suite failed after 0.013 seconds with 1 issue.']
+[還原後] rc=0 ['✔ Test run with 62 tests in 13 suites passed after 5.984 seconds.']

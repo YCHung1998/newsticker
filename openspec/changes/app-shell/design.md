@@ -39,3 +39,13 @@
 10. **FeedClient 暫定值（沿用並維持【假設】）**：卡死閾值 = 3×心跳 = 90 秒；退避 1→60 秒、±20% jitter；結束逾時 2 秒；喚醒寬限 = 重新起算一個完整卡死閾值（90 秒）；pid／lock file 位於 `~/Library/Application Support/FastBullTicker/`（`helper.pid`）；helper 路徑覆寫環境變數 `FASTBULL_TICKER_HELPER`（本次自訂，記於 README）；不可恢復錯誤 = 找不到檔、無執行權限、`Process.run()` 拋錯（含簽名被拒）。
 11. **協議依已實作的 `protocol/`、`ticker-connect/`**：單向 JSON-lines；`status` 至少每 30 秒（退避期間仍發）；stdin EOF 立即結束。
 12. **App 側 library target `FastBullTickerApp`**（可 import Foundation／AppKit）承載 `FeedClient` 等，供測試；`FastBullTickerCore` 維持不 import AppKit。
+
+## 2026-10-24 補充決定（apply 第 B 段）
+
+13. **失敗歸因規則（沿用 spikes）**：「平台限制」才可記為已知限制；「我方實作錯誤」必須修正。
+14. **【假設】透明度**：滑桿下限 0.3（規格區間 20–30%）、預設 0.9；範圍集中於 `ShellConfig.alphaRange`。位置存檔 debounce 0.5 秒（規格區間 0.3–1 秒）。儲存媒介 UserDefaults（鍵：`panel.placement`、`panel.alpha`）。點穿狀態不在 `PersistenceStore` 介面內，無法被持久化。
+15. **【假設】外觀**：初始 620×42；左側標籤寬 150pt、紅色斜切、文字「即時財經快訊」（來自使用者提供的參考截圖，未核對原圖）；重播黑底白字、即時白底黑字，均含 `HH:mm:ss`（本機時區）；字型 PingFang TC 16pt；單則左右留白 14pt；捲動速度 90 px/s（60 時 8 秒一則的示範訊息會一直堆積在 LIVE，見 `Tests/evidence/demo-cadence.log`）。
+16. **渲染與補料**：`TickerView` 兼任暫定方案 A 的 `TickerRenderer`；`displayLink` 逐幀與 `.common` mode 的 0.1 秒 `Timer` 都呼叫同一個冪等的 `TickerDriver.step()`，使選單展開（event tracking）時仍不斷料。遮蔽（`didChangeOcclusionStateNotification`）與使用者隱藏以 OR 合併成「凍結」。
+17. **結束流程（真機發現）**：`applicationShouldTerminate` 回傳 `.terminateLater` 再用 `DispatchQueue.main.async { NSApp.reply(...) }` 回覆，App **不會結束**（2026-10-24 第一次真機日誌：helper 已收尾、App 仍存活）。改為在主執行緒以 semaphore 等待 `FeedClient.shutdown`（最多約 6 秒）後回傳 `.terminateNow`。此為我方實作問題，已修正並再次真機確認。
+18. **除錯用環境變數**：`FASTBULL_TICKER_LOG`（日誌路徑，預設 `~/Library/Application Support/FastBullTicker/app.log`）、`FASTBULL_TICKER_AUTOQUIT_SECONDS`（N 秒後自動結束，供受控啟動驗證）。
+19. **離線示範 helper** `scripts/demo-helper.sh`：協定 v1；snapshot 12 則、每 8 秒一則 items、每 25 秒一則 status、stdin EOF 即結束；以 `FASTBULL_TICKER_HELPER` 指定。

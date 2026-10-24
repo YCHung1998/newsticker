@@ -45,8 +45,10 @@ end=$(date +%s)
 echo "exit code=$rc elapsed=$((end-start))s"
 [ $rc -eq 0 ] && [ $((end-start)) -le 3 ] && echo "PASS: EOF 後立即結束" || { echo "FAIL"; fail=1; }
 
-step "主執行檔可啟動（空殼）"
-$APP/Contents/MacOS/FastBullTicker && echo "PASS" || { echo "FAIL"; fail=1; }
+step "主執行檔"
+# 2026-10-24（app-shell 第 B 段）：主執行檔已是會開視窗的真 App，本腳本不再啟動它（原本空殼時會啟動）。
+# 啟動驗證見 README 4.3 與 Tests/README.md 的「真機啟動驗證」。
+file $APP/Contents/MacOS/FastBullTicker | grep -q arm64 && echo "PASS: 主執行檔為 arm64（不啟動）" || { echo "FAIL: 非 arm64"; fail=1; }
 
 echo; [ $fail -eq 0 ] && echo "ALL PASS" || echo "SOME FAILED"
 exit $fail

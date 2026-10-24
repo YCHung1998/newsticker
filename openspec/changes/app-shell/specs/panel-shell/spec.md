@@ -41,7 +41,7 @@ App MUST 為 accessory（Info.plist `LSUIElement=YES`，無 Dock 圖示）。程
 - **THEN** 面板 frame.origin SHALL 隨滑鼠移動，frontmost App SHALL 不變
 
 ### Requirement: 整條帶子以 window alphaValue 調整透明度
-整條帶子（含文字）的透明度 MUST 由 window `alphaValue` 控制；背景 MUST 為純色，MUST NOT 使用 `NSVisualEffectView` 或毛玻璃。滑桿下限 MUST 約為 20–30%（確切值【待確認】），使帶子不致完全看不見。
+整條帶子（含文字）的透明度 MUST 由 window `alphaValue` 控制；背景 MUST 為純色，MUST NOT 使用 `NSVisualEffectView` 或毛玻璃。滑桿下限 MUST 約為 20–30%（確切值【待確認】；2026-10-24 實作取 30%【假設】），使帶子不致完全看不見。
 
 #### Scenario: 透明度範圍
 - **WHEN** 滑桿拖到最小

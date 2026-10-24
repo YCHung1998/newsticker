@@ -17,7 +17,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 
 ## 2. 目前狀態
 
-**App 本體還沒有畫面（`.app` 可建置、可簽名，但是空殼）。** 目前完成的是地基，其餘還在規劃。
+**App 已有畫面程式（浮動跑馬燈、選單列、記住位置），但視覺行為我（Claude）沒有目視驗證過，需要你親眼確認。** 自動測試與受控啟動日誌都通過；請見第 4.3 節。
 
 | 部分 | 狀態 | 說明 |
 |---|---|---|
@@ -26,7 +26,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 | 顯示邏輯 `Sources/FastBullTickerCore`（Swift） | 已完成（純邏輯） | 沒有視窗，只有排程與狀態機 |
 | 可行性實驗 `spikes/` | **自動部分完成，等你手動操作** | 6 項需人工的實驗尚未執行，結果全是「未執行」 |
 | 建置與簽名、`FeedClient`（`app-shell` 第 A 段：1.1、2.1、2.2） | 已完成（2026-10-24，自動測試通過；尚未接上畫面） | `make helper && make app && make sign` 可產生 ad-hoc 簽名的 `build/FastBullTicker.app`；`FeedClient` 以假 helper 腳本測過，**沒有連正式網站** |
-| App 視窗、選單列、渲染（`app-shell` 第 B 段：3.x、4.x） | **【規劃】尚未開始** | 這個 `.app` 目前只是空殼，不顯示任何畫面 |
+| App 視窗、選單列、渲染（`app-shell` 第 B 段：3.1–4.2） | 已實作（2026-10-24，自動測試通過；**未目視驗證**） | 面板／選單／渲染的 level、collectionBehavior 等為**暫定值**，尚未通過全螢幕可見性實驗（S1）；離線示範 helper 見第 4.3 節 |
 
 ## 3. 環境需求
 
@@ -88,31 +88,61 @@ cd spikes && swift build
 
 **真正的實驗**（會開視窗，請在不被打擾的時段）：依 `spikes/README.md` 最後一節逐項執行，結果填進 `spikes/RESULTS.md`。共 7 項，其中 2 項需要外接螢幕、2 項需要插電連續跑 1 小時。**其中最重要的是第 1 項（S1，全螢幕可見性）**。
 
-### 4.3 App 本體（`app-shell`）：目前可建置、但尚無畫面
+### 4.3 App 本體（`app-shell`）：啟動與預期畫面
 
 ```sh
-make helper && make app && make sign     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test）
-open build/FastBullTicker.app            # 【目前沒有畫面】
+make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
+make test                                # 全部自動測試（等同 swift test，164 個）
 ```
 
-**現況（誠實說明）**：這個 `.app` 只是**空殼**，啟動後不會出現視窗、選單列圖示或帶子——那些屬 `app-shell` 第 B 段（任務 3.x、4.x），**還沒做**。已完成的是：
+**A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
+
+```sh
+open build/FastBullTicker.app
+```
+
+**B. 用離線示範 helper 啟動（不連網）**
+
+```sh
+FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
+# 結束：選單列圖示 →「結束」，或 kill 該行程。（`open` 不會把環境變數傳給 App，所以示範用直接執行。）
+```
+
+示範 helper（`scripts/demo-helper.sh`）輸出協定 v1：啟動立即送 12 則中文財經快訊示意的 `snapshot`、之後**每 8 秒一則**新的 `items`（內容以「最新快訊 #N：」開頭）、**每 25 秒一則** `status` 心跳；stdin 關閉就結束。
+
+**預期看到什麼（設計意圖；除下表「已驗證」外，都是未目視驗證）**
+
+- 螢幕上方中間出現一條約 620×42 的浮動帶子；最左邊是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，右邊是由右向左捲動的訊息。
+- 重播訊息：**黑底白字**；即時訊息：**白底黑字**；每則前面有 `HH:mm:ss`（本機時區）。
+- 剛啟動先是重播（最新 10 則循環）；示範 helper 約 8 秒後送來新訊息，輪到它時會以白底黑字出現；這些即時訊息播完後回到黑底白字的重播，如此循環。因為訊息要排隊接在前一則後面，所以即時訊息不會在到達的瞬間出現，要等前面已排上帶子的訊息讓出位置（未量測實際延遲）。
+- 選單列有報紙圖示：透明度滑桿（下限 30%【假設】）、隱藏／顯示、點穿模式、結束；在帶子上按右鍵是同一份選單。拖曳帶子移動位置；重啟後回到同一個螢幕位置與透明度。點穿模式每次啟動都是關。
+
+| 項目 | 狀態 |
+|---|---|
+| 程式邏輯（夾制、debounce、選單項目、點穿不持久化、渲染位移／凍結／rebase、REPLAY→LIVE→REPLAY 串接） | **已驗證**：`swift test`，見 `Tests/README.md` |
+| 面板屬性實際值（level=25 即 `.statusBar`、styleMask、不成為 key／main、alpha 等）與啟動不 crash、收到 snapshot 與 items、模式變為 live、結束時 helper 收尾無殘留 | **已驗證**：受控啟動日誌（`Tests/README.md`「真機啟動驗證」） |
+| 帶子與標籤是否真的出現、顏色與文字、捲動平順度、拖曳、選單列圖示與選單操作、右鍵選單、透明度、隱藏／顯示、點穿、位置還原、中文字型 | **未目視驗證，待你確認** |
+| 全螢幕 App 上是否看得到、是否搶焦點、選單展開時是否斷料、長時間記憶體 | **未驗證**（level／collectionBehavior 為暫定值；屬 5.1–5.4 人工驗收） |
+| 真 helper 接上畫面 | **未驗證**（本次只用示範 helper 跑；真 helper 只在第 A 段手動連過一次） |
+
+已完成的建置與背景元件：
 
 - `make helper`：`cargo build --release` 產生 arm64 的 `ticker-connect`。
 - `make app`：用 SwiftPM 以 release／arm64 編 App，組裝 `build/FastBullTicker.app`，內含 `Contents/MacOS/FastBullTicker`、`Contents/MacOS/ticker-connect`、`Contents/Info.plist`（`LSUIElement=YES`、`LSMinimumSystemVersion=14.0`）。
-- `make sign`：由內而外 ad-hoc 簽名（先 helper、再 bundle，**不使用遞迴簽名旗標**），最後 `codesign --verify --strict --verbose=2`；驗證失敗會讓 `make sign` 失敗。不 notarize、不沙盒、不需 sudo。
-- `FeedClient`（`Sources/FastBullTickerApp/`）：管理 helper 行程（退避重啟、卡死判定、喚醒寬限、不可恢復錯誤、優雅結束、pid file）。**還沒有任何程式呼叫它**（組裝屬 4.2）。
+- `make sign`：由內而外 ad-hoc 簽名（先 helper、再 bundle，**不使用遞迴簽名旗標**），最後 `codesign --verify --strict --verbose=2`；驗證失敗會讓 `make sign` 失敗。不 notarize、不沙盒、不需 sudo、不需任何系統權限；程式從不呼叫 `NSApp.activate`。
+- `FeedClient`（`Sources/FastBullTickerApp/`）：管理 helper 行程（退避重啟、卡死判定、喚醒寬限、不可恢復錯誤、優雅結束、pid file），現已由 `AppDelegate` 啟動。
 
-可以自己驗證（不連網）：
+可以自己驗證（不連網、不開視窗）：
 
 ```sh
-sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過、helper 對 stdin EOF 立即結束
-swift test --filter FeedClient           # FeedClient 測試（假 helper 腳本＋假時鐘）
+sh Tests/app-packaging-check.sh          # bundle 內容、plist、codesign、改 helper 一位元組後 verify 先失敗再通過
+swift test                               # 164 個
+python3 Tests/shell-mutations.py         # 15 組破壞→變紅→還原
 ```
 
-開發用覆寫：環境變數 `FASTBULL_TICKER_HELPER=/path/to/fake-helper` 讓 `FeedClient` 啟動該路徑而不是 bundle 內的 helper（變數名稱是 2026-10-24 自訂的**【假設】**；正式 bundle 不依賴它）。pid file 位於 `~/Library/Application Support/FastBullTicker/helper.pid`（**【假設】**）。
+開發／除錯用環境變數（皆為 2026-10-24 自訂的**【假設】**，正式 bundle 不依賴）：`FASTBULL_TICKER_HELPER`（覆寫 helper 路徑）、`FASTBULL_TICKER_LOG`（日誌路徑，預設 `~/Library/Application Support/FastBullTicker/app.log`）、`FASTBULL_TICKER_AUTOQUIT_SECONDS`（N 秒後自動結束）。pid file 位於 `~/Library/Application Support/FastBullTicker/helper.pid`（**【假設】**）。
 
-## 5. 操作（【規劃】，App 完成後的預期行為）
+## 5. 操作（設計意圖；未目視驗證）
 
 ### 5.1 視窗
 
@@ -166,7 +196,7 @@ Rust 與 Swift 兩端都讀同一份 `protocol/fixtures/manifest.json`：合法�
 
 ### 6.3 還沒有被驗證的事
 
-- 所有 Swift 視窗行為（`NSPanel`、選單列、`performDrag`、`displayLink`）**只通過編譯，沒有實際執行**。
+- Swift 視窗行為（`NSPanel`、選單列、`performDrag`、`displayLink`）：**已實際啟動過（受控日誌，面板屬性值正確、不 crash），但沒有人目視過畫面**；全螢幕可見性、不搶焦點、選單展開不斷料皆未驗證。
 - 自動化測試**絕不連正式網站**；唯一一次連線是手動跑 35 秒，得到 1 則 snapshot（20 則）與 1 則心跳。當時沒有 VPN 或 Proxy。
 - 記憶體與 CPU 的目標（App ≤35MB、helper ≤15MB）是**【假設】**，還沒有量過基準。
 
@@ -182,7 +212,7 @@ flowchart LR
     E --> M[Emitter<br/>過濾＋schema 驗證]
   end
   M -- "stdout JSON-lines（協定 v1）" --> F
-  subgraph app["FastBullTicker.app（Swift）【規劃】"]
+  subgraph app["FastBullTicker.app（Swift）"]
     F[FeedClient<br/>啟動／重啟 helper] --> L[LineBuffer<br/>切行＋解碼]
     L --> T[TickerScheduler<br/>即時／重播狀態機]
     T --> R[TickerRenderer<br/>畫面渲染]
@@ -221,7 +251,7 @@ flowchart LR
 | 2 | `connect-engine-fastbull` | 完成 |
 | 3 | `panel-feasibility-spikes` | 5／12：自動項完成，其餘 7 項等人工 |
 | 4 | `show-engine-core` | 完成 |
-| 5 | `app-shell` | 0／12，其中 4 項被實驗結果阻塞 |
+| 5 | `app-shell` | 第 A 段（1.1、2.1、2.2）與第 B 段（3.1–4.2）已實作，共 7／12；5.1–5.4 為人工驗收，未做 |
 
 版本控管規則見 `CLAUDE.md` 的「Git workflow」：一個 change 一條 `change/<名稱>` 分支，驗證後用 `--no-ff` 合併進 `main`，不 force-push。
 
