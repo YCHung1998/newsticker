@@ -33,11 +33,28 @@ enum OpenerGuard {
         return out
     }
 
-    static func activationViolations(root: URL) -> [String] {
-        swiftFiles(under: root.appendingPathComponent("Sources")).compactMap { f in
-            guard let s = try? String(contentsOf: f, encoding: .utf8) else { return nil }
-            return activationPatterns.contains { s.contains($0) } ? f.lastPathComponent : nil
+    /// single-instance 的唯一例外檔（重複實例對話框必須把 accessory App 帶到前景）。
+    static let activationExceptionFile = "SingleInstanceGuard.swift"
+
+    /// 各檔案（去掉整行註解後）出現啟用呼叫的次數。
+    static func activationHitCounts(root: URL) -> [String: Int] {
+        var out: [String: Int] = [:]
+        for f in swiftFiles(under: root.appendingPathComponent("Sources")) {
+            guard let raw = try? String(contentsOf: f, encoding: .utf8) else { continue }
+            let s = raw.split(separator: "\n", omittingEmptySubsequences: false)
+                .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }.joined(separator: "\n")
+            let n = activationPatterns.reduce(0) { $0 + s.components(separatedBy: $1).count - 1 }
+            if n > 0 { out[f.lastPathComponent] = n }
         }
+        return out
+    }
+
+    /// 違規：例外檔以外任何啟用呼叫；例外檔內超過一處。
+    static func activationViolations(root: URL) -> [String] {
+        activationHitCounts(root: root).compactMap { name, n in
+            if name != activationExceptionFile { return name }
+            return n > 1 ? "\(name) (超過一處)" : nil
+        }.sorted()
     }
 
     static func repoRoot(from file: String = #filePath) -> URL? {
