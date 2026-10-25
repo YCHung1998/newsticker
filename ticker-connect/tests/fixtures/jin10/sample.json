@@ -1,0 +1,380 @@
+{
+ "status": 200,
+ "message": "OK",
+ "data": [
+  {
+   "channel": [
+    1,
+    2,
+    3
+   ],
+   "data": {
+    "content": "【武契奇：以负责任的态度面对选举结果】金十数据10月25日讯，塞尔维亚前总统武契奇25日在首都贝尔格莱德参加议会选举投票后表示，将以负责任的态度面对选举结果，尊重选民通过投票表达的意愿。武契奇在接受媒体采访时说，他期待选民踊跃投票，表达意愿，“至于结果如何，让我们今晚拭目以待”。他说，预计当天22时至午夜前后将有初步结果，届时可大致判断哪一方获胜。",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "新华社",
+    "source_link": "https://baijiahao.baidu.com/s?id=1880024004742377689",
+    "title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025201806546800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      18681
+     ],
+     "id": 24
+    },
+    {
+     "cids": [
+      32
+     ],
+     "id": 31
+    },
+    {
+     "cids": [
+      16159
+     ],
+     "id": 29
+    },
+    {
+     "cids": [
+      18754
+     ],
+     "id": 18458
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 20:18:06",
+   "type": 0,
+   "voice_status": "ready",
+   "voices": null
+  },
+  {
+   "channel": [
+    1,
+    2,
+    3
+   ],
+   "data": {
+    "content": "【苏丹东部一金矿发生坍塌事故 致2死3伤】金十数据10月25日讯，当地时间10月25日，苏丹矿产资源公司发表声明说，苏丹东部加达里夫州一座金矿发生坍塌事故，造成2名矿工死亡，另有3人受伤。声明说，发生坍塌的是矿区内一座废弃并关闭的矿井。尽管有关部门已下令停止作业，仍有部分矿工擅自进入井内进行采矿活动。目前，苏丹矿产资源公司正在对事故原因及相关情况展开调查。苏丹矿产资源丰富，黄金生产和出口在非洲国家中名列前茅，是其外汇收入主要来源之一。但苏丹黄金生产依赖传统开采方式，部分矿区安全设施和作业条件有限，矿井坍塌等安全事故时有发生。",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "央视",
+    "source_link": "https://content-static.cctvnews.cctv.com/snow-book/index.html?item_id=412654778073540357&channelId=1017&toc_style_id=feeds_default&module=ccnews%3A%2F%2Fappclient%2Fpage%2Ffeeds%2Fdetail%3Furl%3Dhttps%253A%252F%252Fcontent-static.cctvnews.cctv.com%252Fsnow-book%252Findex.html%253Fitem_id%253D412654778073540357%2526channelId%253D1017%2526toc_style_id%253Dfeeds_default",
+    "title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025195824709800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      16147
+     ],
+     "id": 29
+    },
+    {
+     "cids": [
+      32
+     ],
+     "id": 31
+    },
+    {
+     "cids": [
+      18492,
+      18487
+     ],
+     "id": 18458
+    },
+    {
+     "cids": [
+      17953,
+      17958
+     ],
+     "id": 17952
+    },
+    {
+     "cids": [
+      28
+     ],
+     "id": 2
+    },
+    {
+     "cids": [
+      28
+     ],
+     "id": 1
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:58:24",
+   "type": 0,
+   "voice_status": "ready",
+   "voices": null
+  },
+  {
+   "channel": [
+    5
+   ],
+   "data": {
+    "content": "",
+    "exclusive_to": [
+     "plus"
+    ],
+    "lock": true,
+    "vip_desc": "PLUS专享快讯，解锁直达",
+    "vip_title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025194524006800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      17948
+     ],
+     "id": 17566
+    },
+    {
+     "cids": [
+      4718
+     ],
+     "id": 16
+    },
+    {
+     "cids": [
+      18060,
+      17580
+     ],
+     "id": 23
+    },
+    {
+     "cids": [
+      32
+     ],
+     "id": 31
+    },
+    {
+     "cids": [
+      17958
+     ],
+     "id": 17952
+    },
+    {
+     "cids": [
+      8297
+     ],
+     "id": 15
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:45:24",
+   "type": 0,
+   "voice_status": "locked",
+   "voices": null
+  },
+  {
+   "channel": [
+    5
+   ],
+   "data": {
+    "content": "谁将掌控国会？市场已经站队！VIP中期选举信号台首发上线！85折解锁，实时追踪两院控制权比例，把握资产影响>><font class=\"important-text\"></font>",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "",
+    "source_link": "",
+    "title": "VIP中期选举信号台上线！"
+   },
+   "extras": {
+    "ad": true,
+    "ad_info": {
+     "show_ad_label": true
+    }
+   },
+   "id": "20261025194020207800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      18681
+     ],
+     "id": 24
+    }
+   ],
+   "remark": [
+    {
+     "id": 1024,
+     "link": "https://www.jin10.com/activities/2026/10/midterm_elections/index.html",
+     "title": "相关链接",
+     "type": "link"
+    }
+   ],
+   "tags": [],
+   "time": "2026-10-25 19:40:20",
+   "type": 0,
+   "voice_status": "pending",
+   "voices": null
+  },
+  {
+   "channel": [
+    5
+   ],
+   "data": {
+    "content": "<a href=\"https://www.jin10.com/activities/2026/10/midterm_elections/index.html\" target=\"_blank\"><img src=\"https://img.jin10.com/misc/26/10/fY79G9joAGzMFuJf9N0vC.jpg/lite\" height=\"120\"/></a>",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "",
+    "source_link": "",
+    "title": ""
+   },
+   "extras": {
+    "ad": true,
+    "ad_info": {
+     "show_ad_label": true
+    }
+   },
+   "id": "20261025194017565800",
+   "important": 0,
+   "kinds": [],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:40:17",
+   "type": 0,
+   "voice_status": "not_applicable",
+   "voices": null
+  },
+  {
+   "channel": [
+    3,
+    5
+   ],
+   "data": {
+    "content": "【西藏那曲市巴青县发生5.7级地震】金十数据10月25日讯，中国地震台网正式测定：10月25日19时25分在西藏那曲市巴青县（北纬32.43度，东经93.99度）发生5.7级地震，震源深度10千米。",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "",
+    "source_link": "",
+    "title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025193943725800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      18466,
+      18491,
+      18492
+     ],
+     "id": 18458
+    },
+    {
+     "cids": [
+      18035
+     ],
+     "id": 27
+    },
+    {
+     "cids": [
+      32
+     ],
+     "id": 31
+    },
+    {
+     "cids": [
+      18120
+     ],
+     "id": 26
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:39:43",
+   "type": 0,
+   "voice_status": "ready",
+   "voices": null
+  },
+  {
+   "channel": [
+    1,
+    2,
+    3
+   ],
+   "data": {
+    "content": "奥迪首席执行官：（关于美国生产计划）这不是反对德国的决定，德国仍是奥迪的支柱。",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "",
+    "source_link": "",
+    "title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025190439645800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      16121,
+      16266
+     ],
+     "id": 29
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:04:39",
+   "type": 0,
+   "voice_status": "ready",
+   "voices": null
+  },
+  {
+   "channel": [
+    1,
+    2,
+    3
+   ],
+   "data": {
+    "content": "奥迪CEO：我们在美国有宏大目标。",
+    "exclusive_to": [],
+    "pic": "",
+    "source": "",
+    "source_link": "",
+    "title": ""
+   },
+   "extras": {
+    "ad": false
+   },
+   "id": "20261025190343103800",
+   "important": 0,
+   "kinds": [
+    {
+     "cids": [
+      16121
+     ],
+     "id": 29
+    }
+   ],
+   "remark": [],
+   "tags": [],
+   "time": "2026-10-25 19:03:43",
+   "type": 0,
+   "voice_status": "ready",
+   "voices": null
+  }
+ ]
+}
