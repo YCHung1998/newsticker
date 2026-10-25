@@ -5,11 +5,11 @@
 
 ## 2. Rust helper
 
-- [ ] 2.1 `model.rs`／`protocol.rs`／emitter 支援 `title`、`important`（缺少時不輸出），fastbull 輸出逐位元組不變（以既有測試證明）
-- [ ] 2.2 審查並整合 `exp/jin10-cold-start` 的 `jin10.rs`、`sources.rs`、`lib.rs`、fixture、測試；先確認其測試是否真的綠
-- [ ] 2.3 加入 `【標題】` 拆分、`important` 轉換，並補測試（有標題、只有標題、重要、廣告、鎖定、壞時間）
-- [ ] 2.4 `cargo test`、`cargo build` 0 warning、`--list-sources` 含 `jin10`
-- [ ] 2.5 實測真站一次（低頻）：stdout 有 snapshot、每行通過協定驗證、時間與網站畫面對得上
+- [x] 2.1 `model.rs`／`protocol.rs`／emitter 支援 `title`、`important`（缺少時不輸出），fastbull 輸出逐位元組不變（以既有測試證明）
+- [x] 2.2 審查並整合 `exp/jin10-cold-start` 的 `jin10.rs`、`sources.rs`、`lib.rs`、fixture、測試；先確認其測試是否真的綠
+- [x] 2.3 加入 `【標題】` 拆分、`important` 轉換，並補測試（有標題、只有標題、重要、廣告、鎖定、壞時間）
+- [x] 2.4 `cargo test`、`cargo build` 0 warning、`--list-sources` 含 `jin10`
+- [x] 2.5 實測真站一次（低頻）：stdout 有 snapshot、每行通過協定驗證、時間與網站畫面對得上
 
 ## 3. Swift
 

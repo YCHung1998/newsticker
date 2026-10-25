@@ -30,7 +30,8 @@ fn jin10_parse_first_item_matches_exactly() {
     // 2026-10-25 20:18:06 UTC+8 = 12:18:06Z
     assert_eq!(f.published_at_ms, 1_792_930_686_000);
     assert!(f.published_at_ms > 1_000_000_000_000);
-    assert!(f.text.starts_with("【武契奇：以负责任的态度面对选举结果】金十数据10月25日讯"), "{}", f.text);
+    assert_eq!(f.title.as_deref(), Some("武契奇：以负责任的态度面对选举结果"));
+    assert!(f.text.starts_with("金十数据10月25日讯"), "{}", f.text);
     assert!(f.text.ends_with("可大致判断哪一方获胜。"), "{}", f.text);
     assert_eq!(f.url.as_deref(), Some("https://baijiahao.baidu.com/s?id=1880024004742377689"));
 }
@@ -100,4 +101,53 @@ fn jin10_parse_strips_html_and_collapses_whitespace() {
     let raw = r#"{"data":[{"id":"1","time":"2026-10-25 20:18:06","extras":{"ad":false},"data":{"content":"  A<b>B</b>&nbsp;&amp;\n\n C<br/>D  "}}]}"#;
     let (items, _) = parse_payload(raw, SOURCE_ID);
     assert_eq!(items[0].text, "AB & C D");
+}
+
+fn one(el: &str) -> ticker_connect::model::Item {
+    let raw = format!(r#"{{"data":[{el}]}}"#);
+    let (items, skipped) = parse_payload(&raw, SOURCE_ID);
+    assert_eq!(items.len(), 1, "{skipped:?}");
+    items.into_iter().next().unwrap()
+}
+
+#[test]
+fn jin10_parse_data_title_wins_and_text_is_full_content() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 21:09:49","important":1,"extras":{"ad":false},"data":{"content":"金十数据10月25日讯，卡塔尔调停人员抵达德黑兰。","title":"卡塔尔斡旋人员赴德黑兰","source_link":""}}"#);
+    assert_eq!(it.title.as_deref(), Some("卡塔尔斡旋人员赴德黑兰"));
+    assert_eq!(it.text, "金十数据10月25日讯，卡塔尔调停人员抵达德黑兰。");
+    assert_eq!(it.important, Some(true));
+}
+
+#[test]
+fn jin10_parse_bracket_title_is_split_from_content() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 20:18:06","important":0,"extras":{"ad":false},"data":{"content":"【武契奇：以负责任的态度面对选举结果】金十数据10月25日讯，塞尔维亚","title":""}}"#);
+    assert_eq!(it.title.as_deref(), Some("武契奇：以负责任的态度面对选举结果"));
+    assert_eq!(it.text, "金十数据10月25日讯，塞尔维亚");
+    assert_eq!(it.important, None, "important=0 must not be emitted");
+}
+
+#[test]
+fn jin10_parse_bracket_only_keeps_text_nonempty_without_title() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 20:18:06","extras":{"ad":false},"data":{"content":"【某某】"}}"#);
+    assert_eq!(it.title, None);
+    assert_eq!(it.text, "【某某】");
+}
+
+#[test]
+fn jin10_parse_no_title_no_important_by_default() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 20:18:06","extras":{"ad":false},"data":{"content":"利比亚锡尔特石油公司表示，重启。","title":""}}"#);
+    assert_eq!((it.title, it.important), (None, None));
+}
+
+#[test]
+fn jin10_parse_title_with_html_is_cleaned_and_output_passes_protocol() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 20:18:06","important":1,"extras":{"ad":false},"data":{"content":"x","title":" <b>A</b>  B "}}"#);
+    assert_eq!(it.title.as_deref(), Some("A B"));
+    assert_eq!(Protocol::new().check_item(&it), Ok(()));
+}
+
+#[test]
+fn jin10_parse_whitespace_only_title_is_dropped() {
+    let it = one(r#"{"id":"1","time":"2026-10-25 20:18:06","extras":{"ad":false},"data":{"content":"x","title":"  <br/> "}}"#);
+    assert_eq!(it.title, None);
 }

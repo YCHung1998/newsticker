@@ -50,7 +50,7 @@ pub fn prod_origin() -> String {
 }
 
 pub fn item(id: &str, ms: u64) -> Item {
-    Item { source: "fake".into(), id: id.into(), published_at_ms: ms, text: format!("text {id}"), url: None }
+    Item { source: "fake".into(), id: id.into(), published_at_ms: ms, text: format!("text {id}"), url: None, title: None, important: None }
 }
 
 #[derive(Clone, Default)]

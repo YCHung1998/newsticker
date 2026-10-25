@@ -16,19 +16,27 @@
 - **THEN** `convert` 回傳解析錯誤
 
 ### Requirement: 標題與本文拆分、重要旗標
-內文去除 HTML 標籤、解常見實體並收斂空白後，若以 `【…】` 開頭且括號內非空，連接器 SHALL 把括號內文字放入 `title`（不含括號），其後文字放入 `text`；若括號之後沒有本文，則 SHALL 不輸出 `title`，`text` 為完整內容（含括號文字），以維持 `text` 非空。元素的 `important` 為 `1`（或 `true`）時 SHALL 輸出 `"important": true`；其餘情況 MUST 不輸出該欄位。
+標題來源依序為：(1) 元素 `data.title` 去除 HTML 標籤、收斂空白後非空者，SHALL 作為 `title`，`text` 為清理後的完整 `data.content`（實測 2026-10-25：重要訊息的標題在 `data.title`，內容不含 `【】`）；(2) 否則，清理後內文若以 `【…】` 開頭且括號內非空，SHALL 把括號內文字放入 `title`（不含括號），其後文字放入 `text`；括號之後沒有本文時 SHALL 不輸出 `title`，`text` 為完整內容，以維持 `text` 非空。兩者皆無則不輸出 `title`。元素的 `important` 為 `1`（或 `true`）時 SHALL 輸出 `"important": true`；其餘情況 MUST 不輸出該欄位。內文清理規則：去 HTML 標籤、解常見實體、收斂空白。
 
-#### Scenario: 有標題有本文
-- **WHEN** 內容為 `【武契奇：以負責任的態度面對選舉結果】金十數據10月25日訊，……`
+#### Scenario: data.title 優先
+- **WHEN** 元素 `data.title` 為 `卡塔爾斡旋人員赴德黑蘭`，`data.content` 為 `金十數據10月25日訊，……`
+- **THEN** `title` 為 `卡塔爾斡旋人員赴德黑蘭`，`text` 為 `金十數據10月25日訊，……`
+
+#### Scenario: 由 【】 拆出標題
+- **WHEN** `data.title` 為空，內容為 `【武契奇：以負責任的態度面對選舉結果】金十數據10月25日訊，……`
 - **THEN** `title` 為 `武契奇：以負責任的態度面對選舉結果`，`text` 為 `金十數據10月25日訊，……`
 
 #### Scenario: 只有標題
-- **WHEN** 內容為 `【某某】` 且沒有後續文字
+- **WHEN** `data.title` 為空，內容為 `【某某】` 且沒有後續文字
 - **THEN** 不輸出 `title`，`text` 為 `【某某】`
 
 #### Scenario: 重要訊息
 - **WHEN** 元素 `important` 為 `1`
 - **THEN** item 含 `"important": true`
+
+#### Scenario: 非重要不輸出旗標
+- **WHEN** 元素 `important` 為 `0`
+- **THEN** item 不含 `important`
 
 ### Requirement: 略過廣告與無內容元素
 連接器 MUST 略過 `extras.ad` 為 `true` 的元素（站內廣告，如 VIP 橫幅）、內容在清理後為空的元素（PLUS 鎖定快訊、純圖片）、缺 `id` 或時間無法解析的元素，並對每個略過寫一行 stderr；其餘元素照常輸出。

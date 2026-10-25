@@ -4,6 +4,7 @@
 //! - id：`id` 字串（20 位數字，來源原生）。
 //! - 時間：`time` 為民用時間字串，無時區標記；依網站前端 config.js 以北京時間處理 => UTC+8（推定，見 TZ_OFFSET_SECS）。
 //! - 文字：`data.content`（含 `<b>`、`<a>`、`<img>` 等 HTML 片段）；去標籤、解常見實體、收斂空白。
+//! - 標題：`data.title` 優先，否則拆內容開頭 `【…】`；`important == 1` → `important: true`（其餘不輸出）。
 //! - 跳過：`extras.ad == true`（站內廣告）、內容為空（PLUS 鎖定快訊 `lock:true` 內容為空字串、純圖片）。
 //! - url：`data.source_link`（第三方原文連結，可空）；不合格就降級為 None。
 use crate::connector::{Connector, RawPayload};
@@ -76,6 +77,24 @@ fn clean_text(s: &str) -> String {
     out.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// 標題：API 的 `data.title`（清理後非空）優先，`text` 保留完整內容；否則拆內容開頭的 `【…】`
+/// （括號後沒有本文則不拆，維持 `text` 非空）。回傳 (title, text)。
+fn split_title(api_title: &str, content: String) -> (Option<String>, String) {
+    let t = clean_text(api_title);
+    if !t.is_empty() {
+        return (Some(t), content);
+    }
+    if let Some(rest) = content.strip_prefix('【') {
+        if let Some((inner, body)) = rest.split_once('】') {
+            let (inner, body) = (inner.trim(), body.trim());
+            if !inner.is_empty() && !body.is_empty() {
+                return (Some(inner.to_string()), body.to_string());
+            }
+        }
+    }
+    (None, content)
+}
+
 /// 純解析：回傳 (items 依來源順序＝新到舊, 被跳過元素的原因)。壞元素跳過並記原因；整頁壞掉由 `convert` 轉成錯誤。
 pub fn parse_payload(raw: &str, source: &str) -> (Vec<Item>, Vec<String>) {
     let mut items = Vec::new();
@@ -100,11 +119,13 @@ pub fn parse_payload(raw: &str, source: &str) -> (Vec<Item>, Vec<String>) {
             skipped.push(format!("{id}: unparsable time"));
             continue;
         };
-        let text = clean_text(el["data"]["content"].as_str().unwrap_or(""));
-        if text.is_empty() {
+        let content = clean_text(el["data"]["content"].as_str().unwrap_or(""));
+        if content.is_empty() {
             skipped.push(format!("{id}: empty text (locked or image-only)"));
             continue;
         }
+        let (title, text) = split_title(el["data"]["title"].as_str().unwrap_or(""), content);
+        let important = (el["important"].as_i64() == Some(1) || el["important"].as_bool() == Some(true)).then_some(true);
         let link = el["data"]["source_link"].as_str().map(str::trim).unwrap_or("");
         let url = if link.is_empty() {
             None
@@ -114,7 +135,7 @@ pub fn parse_payload(raw: &str, source: &str) -> (Vec<Item>, Vec<String>) {
             skipped.push(format!("{id}: invalid source_link dropped (item kept)"));
             None
         };
-        items.push(Item { source: source.to_string(), id: id.to_string(), published_at_ms: ms, text, url });
+        items.push(Item { source: source.to_string(), id: id.to_string(), published_at_ms: ms, text, url, title, important });
     }
     (items, skipped)
 }
