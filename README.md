@@ -74,6 +74,8 @@ grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -
 
 想即時追蹤：`tail -f "$HOME/Library/Application Support/FastBullTicker/app.log"`（`Ctrl-C` 停止追蹤，不會關掉 App）。
 
+> **重新 build 前**：`make app`（和 `make all`）會自動先停掉所有舊的 FastBullTicker 並清掉殘留的抓取程式，不用自己處理。要發新版本就用 `make release TAG=v0.3.0`（需要工作樹乾淨，會建立 git tag）。App 內的版本資訊在 `Info.plist` 的 `BuildRevision`。
+
 ### 6. 怎麼結束
 
 任選一種：

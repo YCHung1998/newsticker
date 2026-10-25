@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Parallel work must use separate worktrees (`git worktree add ../newsticker-<change> change/<change>`), one agent per worktree. Two agents must never edit the same working tree at once. This repo's own rule so far: changes are applied sequentially.
 - Generated artifacts (`ticker-connect/target/`, `.build/`, `build/`, `*.app`) are ignored. `spikes/RESULTS.md` and spike scripts are versioned; raw logs and CSVs are not.
 
+**Build 規則（2026-10-25 使用者要求）**：每次 build 前必須先處理掉舊實例，或標新 tag。`make app`（含 `make all`）會自動先跑 `scripts/stop-old.sh`（停掉本機所有 FastBullTicker／ticker-connect 並清 `helper.pid`）；要發新版用 `make release TAG=vX.Y.Z`（工作樹要乾淨、建 tag 後 build、不 push）。每個 bundle 的 `Info.plist` 帶 `BuildRevision`（`git describe --tags --always --dirty`）。不要手動開兩個實例互搶 `helper.pid`。
+
 新增資料來源：先讀 `docs/ADDING_A_SOURCE.md`（範本在 `docs/templates/`，登錄表在 `ticker-connect/src/sources.rs`）。
 
 ## What this is
