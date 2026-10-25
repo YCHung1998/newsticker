@@ -49,6 +49,13 @@ public final class TickerView: NSView, TickerRenderer {
     private let labelLayer = CAShapeLayer()
     private let labelText = CATextLayer()
     private let stripLayer = CALayer()
+    private let gearSlotLayer = CALayer()           // 齒輪槽純色底（與控制列同色）
+    private let gearLayer = CAShapeLayer()
+    /// 齒輪不透明度【假設】：閒置 0.75、hover 1.0。
+    public static let gearIdleOpacity: Float = 0.75
+    public static let gearHoverOpacity: Float = 1.0
+    public private(set) var isGearHovered = false
+    public var gearOpacity: Float { gearLayer.opacity }
     private let previousChevron = CAShapeLayer()
     private let nextChevron = CAShapeLayer()
     private let indicatorLayer = CALayer()
@@ -61,6 +68,7 @@ public final class TickerView: NSView, TickerRenderer {
     /// 斜切造成的左緣突出量（pt）。標籤隱藏時為 0。
     private let labelSlant: CGFloat = 12
     private var labelW: CGFloat { style.showLabel ? config.labelWidth : 0 }
+    private var gearW: CGFloat { CGFloat(config.gearSlotWidth) }
 
     /// 逐幀回呼（由 App 設為 `driver.step`）。
     public var onFrame: (() -> Void)?
@@ -72,6 +80,8 @@ public final class TickerView: NSView, TickerRenderer {
     public let router: NavigationInputRouter
     /// 指標進出面板（追蹤區事件）；由 App 層接到 `TickerDriver.setPointerInside`。
     public var onPointerInside: ((Bool) -> Void)?
+    /// 跑馬燈上按下滑鼠（左鍵於命中測試啟用時、右鍵一律）；參數＝是否按在齒輪上。設定面板用它判斷「面板外」。
+    public var onTickerPointerDown: ((Bool) -> Void)?
     public private(set) var frameCallbacks = 0
 
     public init(config: ShellConfig, style: TickerStyle = .default) {
@@ -101,6 +111,12 @@ public final class TickerView: NSView, TickerRenderer {
         // 圖層順序：帶子 < 控制列底 < 符號 < 標籤（標籤蓋住控制列底延伸到斜切邊下方的部分）。
         stripLayer.backgroundColor = CGColor(gray: 0.15, alpha: 1)                              // 【假設】配色
         layer?.addSublayer(stripLayer)
+        gearSlotLayer.backgroundColor = stripLayer.backgroundColor                              // 齒輪槽與控制列同色
+        layer?.addSublayer(gearSlotLayer)
+        gearLayer.fillColor = CGColor(gray: 1, alpha: 1)
+        gearLayer.fillRule = .evenOdd
+        gearLayer.opacity = Self.gearIdleOpacity
+        layer?.addSublayer(gearLayer)
         for chev in [previousChevron, nextChevron] {
             chev.fillColor = nil
             chev.strokeColor = CGColor(gray: 1, alpha: 1)
@@ -136,8 +152,11 @@ public final class TickerView: NSView, TickerRenderer {
 
     /// 隨 `showLabel` 改變的版面：標籤顯示／隱藏、帶子裁切範圍、捲動圖層原點。已排入訊息的 `tapeX` 不變。
     private func layoutStyleLayers() {
-        let h = config.panelSize.height, lw = labelW
+        let h = config.panelSize.height, lw = labelW, gw = gearW
         CATransaction.begin(); CATransaction.setDisableActions(true)
+        gearSlotLayer.frame = CGRect(x: 0, y: 0, width: gw, height: h)
+        gearLayer.frame = CGRect(x: 0, y: 0, width: gw, height: h)
+        gearLayer.path = GearGlyph.path(in: gearLayer.bounds)
         let showLabel = style.showLabel
         labelLayer.isHidden = !showLabel
         labelText.isHidden = !showLabel
@@ -146,13 +165,13 @@ public final class TickerView: NSView, TickerRenderer {
             path.move(to: CGPoint(x: 0, y: 0)); path.addLine(to: CGPoint(x: lw - labelSlant, y: 0))
             path.addLine(to: CGPoint(x: lw, y: h)); path.addLine(to: CGPoint(x: 0, y: h)); path.closeSubpath()
             labelLayer.path = path
-            labelLayer.frame = CGRect(x: 0, y: 0, width: lw, height: h)
-            labelText.frame = CGRect(x: 0, y: (h - 20) / 2, width: lw - labelSlant, height: 20)
+            labelLayer.frame = CGRect(x: gw, y: 0, width: lw, height: h)
+            labelText.frame = CGRect(x: gw, y: (h - 20) / 2, width: lw - labelSlant, height: 20)
         }
         // 控制列在標籤右側：[lw, lw + 控制列寬)；帶子可視區 = [控制列右緣, 面板右緣)，帶子座標 0 對應可視區左緣。
-        let st = config.strip, left = Double(lw)
+        let st = config.strip, left = Double(gw + lw)          // 單一偏移：齒輪槽 + 標籤
         let slant = showLabel ? labelSlant : 0
-        stripLayer.frame = CGRect(x: lw - slant, y: 0, width: CGFloat(st.controlStripWidth) + slant, height: h)   // 底延伸到標籤斜切下方
+        stripLayer.frame = CGRect(x: gw + lw - slant, y: 0, width: CGFloat(st.controlStripWidth) + slant, height: h)   // 底延伸到標籤斜切下方
         func frame(_ r: Range<Double>) -> CGRect { CGRect(x: r.lowerBound, y: 0, width: r.upperBound - r.lowerBound, height: Double(h)) }
         previousChevron.frame = frame(st.previousButtonRange(leftInset: left))
         nextChevron.frame = frame(st.nextButtonRange(leftInset: left))
@@ -251,6 +270,7 @@ public final class TickerView: NSView, TickerRenderer {
     /// 診斷與測試用：各圖層的版面與狀態。
     public struct LayoutSnapshot {
         public var clipFrame, stripFrame, previousFrame, indicatorFrame, nextFrame: CGRect
+        public var gearSlotFrame, gearFrame, labelFrame: CGRect
         public var previousOpacity, nextOpacity: Float
         public var indicatorText: String
         // ticker-style-settings 4.1：樣式相關的圖層狀態
@@ -266,6 +286,7 @@ public final class TickerView: NSView, TickerRenderer {
     public var layoutSnapshot: LayoutSnapshot {
         LayoutSnapshot(clipFrame: clipLayer.frame, stripFrame: stripLayer.frame, previousFrame: previousChevron.frame,
                        indicatorFrame: indicatorLayer.frame, nextFrame: nextChevron.frame,
+                       gearSlotFrame: gearSlotLayer.frame, gearFrame: gearLayer.frame, labelFrame: labelLayer.frame,
                        previousOpacity: previousChevron.opacity, nextOpacity: nextChevron.opacity,
                        indicatorText: indicatorString,
                        labelString: (labelText.string as? String) ?? "", labelHidden: labelText.isHidden && labelLayer.isHidden,
@@ -353,6 +374,10 @@ public final class TickerView: NSView, TickerRenderer {
 
     public override func mouseDown(with event: NSEvent) {
         let p = convert(event.locationInWindow, from: nil)
+        // 先回報按下（設定面板據此判斷「面板外」：齒輪上不關閉），再交給既有路由，不改變導覽／拖曳行為。
+        if kind(event) == .left, router.isEnabled {
+            onTickerPointerDown?(HitTesting.target(at: p, in: router.geometry, items: router.hitItems()) == .gear)
+        }
         router.mouseDown(at: p, button: kind(event), performDrag: { [weak self] in self?.window?.performDrag(with: event) })
     }
 
@@ -361,6 +386,7 @@ public final class TickerView: NSView, TickerRenderer {
     }
 
     public override func rightMouseDown(with event: NSEvent) {
+        onTickerPointerDown?(false)
         guard let menu = contextMenu else { return }
         NSMenu.popUpContextMenu(menu, with: event, for: self)
     }
@@ -368,11 +394,28 @@ public final class TickerView: NSView, TickerRenderer {
     public override func updateTrackingAreas() {
         super.updateTrackingAreas()
         for a in trackingAreas { removeTrackingArea(a) }
-        addTrackingArea(NSTrackingArea(rect: bounds, options: [.activeAlways, .mouseEnteredAndExited, .inVisibleRect],
+        addTrackingArea(NSTrackingArea(rect: bounds, options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .inVisibleRect],
                                        owner: self, userInfo: nil))
     }
 
     public override func mouseEntered(with event: NSEvent) { pointerChanged(true) }
     public override func mouseExited(with event: NSEvent) { pointerChanged(false) }
-    public func pointerChanged(_ inside: Bool) { onPointerInside?(inside) }
+    public override func mouseMoved(with event: NSEvent) { pointerMoved(to: convert(event.locationInWindow, from: nil)) }
+    public func pointerChanged(_ inside: Bool) {
+        if !inside { setGearHover(false) }                       // 離開面板復原齒輪高亮
+        onPointerInside?(inside)
+    }
+
+    /// 指標在面板內移動（測試可直接呼叫）：齒輪是否 hover 由命中測試決定（與點擊同源）。
+    public func pointerMoved(to p: CGPoint) {
+        setGearHover(HitTesting.target(at: p, in: router.geometry, items: []) == .gear)
+    }
+
+    private func setGearHover(_ on: Bool) {
+        guard on != isGearHovered else { return }
+        isGearHovered = on
+        CATransaction.begin(); CATransaction.setDisableActions(true)
+        gearLayer.opacity = on ? Self.gearHoverOpacity : Self.gearIdleOpacity
+        CATransaction.commit()
+    }
 }

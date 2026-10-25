@@ -44,8 +44,10 @@ fileprivate typealias TickerStyle = FastBullTickerApp.TickerStyle
 
     @Test func defaultStyle() throws {
         let img = try render(.default, name: "default")
-        #expect(px(img, 2, 2) == (227, 49, 43), "左上角：直角，標籤紅（Generic RGB (0.85, 0.10, 0.13) 轉成 sRGB 位元組）")
-        #expect(img.width == 1240)
+        // settings-gear：標籤右移齒輪槽寬 28pt，原本量測的 (2, 2) 現在是齒輪槽；標籤紅改在 (30, 2) 量測（x 平移 28，語意不變）。
+        #expect(px(img, 30, 2) == (227, 49, 43), "標籤左上角：直角，標籤紅（Generic RGB (0.85, 0.10, 0.13) 轉成 sRGB 位元組）")
+        #expect(px(img, 2, 2) == (51, 51, 51), "最左側是齒輪槽（與控制列同色 gray 0.15）")
+        #expect(img.width == 1296, "面板寬 648 @2x")
     }
 
     @Test func largeFont() throws {

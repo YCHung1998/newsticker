@@ -491,3 +491,100 @@ openspec validate nav-layout-tweaks --strict
 - **守衛修改**：`OpenerGuard.activationViolations` 改為「`SingleInstanceGuard.swift` 以外任何啟用呼叫、或該檔超過一處」才算違規；`PanelShellTests.sourcesNeverCallApplicationActivation` 對該檔略過 `activate(` 檢查（次數由前者把關）。
 - **mutation**：`python3 Tests/g1-mutations.py`（輸出 `Tests/evidence/g1-mutations.log`）。14 組全部 KILLED，還原後 GREEN，存活 0：G1 不排除自己、G2 取消仍繼續、G3 不等就繼續、G4 不 force、G5 競態兩邊都詢問、G6 不以 pid 判斷、G7 環境變數不跳過、G8 force 後仍在卻繼續、G9 對自己 terminate、G10 無第二提示、G11 他檔 `NSApp.activate`、G12 例外檔內兩處、G13 檢查晚於面板、G14 結束後不 return。
 - **未自動覆蓋**：真實 `NSAlert` 外觀與預設按鈕、真實 `NSRunningApplication.terminate`、`kill(pid,0)` 存活判定、真實同時啟動競態——見 README「人工驗收」。
+
+
+---
+
+# settings-gear 第 A 段（tasks 1–6）：齒輪槽、齒輪、設定值、helper 重啟、開機啟動服務（2026-10-25）
+
+全部不開真實視窗、不連網、不啟動 App、不真的註冊登入項目、不寫使用者真實的 `style.json`（測試只用暫存目錄與假服務）。離屏渲染是 `CALayer.render`，**不是實機畫面**。
+
+```sh
+cd /Users/eason.hung/Documents/github/newsticker
+swift test                                   # 587 個、77 個 suite（A 段開工前 498 個；新增 89 個，既有斷言一個沒刪，見下方「調整的既有斷言」）
+swift test --filter GearLayout               # task 1  Tests/FastBullTickerAppTests/GearLayoutTests.swift
+swift test --filter GearHit                  # task 2  GearHitTests.swift（命中／優先序／mouse-up／hover）
+swift test --filter GearSnapshot             # task 2  GearSnapshotTests.swift（離屏量測；GA_SNAPSHOT_DIR=… 另輸出 PNG）
+swift test --filter SettingsValues           # task 3  SettingsValuesTests.swift
+swift test --filter ReconfigureTests         # task 4  Tests/FastBullTickerCoreTests/ReconfigureTests.swift（seekHold 區段）
+swift test --filter SnapshotResend           # task 5  Tests/FastBullTickerCoreTests/SnapshotResendTests.swift
+swift test --filter "HelperArguments|FeedClientReconfigure"   # task 5  FeedClientReconfigureTests.swift
+swift test --filter PollIntervalSmoke        # task 5  PollIntervalSmokeTests.swift（真 FeedClient 重啟＋AppCoordinator）
+swift test --filter LaunchAtLogin            # task 6  LaunchAtLoginTests.swift
+GA_SNAPSHOT_DIR=$PWD/Tests/evidence swift test --filter GearSnapshot   # 輸出 Tests/evidence/ga-gear-*.png
+python3 Tests/ga-mutations.py [G|S|K|P|L 前綴…]                       # mutation（完整約 10 分鐘；每組破壞→紅→還原）
+```
+
+## fail-then-pass 證據（誠實說明）
+
+- **紅**：task 1、2 先寫測試再實作，對尚未實作的程式 `swift build --build-tests` 以**編譯失敗**為紅（`Tests/evidence/ga-1-2-red.log`，196 行 `error:`，例如 `ShellConfig has no member 'gearSlotWidth'`、`TickerView has no member 'pointerMoved'`）。task 3、4、5、6 同樣是測試先寫、對缺少新 API 的程式編譯失敗（`SchedulerTunables has no member 'seekHoldSeconds'`、`FeedClientConfig has no member 'helperArguments'` 等）——**這幾次的紅只在終端機看過，沒有存成檔案**。編譯失敗的紅證明「測試引用了尚不存在的行為」，不證明斷言的咬合力；咬合力由下方 mutation 證明。
+- **綠**：`Tests/evidence/ga-1-2-full-green.log`（526 個）、`ga-3-green.log`（541）、`ga-4-green.log`（550）、`ga-5-green-1.log`（575）、最終 587 個（見下方「最終驗證」）。
+- `SnapshotResendTests`（8 個）是**特徵化測試**：它固定的是 Core 本來就有的行為（中途 snapshot 只取代歷史），所以寫出來就是綠；其咬合力由 mutation P7（中途 snapshot 清掉即時佇列）、P8（把模式設回 replay）證明。
+- 第一次對 `FeedClientReconfigureTests.sameArgumentsDoNotRestart` 的紅是**我方測試的競態**（假 helper 腳本在平行測試負載下啟動較慢，300ms 後 args 檔還不存在），已改為先等腳本實際跑起來再斷言；不是實作問題。
+
+## 調整的既有斷言（面板寬度 620→648、座標偏移 +28；斷言數量沒有減少）
+
+| 檔案：測試 | 調整 |
+|---|---|
+| `TickerStyleTests.defaultsAgreeWithShellConfigPrototypeConstants` | `panelSize.width == 620` → `648`，並新增「等於 28 + 150 + 100 + 370」的推導斷言（高度 42、其餘值不變） |
+| `TickerStyleTests.encodedKeysMatchSpecTableExactly`、`normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline` | 鍵數 15 → 17（原 15 個鍵逐字不變，新增 `seekHoldSeconds`、`pollIntervalSeconds`） |
+| `TickerRendererTests.viewLayoutMatchesControlStripLayoutAndHitTesting` | 控制列偏移 `inset` 納入齒輪槽（28 + 150） |
+| `TickerRendererTests.tapeViewportIsDerivedFromControlStripNotHardCoded` | `620 − 150 − 120` → `648 − 28 − 150 − 120`（可視寬 350 不變）；`clipFrame` 的 minX／maxX 平移 28 |
+| `StyleApplyTests.viewLayersMatchPrototypeConstants`、`hidingTheLabelWidensViewportAndKeepsTapePositions` | `clipFrame`／`stripFrame`／`previousFrame` 的絕對座標平移 28（620→648、150→178、250→278、0→28、100→128） |
+| `StyleSnapshotTests.defaultStyle` | 量測標籤紅的取樣點 `(2, 2)` → `(30, 2)`（最左 28pt 現在是齒輪槽，另新增斷言 `(2,2)` 是槽底色 51,51,51）；寬度 1240 → 1296 |
+| `NavigationViewTests`（9 個測試） | 點擊 x：160→188、240→268、540→568、200→228、570→598、185→213（皆 +28）；300、60 不變（仍分別在帶子與標籤上） |
+| `AppSmokeNavigationTests` | `tapeLeft` 納入齒輪槽；`<`／`>` 點擊改用 `prevX`／`nextX`（188／268）；連結可見的右界由 600 改為「面板寬 − 20」；「無迴紋針」測試掃描範圍由 250..<620 改為 `tapeLeft`..<面板寬；指標核對用的假面板 frame 寬 620→648 |
+| `AppSmokeStyleTests.startupLoadsTheFileAndAppliesThroughTheSamePath` | 標籤隱藏時 `clipFrame` 100/620 → 128/648 |
+| `ReconfigureTests.tunablesExposeExactlySixFields` | 改名為 `…SevenFields`，欄位清單增 `seekHoldSeconds`（原六個名稱逐字不變） |
+| `SchedulerInvariantTests` 的 reconfigure 場景 | 追加隨機改 `seekHoldSeconds`（0／0.5／1／3）；原有不變量斷言不變 |
+| `README.md`（非測試） | 欄位表加兩列，維持既有測試「README 欄位表與 `TickerStyle.keys` 一致」 |
+
+## mutation（`Tests/ga-mutations.py`；輸出 `Tests/evidence/ga-mutations-1-2.log`、`-3-5.log`、`-6.log`）
+
+共 37 組破壞（G1–G13、S1–S6、K1–K4、P1–P9、L1–L5；初跑存活 3 組，已處理，見下），**最終全數變紅**，還原後完整 `swift test` 綠。
+
+| 組 | 破壞內容 | 抓到的測試（節錄） |
+|---|---|---|
+| G1–G6 | 面板寬寫死 620／標籤不右移／可視寬度漏加槽寬／命中漏加槽寬／控制列圖層漏加槽寬／命中幾何不帶槽寬 | `GearLayoutTests`、`NavigationViewTests`、`StyleApplyTests`、`TickerRendererTests`… |
+| G7–G13 | 齒輪不命中／mouse-down 就觸發／離開不復原 hover／hover 恆真／齒輪偏離中心 3pt／mouse-up 不檢查位置／點穿仍觸發 | `GearHitTests`、`GearSnapshotTests`（G11 靠墨跡置中量測） |
+| S1–S6 | 範圍下限放寬、平手取小、解析不夾制、`clamped()` 不夾制、預設改 2、動作寫錯欄位 | `SettingsValuesTests`、`TickerStyleTests` |
+| K1–K4 | `reconfigure` 不更新／清掉進行中保持、`StyleApplier` 漏傳、`Tunables.init(config:)` 不帶現值 | `ReconfigureTests`、`StyleApplyTests` |
+| P1–P9 | 計畫性重啟進退避／相同參數也重啟／不合併／不更新參數／啟動也回呼／預設也帶參數／Core 中途 snapshot 清佇列／改模式／不升級 SIGTERM | `FeedClientReconfigureTests`、`PollIntervalSmokeTests`、`SnapshotResendTests`、`StyleApplyTests` |
+| L1–L5 | 需核准時開關為開／吞掉錯誤／狀態對應錯／重複註冊／refresh 不清錯誤 | `LaunchAtLoginTests` |
+
+初跑存活的三組：**G13**（點穿）——因為 mouse-down 在點穿時本來就不記錄 `pressed`，mutation 是等價的；補測「按住期間才開點穿」（`clickThroughTurnedOnBetweenDownAndUpCancelsTheGear`）後變紅。**L1**——`isOn` 在需核准分支被硬寫，破壞無效果；重構 `makeState` 讓開關位置只由 `status == .enabled` 決定後變紅。**L6**（`@unknown default` 改成已啟用）——該分支以現行系統列舉不可達，無法測；已從腳本移除並在此註明。
+
+## 離屏 PNG（非實機畫面；2x，1296×84）
+
+`Tests/evidence/ga-gear-default.png`、`ga-gear-hover.png`、`ga-gear-nolabel.png`、`ga-gear-round21.png`。用 Read 看過的內容：最左是深灰齒輪槽，內有白灰色八齒齒輪（中心孔可見），垂直置中；其右是紅色斜切標籤「即時財經快訊」；再右是控制列 `<  (2/10)  >`；其後是訊息帶子（含迴紋針、粗體時間）。`nolabel`：齒輪仍在最左，控制列 `<  (2/10)  >` 緊接其後，訊息帶子加寬。`round21`：圓角 21 時左緣為半圓，齒輪完整不被裁切。量測（`GearSnapshotTests`）：齒輪墨跡中心與槽中心 (14, 21) 差 ≤ 1 device px、與 `<`／`>` 垂直中心差 ≤ 1 px、圓角 0／21 的墨跡像素數相同。**齒輪大小、齒形、hover 手感只能實機判斷（未驗證）。**
+
+## 已知問題：既有測試 `AppSmokeTests.snapshotThenItemsDriveSchedulerReplayToLiveToReplay` 偶發失敗
+
+加入 A 段測試後全量 `swift test` 約 12 次中失敗 2 次（`Tests/evidence/ga-5-green-2.log` 是其中一次）：該測試在收到 snapshot 後立刻斷言 `driver.mode == .replay`，但示範 helper 約 2 秒後就送 items；同一個 `@MainActor` suite 內另一個測試用阻塞式 `waitUntil`（`demoHelperExitsOnStdinEofWithoutOrphan`）占住主執行緒時，這個測試的輪詢被延後，items 先到就看到 `.live`。這是**既有測試的時間敏感設計**（單獨重跑該 suite 8 次全過），不是 A 段實作的問題；但 A 段新增的測試增加了平行負載，可能提高發生機率。未修改該測試。
+
+---
+
+# settings-gear 第 B 段（tasks 7–11）：設定面板殼、控制項、開關與全域滑鼠監看、組裝、文件（2026-10-25）
+
+接手前一位工程師被中途停止留下的半成品：盤點時 `swift build` 通過、`swift test` 658 個全綠（含新增 71 個 `SettingsPanel*` 測試），保留沿用；我補的是 `FeedClientReconfigureTests` 的競態修正、離屏 PNG、mutation 重跑、8 次連跑與文件。全部不開真實視窗（`SettingsPanel` 只當離屏宿主、從不顯示）、不裝真實全域監看器、不真的註冊登入項目、不寫真實 `style.json`。
+
+```sh
+swift test                                              # 658 個、83 個 suite（A 段 587；B 段新增 71）
+swift test --filter SettingsPanelShell                  # task 7   SettingsPanelShellTests.swift（styleMask／位置純函式／面板外判斷）
+swift test --filter SettingsPanelModel                  # task 8   SettingsPanelModelTests.swift
+swift test --filter SettingsPanelControls               # task 8   SettingsPanelControlsTests.swift（直接呼叫控制項 action）
+swift test --filter SettingsPanelDismiss                # task 9   SettingsPanelDismissTests.swift（假監看器）
+swift test --filter SettingsPanelSmoke                  # task 10  SettingsPanelSmokeTests.swift（假視窗＋暫存 StyleStore＋假 helper 腳本＋真 FeedClient）
+GB_SNAPSHOT_DIR=$PWD/Tests/evidence swift test --filter SettingsPanelSnapshot   # 離屏 PNG
+python3 Tests/gb-mutations.py                           # 20 組 mutation，輸出 Tests/evidence/gb-mutations.log
+```
+
+## 證據（誠實說明）
+
+- **紅**：前一位工程師的先紅後綠沒有留下檔案；我沒有重做逐項先紅，改以 mutation 證明咬合力。**20 組破壞全部變紅**（重跑結果 `Tests/evidence/gb-mutations.log`：G1–G6 位置／間距／夾制／面板外／key／層級，G7–G11 監看器移除／齒輪關了又重開／遮罩加鍵盤／跑馬燈按下不回報／onGear 未接，G12–G14 輪詢檔位／字級檔位／停留步進與選單不一致，G15–G17 控制項重建／拖動回彈／開啟不重讀開機狀態，G18–G20 開機啟動寫進樣式／樣式變更不重新整理／熱重載不更新），還原後原始檔雜湊與破壞前相同，`SettingsPanel` 71 個全綠。
+- **本次修正的我方測試競態**：`FeedClientReconfigureTests.staleOutputFromTheOldGenerationIsIgnoredAfterRestart`（8 連跑第一輪曾紅：`log.messages.count 2 == 1`）。原因是新世代 helper 的合法 snapshot 晚於基準值到達，被誤判成舊世代洩漏；改為先等兩個 snapshot 到齊再取基準（沒有放寬斷言）。
+- **綠**：`make helper app sign test` 658 個通過；`codesign --verify --strict build/FastBullTicker.app` 通過；`sh Tests/app-packaging-check.sh` ALL PASS；`cargo test` 76；`python3 -m unittest discover -s protocol/tests` 12；`spikes` 建置＋`run_script_tests.sh` 41；`openspec validate --all --strict` 16 通過；`swift build` 0 warning。
+
+## 連跑 8 次 `swift test`（`Tests/evidence/gb-8x-swift-test.log`）：**沒有全綠**
+
+最後一次 8 連跑：6 次 658 全綠、2 次紅，兩次都是 `AppSmokeNavigationTests.coordinatorCountsItemsWithURLFromDemoHelper`（`AppSmokeTests.swift:271` 逾時；其中一次 `itemsReceived` 只有 snapshot 的 12，代表 10 秒內連一個 items 批次都沒到）。前一批 8 連跑也有 2 次紅（同一測試；另一輪 `FeedClientReconfigure` 那條競態，已修）。對照：以 `git archive HEAD`（A 段）在暫存目錄建置，連跑 12 次 587 個全綠、0 次紅；以 `--skip SettingsPanelSmoke` 連跑 14 次，10 次全綠後第 11 次有 4 個行程類測試（假 helper 啟動／EOF／SIGTERM 等待）逾時。結論：這是**行程啟動時序在測試平行負載下的逾時**，B 段新增的測試量增加了負載使其更容易出現，**並非單一 B 測試的邏輯錯誤，也不是 `SettingsPanelSmoke` 專屬**；根因未證實，我沒有放寬任何斷言或逾時。需要協調者決定處理方式（例如串行化行程類 suite 或加大測試負載隔離）。

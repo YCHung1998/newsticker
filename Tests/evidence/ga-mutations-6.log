@@ -1,0 +1,22 @@
+[L1 需核准時開關也顯示為開]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['requiresApprovalIsShownHonestlyAndOffersSystemSettings']
+  ['✘ Test run with 13 tests in 2 suites failed after 0.035 seconds with 1 issue.']
+[L2 註冊失敗時吞掉錯誤]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['failedDisableKeepsTheSwitchOnBecauseTheServiceStillSaysEnabled', 'refreshRereadsTheServiceAndClearsAnOldError', 'registrationFailureShowsTheMessageAndKeepsTheRealStatus']
+  ['✘ Test run with 13 tests in 2 suites failed after 0.034 seconds with 3 issues.']
+[L3 需核准被對應成已啟用]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['platformStatusMapping']
+  ['✘ Test run with 13 tests in 2 suites failed after 0.033 seconds with 1 issue.']
+[L4 已啟用時仍重複註冊]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['requestsThatChangeNothingDoNotCallTheService']
+  ['✘ Test run with 13 tests in 2 suites failed after 0.031 seconds with 1 issue.']
+[L5 refresh 不清除舊錯誤]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['refreshRereadsTheServiceAndClearsAnOldError']
+  ['✘ Test run with 13 tests in 2 suites failed after 0.032 seconds with 2 issues.']
+
+還原後（完整 swift test）rc=0 失敗測試=[] ['✔ Test run with 587 tests in 77 suites passed after 8.144 seconds.']  存活的 mutation 數=0

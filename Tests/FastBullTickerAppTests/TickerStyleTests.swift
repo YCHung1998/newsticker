@@ -10,8 +10,9 @@ import Foundation
     @Test func encodedKeysMatchSpecTableExactly() throws {
         let obj = try JSONSerialization.jsonObject(with: TickerStyle.default.normalizedJSON()) as! [String: Any]
         #expect(Set(obj.keys) == Set(["version", "cornerRadius", "fontSize", "scrollSpeed", "replayCount", "showTime", "showLabel", "labelText",
-                                      "labelBackground", "labelColor", "tapeBackground", "liveBackground", "liveText", "replayBackground", "replayText"]))
-        #expect(obj.count == 15 && TickerStyle.keys.count == 15)
+                                      "labelBackground", "labelColor", "tapeBackground", "liveBackground", "liveText", "replayBackground", "replayText",
+                                      "seekHoldSeconds", "pollIntervalSeconds"]))        // settings-gear 增加最後兩個鍵（原 15 個鍵逐字不變）
+        #expect(obj.count == 17 && TickerStyle.keys.count == 17)
         #expect(Set(TickerStyle.keys) == Set(obj.keys))
     }
 
@@ -35,7 +36,7 @@ import Foundation
             guard let r = line.range(of: "\"[A-Za-z]+\" :", options: .regularExpression) else { return nil }
             return String(line[r].dropFirst().prefix { $0 != "\"" })
         }
-        #expect(keysInOrder == keysInOrder.sorted() && keysInOrder.count == 15)
+        #expect(keysInOrder == keysInOrder.sorted() && keysInOrder.count == 17)
         #expect(s.normalizedJSON() == s.normalizedJSON(), "同一份樣式輸出位元組穩定")
     }
 
@@ -76,7 +77,9 @@ import Foundation
     @Test func defaultsAgreeWithShellConfigPrototypeConstants() {
         let p = ShellConfig.provisional, d = TickerStyle.default
         // 仍留在 ShellConfig 的值（不屬於 TickerStyle，值不得變動）
-        #expect(p.panelSize.width == 620 && p.panelSize.height == 42)
+        // settings-gear：面板寬由 28 + 150 + 100 + 370 推導為 648（原 620 − 150 − 100 = 370 的可視寬度不變）；高度仍 42。
+        #expect(p.panelSize.width == 648 && p.panelSize.height == 42)
+        #expect(Double(p.panelSize.width) == p.gearSlotWidth + Double(p.labelWidth) + p.strip.controlStripWidth + ShellConfig.designTapeViewport)
         #expect(p.labelWidth == 150 && p.itemPadding == 10 && p.defaultAlpha == 0.9)
         #expect(p.alphaRange.lowerBound == 0.3 && p.alphaRange.upperBound == 1.0)
         // fontSize／scrollSpeed／labelText 已從 ShellConfig 移除（4.1）；原本比對 ShellConfig 的這一行改為渲染斷言，

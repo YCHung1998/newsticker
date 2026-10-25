@@ -167,6 +167,7 @@ func runInvariantScenario(seed: UInt64, steps: Int, withReconfigure: Bool = fals
             t.speed = [0, 40, 70, 100][tunableSeeds.int(4)]   // ≤ 100：每步 ≤ 1 秒時尾端不會被甩出左緣（否則依既有規則改排到右緣，間距不再是 gap）
             t.viewportWidth = [120, 200, 320, 500][tunableSeeds.int(4)]
             t.replayCount = [1, 3, 5, 10][tunableSeeds.int(4)]
+            t.seekHoldSeconds = [0, 0.5, 1, 3][tunableSeeds.int(4)]      // settings-gear：保持秒數也隨機改（不變量：不動進行中的保持、seek 後等於當時的設定值）
             a.reconfigure(t, measurer: flatMeasure); b.reconfigure(t, measurer: flatMeasure)
             tr.reconfigures += 1
             if a.scrollOffset != off { tr.violations.append("reconfigure 改變 scrollOffset") }        // 3：視覺連續

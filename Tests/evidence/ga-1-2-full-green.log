@@ -1,0 +1,1246 @@
+Building for debugging...
+[0/5] Write sources
+[1/5] Write swift-version--58304C5D6DBC2206.txt
+[3/6] Emitting module FastBullTickerAppTests
+[4/6] Compiling FastBullTickerAppTests TickerStyleTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/TickerStyleTests.swift:77:42: warning: immutable value 'd' was never used; consider replacing with '_' or removing it [#no-usage]
+ 75 | 
+ 76 |     @Test func defaultsAgreeWithShellConfigPrototypeConstants() {
+ 77 |         let p = ShellConfig.provisional, d = TickerStyle.default
+    |                                          `- warning: immutable value 'd' was never used; consider replacing with '_' or removing it [#no-usage]
+ 78 |         // 仍留在 ShellConfig 的值（不屬於 TickerStyle，值不得變動）
+ 79 |         // settings-gear：面板寬由 28 + 150 + 100 + 370 推導為 648（原 620 − 150 − 100 = 370 的可視寬度不變）；高度仍 42。
+[5/6] Compiling FastBullTickerAppTests AppSmokeTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:149:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+147 | 
+148 |     @Test func itemsWithoutURLShowNoPaperclipAndCannotOpen() throws {
+149 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+150 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+151 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:181:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+179 | 
+180 |     @Test func arrowButtonsChangePositionAndHoldTimer() throws {
+181 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+182 |         r.driver.receive(.snapshot(items(10) { "https://example.com/demo/\($0)" }))
+183 |         r.driver.step()
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/AppSmokeTests.swift:202:13: warning: variable 'r' was never mutated; consider changing to 'let' constant
+200 | 
+201 |     @Test func previousAtListStartDoesNothing() throws {
+202 |         var r = makeRig()
+    |             `- warning: variable 'r' was never mutated; consider changing to 'let' constant
+203 |         r.driver.receive(.snapshot(items(10) { _ in nil }))
+204 |         r.driver.step()
+[5/7] Write Objects.LinkFileList
+[6/7] Linking FastBullTickerPackageTests
+Build complete! (3.43s)
+Test Suite 'All tests' started at 2026-10-25 12:23:27.483.
+Test Suite 'All tests' passed at 2026-10-25 12:23:27.484.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite ReplayLiveStateTests started.
+◇ Suite FreezeResumeTests started.
+◇ Suite PackageSkeletonTests started.
+◇ Suite LiveQueueLimitTests started.
+◇ Suite ContractFixturesTests started.
+◇ Suite ReconfigureTests started.
+◇ Suite TapeModelTests started.
+◇ Suite ProtocolDecodingTests started.
+◇ Suite SeekHoldTests started.
+◇ Suite TilingTests started.
+◇ Suite StyleMenuModelTests started.
+◇ Suite LinkSlotLayoutTests started.
+◇ Suite PointerHoverTests started.
+◇ Suite DefaultSeekHoldTests started.
+◇ Suite SingleInstanceGuardTests started.
+◇ Suite RebaseTests started.
+◇ Suite HitTestingTests started.
+◇ Suite ListIdentityTests started.
+◇ Suite ReadingPositionTests started.
+◇ Suite StatusMenuTests started.
+◇ Suite LinkOpenerGuardTests started.
+◇ Suite SchedulerInvariantTests started.
+◇ Suite LineBufferTests started.
+◇ Suite NavigationLinkOpenerTests started.
+◇ Suite HistoryTests started.
+◇ Suite StyleStoreLoadTests started.
+◇ Suite FeedClientTests started.
+◇ Suite ItemURLTests started.
+◇ Suite PersistenceDebounceTests started.
+◇ Suite TickerLayoutTests started.
+◇ Suite StyleApplyViewTests started.
+◇ Suite LinkPolicyTests started.
+◇ Suite StyleApplyBoldTimeTests started.
+◇ Suite DemoCadenceTests started.
+◇ Suite LinkOpeningTests started.
+◇ Suite StripAlignmentTests started.
+◇ Suite PersistenceStoreTests started.
+◇ Suite FeedClientResilienceTests started.
+◇ Suite StyleStoreHotReloadTests started.
+◇ Suite OcclusionDebouncerTests started.
+◇ Suite BackoffPolicyTests started.
+◇ Suite StyleStoreWriteBackTests started.
+◇ Suite PanelShellTests started.
+◇ Suite StyleActionRunnerTests started.
+◇ Suite PipeReaderTests started.
+◇ Suite TickerDriverTests started.
+◇ Suite AppSmokeNavigationTests started.
+◇ Suite PanelSnapshotTests started.
+◇ Suite PersistenceClampTests started.
+◇ Suite StyleMenuControllerTests started.
+◇ Suite NavigationViewTests started.
+◇ Suite GearLayoutTests started.
+◇ Suite StyleMenuGuardTests started.
+◇ Suite AppSmokeTests started.
+◇ Suite GearHitTests started.
+◇ Suite TickerRendererLinkSlotTests started.
+◇ Suite OcclusionDriverIntegrationTests started.
+◇ Suite PositionIndicatorTests started.
+◇ Suite GearSnapshotTests started.
+◇ Suite StyleSnapshotTests started.
+◇ Suite TickerRendererBoldTimeTests started.
+◇ Suite DefaultStyleRendersLikePrototypeTests started.
+◇ Suite StyleApplySchedulerTests started.
+◇ Suite TickerStyleTests started.
+◇ Suite TickerRendererControlStripTests started.
+◇ Suite ControlStripLayoutTests started.
+◇ Suite DispatchSourceWatcherTests started.
+◇ Suite StyleParserTests started.
+◇ Suite TickerRendererIdempotencyTests started.
+◇ Suite TrackModelTests started.
+◇ Suite AppSmokeStyleTests started.
+◇ Test emptyHistoryKeepsBandBlank() started.
+◇ Test afterLiveQueueDrainsReturnsToReplayStartingFromNewest() started.
+◇ Test replayWithFewerThanTenCyclesOverWhatExists() started.
+◇ Test placedItemsKeepTheirStyleAfterModeChange() started.
+◇ Test hideAccruesTimeUpToHideMoment() started.
+◇ Test multipleLiveItemsPlayOldestFirst() started.
+◇ Test liveItemGetsTimeStringToo() started.
+◇ Test repeatedShowIsIdempotent() started.
+◇ Test startupSnapshotNeverTriggersLive() started.
+◇ Test liveAppendKeepsOrderAndStyle() started.
+◇ Test hideForOneHourDoesNotJump() started.
+◇ Test newMessageDuringReplayAppendsAfterTailWithoutInterrupting() started.
+◇ Test replayCyclesBackToNewestAfterTen() started.
+◇ Test coreReportsProtocolVersion() started.
+◇ Test droppedItemsStillInLatestTenAndReplayLater() started.
+◇ Test droppedCountAccumulatesAcrossMessages() started.
+◇ Test repeatedHideIsIdempotent() started.
+◇ Test coreSourcesDoNotImportUIFrameworks() started.
+◇ Test resumesFromFrozenTapeTime() started.
+◇ Test exactly30DropsNothing() started.
+◇ Test checkerFailsOnMissingDirectory() started.
+◇ Test over30DropsOldest() started.
+◇ Test hiddenFlagFollowsHideShow() started.
+◇ Test eachLiveItemPlaysLiveExactlyOnce() started.
+◇ Test importCheckerDetectsBannedImports() started.
+◇ Test hiddenDoesNotFillButQueueKeepsLiveItems() started.
+◇ Test decodesStatusError() started.
+◇ Test decodesSnapshotPreservingOrder() started.
+◇ Test extraFieldsRejected() started.
+◇ Test badStatusState() started.
+◇ Test reconfigureTogglesShowTimeForLaterItemsOnly() started.
+◇ Test orderViolations() started.
+◇ Test idAsNumberRejected() started.
+◇ Test fakeClockDrivesFiveSecondsWithoutWaiting() started.
+◇ Test generatedBoundarySamplesPresentAndCorrect() started.
+◇ Test tileWidthsSumToTotalAndNeverExceedLimit() started.
+◇ Test tunablesExposeExactlySixFields() started.
+◇ Test missingFixtureFileFailsLoudly() started.
+◇ Test manifestAndDirectoryAreOneToOne() started.
+◇ Test oversizeBeatsEverything() started.
+◇ Test togglesReflectCurrentStyle() started.
+◇ Test everySampleMatchesManifest() started.
+◇ Test bitmapRendererProducesTilesWhoseWidthsEqualPlan() started.
+◇ Test visualXIsTapeXMinusScrollOffset() started.
+◇ Test veryLateTickRestartsFromRightEdgeWhenTailAlreadyLeft() started.
+◇ Test schedulerConfigShowTimeDefaultsTrue() started.
+◇ Test timeElapsedBeforeReconfigureIsCountedAtOldSpeed() started.
+◇ Test unsupportedVersionDoesNotLookAtRest() started.
+◇ Test actionsChangeOnlyTheirOwnFieldsAndStayValidAfterClamp() started.
+◇ Test enlargingViewportFillsToNewRightEdgeWithGap() started.
+◇ Test timeZoneAffectsOnlyLaterItems() started.
+◇ Test rebaseAfterReconfigureKeepsVisualPositions() started.
+◇ Test tapeXAndWidthNeverChangeAfterPlacement() started.
+◇ Test fillsWhenTailHasRoomAtGap() started.
+◇ Test defaultEntriesAreInSpecOrderWithoutNotice() started.
+◇ Test shrinkingReplayCountMidRoundDoesNotCrashAndCyclesOnlyLatest() started.
+◇ Test decodesItems() started.
+◇ Test seekAfterSpeedChangeAlignsTargetToLeftEdge() started.
+◇ Test replayCountStepsAndCheckmarks() started.
+◇ Test speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed() started.
+◇ Test publishedAtWrongTypes() started.
+◇ Test clickThroughNeverPauses() started.
+◇ Test configProblemAddsADisabledNoticeFirst() started.
+◇ Test clockRollbackDoesNotMoveTapeTimeBackwards() started.
+◇ Test slidersCarryTheValidRangesAndCurrentValues() started.
+◇ Test versionNonIntegerIsSchema() started.
+◇ Test unknownAndMissingType() started.
+◇ Test emptyBandStartsAtRightEdge() started.
+◇ Test emptyItemsRejected() started.
+◇ Test liveColorPresetsAreThreeReadableAndCheckedOnExactMatch() started.
+◇ Test emptyTextRejected() started.
+◇ Test spacingIsConstantWithIrregularTicks() started.
+◇ Test showTimeFalseWithLinkSlotStillReservesSlot() started.
+◇ Test fontSizeStepsAndCheckmarks() started.
+◇ Test hiddenPanelCountsAsOutside() started.
+◇ Test edgesAreHalfOpen() started.
+◇ Test scrollOffsetIsPureFunctionOfTapeTime() started.
+◇ Test insideAndOutside() started.
+◇ Test identicalTunablesChangeNothing() started.
+◇ Test showTimeFalseDisplaysOnlyText() started.
+◇ Test widthAddsSlotAndFlagsIt() started.
+◇ Test mixedInvalidItemRejectsWholeMessage() started.
+◇ Test reconcileOverridesLostExitEvent() started.
+◇ Test seekNeverChangesAnyTapeXOrWidth() started.
+◇ Test invalidUTF8IsNotJSON() started.
+◇ Test notJSON() started.
+◇ Test holdIsUnaffectedBySpeedChange() started.
+◇ Test growingReplayCountUsesMoreHistoryLater() started.
+◇ Test showTimeDefaultsToTrueAndIsIdentical() started.
+◇ Test rulesConstants() started.
+◇ Test zeroHoldSecondsMeansNoHold() started.
+◇ Test reconfigureWhileHiddenIsLegalAndKeepsFrozenTime() started.
+◇ Test holdsForOneSecondThenResumesWithoutJump() started.
+◇ Test showTimeFalseTruncationHasNoTimePrefix() started.
+◇ Test placedItemsUnchangedAndNewOnesUseNewTunables() started.
+◇ Test truncationBudgetSubtractsSlot() started.
+◇ Test statusOkMayHaveEmptyMessage() started.
+◇ Test defaultIsOneSecond() started.
+◇ Test emptyTapeAndHiddenAndNoMaterial() started.
+◇ Test lastOfRoundNextJumpsToNextRoundStart() started.
+◇ Test reconfigureKeepsModeQueueAndFixedFields() started.
+◇ Test forcedPlacementDoesNotCreateInterferenceWhenSeekIsBackward() started.
+◇ Test speedToZeroAndBackIsContinuous() started.
+◇ Test nextForcePlacesWithNormalGapWhenNotYetPlaced() started.
+◇ Test withoutURLOrWithZeroSlotIsIdenticalToBefore() started.
+◇ Test pointerInsideWithoutHoldFreezesScrolling() started.
+◇ Test rebaseKeepsRecentPlacedSoPreviousStillWorks() started.
+◇ Test noOtherInstanceProceedsSilently() started.
+◇ Test raceOtherIsLaterDoesNotAskAndProceeds() started.
+◇ Test shrinkingViewportDoesNotRemoveOrMove() started.
+◇ Test keepsTailAndContinuesFillingWithGapLikeControl() started.
+◇ Test rebaseDoesNotChangeModeQueueOrOrder() started.
+◇ Test visualPositionsUnchangedAndMagnitudesShrink() started.
+◇ Test sameLaunchDateDecidedByPid() started.
+◇ Test activateAppearsOnlyInSingleInstanceGuardExactlyOnce() started.
+◇ Test smallRetainCountMakesPreviousNotRetained() started.
+◇ Test shouldRebaseThresholdIsPure() started.
+◇ Test closeOldTerminatesThenProceedsWithoutForce() started.
+◇ Test bothSidesNeverAsk() started.
+◇ Test setPointerInsideIsIdempotent() started.
+◇ Test forcedLiveItemIsNotPlayedAgain() started.
+◇ Test hiddenAndPointerAreIndependent() started.
+◇ Test positionIsPureFunctionOfTapeTimeBetweenSeeks() started.
+◇ Test pointerInsideFreezesAndDoesNotConsumeHold() started.
+◇ Test secondSeekResetsHoldNotAccumulates() started.
+◇ Test timeBeforePointerEntersIsCounted() started.
+◇ Test appDelegateChecksBeforePanelAndFeed() started.
+◇ Test rebaseWhileHiddenDoesNotJumpOnResume() started.
+◇ Test environmentOneSkipsEverything() started.
+◇ Test missingLaunchDateFallsBackToPid() started.
+◇ Test testsNeverTouchRealAlertOrTerminator() started.
+◇ Test nextTakesLiveQueueFirst() started.
+◇ Test secondSeekResetsToOneSecondNotAccumulates() started.
+◇ Test previousStillWorksAfterLongRunRebase() started.
+◇ Test holdFreezesThenResumesWithoutJump() started.
+◇ Test cancelQuitsSelfAndNeverTouchesOld() started.
+◇ Test buttonsFollowLabelWidthWhenLabelHidden() started.
+◇ Test doesNotProceedBeforeOldIsGone() started.
+◇ Test zeroLinkSlotWidthDisablesAllLinks() started.
+◇ Test previousAtListStartDoesNothing() started.
+◇ Test buttonsAreInTheControlStripRightOfTheLabel() started.
+◇ Test nextUsesAlreadyPlacedItem() started.
+◇ Test itemWithoutLinkSlotIsDrag() started.
+◇ Test retainNeverDropsBelowOldBehaviourKeepRule() started.
+◇ Test failsWithSecondAlertWhenForceDoesNotWork() started.
+◇ Test hideDuringHoldDoesNotConsumeIt() started.
+◇ Test partialConsumptionInOneStep() started.
+◇ Test tickStillFillsDuringHold() started.
+◇ Test liveBatchIdentityAndTotals() started.
+◇ Test plantedActivateInOtherFileIsStillCaught() started.
+◇ Test everythingElseIsDrag() started.
+◇ Test overflowDropShrinksOpenBatchTotal() started.
+◇ Test otherEnvironmentValuesDoNotSkip() started.
+◇ Test rebaseDoesNotChangeIdentityFields() started.
+◇ Test linkZoneIncludingHitSlop() started.
+◇ Test forceTerminatesWhenStillAliveAfterFiveSeconds() started.
+◇ Test previousAlignsTargetToLeftEdgeAndStartsHold() started.
+◇ Test buttonBeatsLinkBeneathIt() started.
+◇ Test rightEdgeEqualToInsetMeansNextOne() started.
+◇ Test historyShorterThanReplayCount() started.
+◇ Test urlIsCarriedUnchangedAndLinkSlotFlagged() started.
+◇ Test terminateIsOnlyEverCalledOnOthersNeverSelf() started.
+◇ Test liveAppendWhileLiveIncreasesTotal() started.
+◇ Test readingInsetIsSmallerThanEveryItemWidth() started.
+◇ Test zeroLinkSlotKeepsLayoutIdenticalEvenWithURL() started.
+◇ Test firstMatchingLinkWinsWhenSlopsOverlap() started.
+◇ Test allBeyondRightEdgeIsNil() started.
+◇ Test linkHiddenByLabelOrStripIsNotALink() started.
+◇ Test clickThroughIsNeverPersistedAndResetsOnRecreate() started.
+◇ Test liveBatchTotalGrowsAndLeftEdgeListWins() started.
+◇ Test queryIsPureAndHasNoSideEffects() started.
+◇ Test hideTogglesTitleToShowAndFiresCallback() started.
+◇ Test itemNearLeftEdgeIsReading() started.
+◇ Test sourcesAllowedOnlyInWorkspaceOpenerFiles() started.
+◇ Test realTreeIsClean() started.
+◇ Test plantedViolationInTestsFails() started.
+◇ Test hiddenKeepsTheSameResultAsAtHideMoment() started.
+◇ Test utf8CharacterSplitAcrossChunks() started.
+◇ Test quitFiresCallbackAndSameMenuInstanceServesPanelRightClick() started.
+◇ Test replayPositionIndexAndTotal() started.
+◇ Test invariantsHoldWithRuntimeReconfigure() started.
+◇ Test menuContainsFiveKindsWithExpectedTitles() started.
+◇ Test emptyTapeHasNoReadingItem() started.
+◇ Test sameSeedIsDeterministic() started.
+◇ Test workspaceOpenerConformsButIsNeverInvokedHere() started.
+◇ Test plantedActivationCallIsDetected() started.
+◇ Test realLimitBoundaryWithGeneratedLines() started.
+◇ Test sliderRangeMatchesFloorAndAlphaIsClamped() started.
+◇ Test openerProtocolOnlyAcceptsOpenableURL() started.
+◇ Test showTimeFalseInConfigPlacesTextOnly() started.
+◇ Test reconfigureSeedsAlsoHold() started.
+◇ Test exactlyAtLimitIsEmitted() started.
+◇ Test newConfigDefaultsDoNotChangeExistingBehaviour() started.
+◇ Test multipleLinesInOneChunk() started.
+◇ Test defaultLimitIsContractLimit() started.
+◇ Test invariantsHoldOverLongRandomRun() started.
+◇ Test differentSeedsAlsoHold() started.
+◇ Test replayRoundSequenceAndListIndex() started.
+◇ Test duplicatesInsideOneSnapshotKeepLast() started.
+◇ Test midStreamSnapshotReplacesHistoryOnlyAndKeepsQueueAndTape() started.
+◇ Test oversizeChunkedEqualsWhole() started.
+◇ Test emptyLinesAreReported() started.
+◇ Test snapshotBuildsNewestTenDescending() started.
+◇ Test limitPlusOneIsDroppedThenRecovers() started.
+◇ Test midStreamSnapshotDoesNotTriggerLive() started.
+◇ Test historyIsCapped() started.
+◇ Test allLogLinesStartWithStylePrefix() started.
+◇ Test goodGarbageGoodIntegration() started.
+◇ Test halfLineAcrossChunks() started.
+◇ Test duplicateKeyUpdatesHistoryButIsNotQueuedAgain() started.
+◇ Test staleGenerationEventsAreIgnored() started.
+◇ Test itemsMergeAndPushOutOldest() started.
+◇ Test overrideEnvironmentStartsThatHelperInsteadOfBundleOne() started.
+◇ Test crashRestartsWithExponentialBackoffUsingFakeClock() started.
+◇ Test helperPathOverrideAndBundleLookup() started.
+◇ Test trailingHalfLineAtEOFIsNotEmitted() started.
+◇ Test environmentVariableOverridesPath() started.
+◇ Test halfLineIsAssembledAndBadLineIsSkipped() started.
+◇ Test oversizeFileIsTreatedAsUnreadable() started.
+◇ Test statusMessagesAreIgnored() started.
+◇ Test corruptFileGivesDefaultKeepsFileAndFlagsProblem() started.
+◇ Test overriddenPathIsTheOnlyFileTouched() started.
+◇ Test partialOutOfRangeFieldsAreClampedAndLogged() started.
+◇ Test itemsBeforeFirstSnapshotAreIgnoredWithErrorEvent() started.
+◇ Test fiftyMovesWithinOneHundredMillisecondsWriteOnceWithFinalPosition() started.
+◇ Test noFileGivesDefaultAndDoesNotCreateFile() started.
+◇ Test byteByByteEqualsWhole() started.
+◇ Test backoffResetsOnlyAfterStableRunOverSixtySeconds() started.
+◇ Test separatedMovesWriteSeparately() started.
+◇ Test stderrFloodDoesNotBlockHelper() started.
+◇ Test restartHappensOnlyAfterTheBackoffDelay() started.
+◇ Test hugeTextTruncatesWithFewMeasurements() started.
+◇ Test isValidURLMatchesDecoder() started.
+◇ Test memberwiseInitDefaultsUrlToNil() started.
+◇ Test negativeOffsetTimezone() started.
+◇ Test timeStringIsNeverTruncated() started.
+◇ Test rejectsNonHttpSchemes() started.
+◇ Test schemeRules() started.
+◇ Test normalOutputIsDeliveredInOrder() started.
+◇ Test sameIdDifferentSourceAreDistinct() started.
+◇ Test cjkVersusLatinTruncateDifferently() started.
+◇ Test ellipsisDoesNotFitStillReturnsTimeAndEllipsis() started.
+◇ Test truncatesWithEllipsisKeepingLongestPrefix() started.
+◇ Test missingUrlIsAcceptedAndNil() started.
+◇ Test lengthBoundaryIs2048Bytes() started.
+◇ Test validUrlIsDecoded() started.
+◇ Test noTruncationAtExactlyMaxWidth() started.
+◇ Test rejectsEmptyWhitespaceAndControlCharacters() started.
+◇ Test cornerRadiusDoesNotChangeHitAreaOrPanelFrame() started.
+◇ Test labelTextAndColorsApplyImmediately() started.
+◇ Test colorChangeAfterFontChangeStillUsesTheOldFontForOldItems() started.
+◇ Test doesNotSplitGraphemeClusters() started.
+◇ Test rejectsUserinfoAndMissingHost() started.
+◇ Test showTimeTrueUsesTimeStringLengthAndJoinsWithOneSpace() started.
+◇ Test hostFirstCharacterRules() started.
+◇ Test zeroPaddedAnd24Hour() started.
+◇ Test nonColorChangeDoesNotRedrawAnything() started.
+◇ Test widthComesFromMeasurer() started.
+◇ Test unknownExtraFieldIsStillRejected() started.
+◇ Test acceptsPlainHttpAndHttps() started.
+◇ Test utc8Format() started.
+◇ Test nonASCIIIsRejected() started.
+◇ Test fontSizeOnlyAffectsItemsPlacedAfterTheChange() started.
+◇ Test badUrlRejectsWholeMessage() started.
+◇ Test nonStringIsRejected() started.
+◇ Test hidingTheLabelWidensViewportAndKeepsTapePositions() started.
+◇ Test showTimeFalseBodyThatLooksLikeATimeIsNeverBold() started.
+◇ Test endToEndSchedulerWithShowTimeFalseDrawsNoLeadingSpaceAndNoBold() started.
+◇ Test emptyAndWhitespaceAndControlCharacters() started.
+◇ Test utcFormat() started.
+◇ Test openerFailureIsReportedNotRetried() started.
+◇ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() started.
+◇ Test mixedItemsKeepPerItemUrl() started.
+◇ Test nullIsRejectedAsSchema() started.
+◇ Test opensExactlyOnceWithTheValidatedURL() started.
+◇ Test cornerRadiusIsClampedToHalfPanelHeightAndMasksAllLayers() started.
+◇ Test prunedItemReaddedAfterFontChangeIsRebuiltWithItsOriginalFont() started.
+◇ Test rejectsOverlongAndAcceptsExactLimit() started.
+◇ Test alignmentHoldsForOtherTexts() started.
+◇ Test printMeasuredNumbers() started.
+◇ Test shellConfigClampsAlphaToFloor() started.
+◇ Test mixedClicksOnlyRecordHttpOrHttps() started.
+◇ Test shutdownClosesStdinAndCooperativeHelperIsNotSigtermed() started.
+◇ Test threeGlyphsShareOneVerticalCenter() started.
+◇ Test colorChangeKeepsPositionsAndRedrawsBitmapsInPlace() started.
+◇ Test storeSurfaceHasNoClickThroughField() started.
+◇ Test shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof() started.
+◇ Test roundTripPlacementAndAlpha() started.
+◇ Test atomicReplaceByRenameIsStillDetected() started.
+◇ Test wholeFileFailureKindsAllKeepOldValue() started.
+◇ Test staleOrphanHelperIsKilledBeforeNewOneStarts() started.
+◇ Test identicalBytesAreNotReparsedOrReapplied() started.
+◇ Test launchFailureOfExecutableWithoutValidFormatIsFatal() started.
+◇ Test editAppliesAfterDebounceExactlyOnce() started.
+◇ Test fieldLevelErrorUsesFieldDefaultAndAppliesRest() started.
+◇ Test wakeNotificationFromWorkspaceCenterReachesClient() started.
+◇ Test shutdownWhileBackingOffCancelsRestart() started.
+◇ Test noOutputBeyondThresholdIsStuckAndRestarts() started.
+◇ Test blockedURLsNeverReachTheOpener() started.
+◇ Test nonExecutableIsFatalWithoutBackoffLoop() started.
+◇ Test partialLineBytesCountAsAlive() started.
+◇ Test syntaxErrorKeepsOldValueThenRecovers() started.
+◇ Test applyingTheSameStyleTwiceIsANoOp() started.
+◇ Test burstOfFiftyEventsCoalescesToOneRead() started.
+◇ Test flappingSequenceUnderOneSecondNeverFreezes() started.
+◇ Test missingExecutableIsFatalWithSingleAttempt() started.
+◇ Test deletedFileKeepsEffectiveStyleAndLogs() started.
+◇ Test visibleWhileAlreadyVisibleDecidesNothing() started.
+◇ Test pidFileOfUnrelatedLiveProcessIsNotKilled() started.
+◇ Test differentBytesButEqualStyleParsesButDoesNotNotify() started.
+◇ Test anyOutputResetsTheTimerEvenWithoutStatus() started.
+◇ Test staleTimerFromCancelledRoundCannotFreezeALaterRound() started.
+◇ Test doublesFromOneAndCapsAtSixty() started.
+◇ Test wakeGivesAFreshGracePeriod() started.
+◇ Test sustainedInvisibilityFreezesOnlyAfterDelay() started.
+◇ Test stopWatchingCancelsPendingReload() started.
+◇ Test fixedAttributes() started.
+◇ Test outputIsNormalizedJSON() started.
+◇ Test briefInvisibilityUnderOneSecondNeverFreezes() started.
+◇ Test levelAndBehaviorComeFromShellConfigProvisionalValues() started.
+◇ Test unwritableDirectoryDoesNotCrash() started.
+◇ Test sourcesNeverCallApplicationActivation() started.
+◇ Test alphaValueDrivesOpacityAndNoVisualEffectView() started.
+◇ Test visibleAfterFreezeThawsImmediately() started.
+◇ Test eightSecondCadenceCyclesReplayLiveReplayRepeatedly() started.
+◇ Test resetsOnlyWhenStableLongerThanSixtySeconds() started.
+◇ Test injectedRandomnessIsTheOnlySourceOfJitter() started.
+◇ Test repeatedInvisibleNotesDoNotExtendTheTimer() started.
+◇ Test menuLivePresetWritesBothLiveColorsOnly() started.
+◇ Test configDelayIsOneSecondAssumption() started.
+◇ Test openFileWhenMissingCreatesItFirstThenOpensExactlyOnce() started.
+◇ Test sliderBurstAppliesEveryTimeButWritesOnce() started.
+◇ Test ownWriteIsNotReappliedAndNotEvenReparsed() started.
+◇ Test menuActionUpdatesStyleNotifiesAndWritesBackAfterDebounce() started.
+◇ Test jitterIsWithinPlusMinusTwentyPercent() started.
+◇ Test backupsFileWhoseFieldsWouldBeRewrittenByClamping() started.
+◇ Test writeIsAtomicTempThenReplaceAndLeavesNoTemp() started.
+◇ Test styleMaskIsBorderlessNonactivatingOnlyAndNotHud() started.
+◇ Test noBackupWhenOriginalWasCleanOrMissing() started.
+◇ Test clickOnBandIsPerformDragAndRightClickUsesSharedMenu() started.
+◇ Test openFileOpenerFailureIsOnlyLogged() started.
+◇ Test backupsFileWithUnknownKeysAndDropsThemFromNewFile() started.
+◇ Test openFileWhenPresentDoesNotRewriteIt() started.
+◇ Test ensureFileExistsCreatesOnlyWhenMissing() started.
+◇ Test eofClearsHandlerAndStopsInvocations() started.
+◇ Test externalEditWinsOverPendingMenuWrite() started.
+◇ Test backupsUnreadableOriginalBeforeOverwriting() started.
+◇ Test writeFailureKeepsStyleAndDoesNotCrash() started.
+◇ Test oversizeAcrossManyChunksBoundedBufferAndSingleEvent() started.
+◇ Test policyBlockedURLNeverReachesTheOpener() started.
+◇ Test resetWhenNoFileMakesNoBackup() started.
+◇ Test hotReloadedValuesAreVisibleToTheMenuOnNextOpen() started.
+◇ Test stepFeedsRendererInOrderAndSetsOffset() started.
+◇ Test hiddenFreezesAndResumesWithoutJump() started.
+◇ Test noOpUpdateDoesNothing() started.
+◇ Test previousAtListStartDoesNothing() started.
+◇ Test clickThroughDisablesRouter() started.
+◇ Test clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse() started.
+◇ Test coordinatorCountsItemsWithURLFromDemoHelper() started.
+◇ Test offscreenPanelRendersAndOptionallyWritesPNG() started.
+◇ Test lostExitEventIsRecoveredByMouseLocationReconcile() started.
+◇ Test itemsWithoutURLShowNoPaperclipAndCannotOpen() started.
+◇ Test missingScreenFallsBackToPrimaryAndIsVisible() started.
+◇ Test pointerInsideFreezesScrollingAndLeavingResumes() started.
+◇ Test occlusionAndUserHiddenAreCombined() started.
+◇ Test rebaseKeepsEveryScreenPositionUnchanged() started.
+◇ Test failedOpenIsNotRetried() started.
+◇ Test prunesScrolledOutLayersSoMemoryDoesNotGrow() started.
+◇ Test resetBacksUpThenWritesDefault() started.
+◇ Test savedExternalScreenIsRestoredOntoExternal() started.
+◇ Test updateClampsToValidRange() started.
+◇ Test noScreensYieldsNil() started.
+◇ Test noSavedPlacementCentersAtTopOfPrimary() started.
+◇ Test buildingAndRunningEveryActionCreatesNoWindowOrAlert() started.
+◇ Test reclampAfterScreenUnplugMovesPanelOntoPrimary() started.
+◇ Test menuNeedsUpdateRefreshesFromTheLatestStyle() started.
+◇ Test clampLeavesAlreadyVisibleFrameUntouched() started.
+◇ Test actionItemsAndSlidersCallOnAction() started.
+◇ Test mouseUpWithoutMatchingMouseDownDoesNothing() started.
+◇ Test clampPullsFullyOffscreenFrameBackInside() started.
+◇ Test disabledRouterIgnoresEverything() started.
+◇ Test dragThenReleaseOverButtonDoesNotFire() started.
+◇ Test linkOnlyWithinVisibleBandNotUnderControlStrip() started.
+◇ Test viewTrackingAreaIsAlwaysActiveEnterExit() started.
+◇ Test buttonsFireOnMouseUpNotMouseDown() started.
+◇ Test configProblemNoticeRowIsDisabledAndAppearsFirst() started.
+◇ Test statusMenuHasFiveItemsAndStyleSubmenuIsTheSharedOne() started.
+◇ Test placementUsesScreenWithLargestOverlap() started.
+◇ Test offsetOutsideVisibleAreaIsClampedToPartiallyVisibleAtLeast() started.
+◇ Test arrowButtonsChangePositionAndHoldTimer() started.
+◇ Test releasingOutsideThePressedTargetDoesNotFire() started.
+◇ Test viewportAndSchedulerConfigIncludeTheGearSlot() started.
+◇ Test hiddenLabelKeepsGearAtLeftAndStripRightNextToIt() started.
+◇ Test rightAndOtherButtonsNeverTrigger() started.
+◇ Test linkFiresOnMouseUpWithItsSeq() started.
+◇ Test buildsMenuFromModelAndMirrorsCheckmarks() started.
+◇ Test geometryComesFromShellConfig() started.
+◇ Test onlyDragTargetCallsPerformDrag() started.
+◇ Test testsNeverCallTheRealOpen() started.
+◇ Test panelWidthFollowsGearSlotWidthAndKeepsViewport370() started.
+◇ Test styleMenuSourcesNeverCreateWindowsAlertsOrActivate() started.
+◇ Test gearSlotIsAHalfOpenRangeAtTheLeftEdge() started.
+◇ Test layersAreLaidOutWithLabelShiftedByTheGearSlot() started.
+◇ Test snapshotThenItemsDriveSchedulerReplayToLiveToReplay() started.
+◇ Test viewPointerCallbackReportsEnterAndExit() started.
+◇ Test idleAndHoverOpacitiesAreDistinctAndValid() started.
+◇ Test controlStripLayoutIsOnlyTranslatedByTheGearSlot() started.
+◇ Test buttonsAreShiftedByTheGearSlot() started.
+◇ Test gearClickDoesNotTriggerOtherActions() started.
+◇ Test paperclipColorFollowsStyle() started.
+◇ Test releasingOutsideTheGearDoesNotFire() started.
+◇ Test hiddenLabelStillHasGearAtLeft() started.
+◇ Test gearFiresOnMouseUpOnlyAndNeverDrags() started.
+◇ Test demoHelperExitsOnStdinEofWithoutOrphan() started.
+◇ Test rightButtonAndClickThroughDoNotFire() started.
+◇ Test gearBeatsLinkZoneBeneathIt() started.
+◇ Test togglingLabelMovesStripButNotGear() started.
+◇ Test hoverFollowsGeometryWhenLabelToggles() started.
+◇ Test hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit() started.
+◇ Test boundariesAndTwoDigits() started.
+◇ Test formatsParenSlash() started.
+◇ Test paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink() started.
+◇ Test hitGeometryCarriesGearSlotAndLabelSeparately() started.
+◇ Test invalidNumbersAreNotShown() started.
+◇ Test onlyTheTwoWorkspaceOpenerFilesMayCallTheRealOpen() started.
+◇ Test defaultPanelWidthIsDerivedNotHardCoded() started.
+◇ Test usesAsciiDigitsRegardlessOfLocale() started.
+◇ Test gearVerticalCenterMatchesTheChevrons() started.
+◇ Test gearInkIsCenteredInTheSlot() started.
+◇ Test userHiddenFreezesImmediatelyAndIsNotAffectedByDebounce() started.
+◇ Test hoverChangesTheRenderedBrightness() started.
+◇ Test gearStaysAtTheLeftWhenLabelIsHidden() started.
+◇ Test maxCornerRadiusDoesNotClipTheGear() started.
+◇ Test yellowLiveBackgroundWithBlackText() started.
+◇ Test nilMeansEmptyNotZeroZero() started.
+◇ Test dragStillWorksOnLabelAndTape() started.
+◇ Test largeFont() started.
+◇ Test schedulerSpeedIsPrototype90AndActuallyScrolls90PerSecond() started.
+◇ Test customLabelAndEverythingTogether() started.
+◇ Test boldPrefixIsExactlyTheTimeAndSpaceAware() started.
+◇ Test writesPanelPNGsWhenAsked() started.
+◇ Test viewLayersMatchPrototypeConstants() started.
+◇ Test defaultStyle() started.
+◇ Test measurerUsesTheSameAttributedStringAsDrawing() started.
+◇ Test liveIsWhiteOnBlackTextAndReplayIsBlackOnWhiteTextPixels() started.
+◇ Test cornerRadius21LeavesCornersTransparentToTheBackdrop() started.
+◇ Test hexParsingAndNormalization() started.
+◇ Test speedChangeKeepsVisualPositionsThenAdvancesAtNewSpeed() started.
+◇ Test flappingDoesNotTouchRendererPauseAtAll() started.
+◇ Test labelHidden() started.
+◇ Test contrastRatioMatchesWCAGReferenceValues() started.
+◇ Test defaultColorsMatchPrototypeWithinOneOver255() started.
+◇ Test schedulerWidthWithSlotEqualsMeasurerPlusSlotAndMatchesBitmap() started.
+◇ Test replayCountAndShowTimeReachTheScheduler() started.
+◇ Test linksCoveredByGearLabelOrStripAreNeverLinks() started.
+◇ Test readmeTableParserDetectsMissingAndExtraKeys() started.
+◇ Test fontSizeIsPrototype16WithBoldTime() started.
+◇ Test isValidRejectsOutOfRangeFields() started.
+◇ Test shellConfigBuildsTheSchedulerConfigFromTheStyle() started.
+◇ Test defaultStyleHasNoContrastWarning() started.
+◇ Test defaultsAgreeWithShellConfigPrototypeConstants() started.
+◇ Test readmeFieldTableListsExactlyTheStyleKeys() started.
+◇ Test defaultsAreExactlyThePrototypeValues() started.
+◇ Test roundTripThroughCodable() started.
+◇ Test timeRunIsBoldAndRestIsRegular() started.
+◇ Test threeLivePresetsAllMeetAA() started.
+◇ Test invalidHexForms() started.
+◇ Test resetToDefaultBacksUpThenWritesDefault() started.
+◇ Test measuredWidthEqualsThePrototypeFormula() started.
+◇ Test disabledButtonsAreDimmedAndIndicatorTextShown() started.
+◇ Test driverPushesControlStateOnlyWhenItChanges() started.
+◇ Test encodedKeysMatchSpecTableExactly() started.
+◇ Test nothingIsRebuiltOnApply() started.
+◇ Test viewLayoutMatchesControlStripLayoutAndHitTesting() started.
+◇ Test tapeViewportIsDerivedFromControlStripNotHardCoded() started.
+◇ Test stateFromReadingPosition() started.
+◇ Test gearSlotCanBeInsertedByShiftingTheSingleOffset() started.
+◇ Test sourceFileImportsOnlyFoundation() started.
+◇ Test rangesAreTheSpecifiedOnes() started.
+◇ Test tapeViewportWidthFormula() started.
+◇ Test rangesTileTheStripRightOfTheLabel() started.
+◇ Test normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline() started.
+◇ Test defaultWidthIsHundred() started.
+◇ Test storeWithRealWatcherReloadsEditInTempDirectory() started.
+◇ Test startOnMissingDirectoryReturnsFalse() started.
+◇ Test realWatcherFiresOnCreateAndOnRenameReplace() started.
+◇ Test rangesWithoutLabelStartAtPanelLeft() started.
+◇ Test backwardSeekRebuildsPrunedLayersWithoutDuplicates() started.
+◇ Test seekNextForcePlacesAndAddsNewLayer() started.
+◇ Test viewAddTwiceKeepsOneLayer() started.
+◇ Test trackModelAddIsIdempotentPerSeq() started.
+◇ Test parseIsPureAndRepeatable() started.
+◇ Test boundariesThemselvesAreAcceptedWithoutWarning() started.
+◇ Test presetsProduceNoWarning() started.
+◇ Test sizeLimit64KB() started.
+◇ Test randomInputsAlwaysYieldValidStyle() started.
+◇ Test wrongTypesFallBackToFieldDefaultsOnly() started.
+◇ Test emptyObjectGivesDefaultsWithoutWarnings() started.
+◇ Test outOfRangeNumbersAreClampedWithOneWarningEach() started.
+◇ Test versionAcceptsOneAndOnePointZero() started.
+◇ Test randomGarbageBytesNeverCrash() started.
+◇ Test lowContrastWarnsButKeepsValues() started.
+◇ Test labelLengthCountsCharactersNotUTF16Units() started.
+◇ Test labelTextRules() started.
+◇ Test validColorsAreNormalized() started.
+◇ Test utf8BOMIsTolerated() started.
+◇ Test extremeNumbersClampWithoutTrapping() started.
+◇ Test wholeFileFailures() started.
+◇ Test threeGroupsAreCheckedIndependently() started.
+◇ Test duplicateKeysDoNotCrashAndStayValid() started.
+◇ Test replayCountMustBeInteger() started.
+◇ Test writtenNormalizedFormReparsesToSameStyleWithoutWarnings() started.
+◇ Test invalidColorsFallBackToFieldDefault() started.
+◇ Test wrongTypeDoesNotAffectOtherFields() started.
+◇ Test missingAndUnknownKeys() started.
+◇ Test versionMissingMeansOne() started.
+◇ Test rebasePreservesVisualPositionsAndPrunesScrolledOut() started.
+◇ Test corruptFileKeepsTheEffectiveStyleAndLogsTheError() started.
+◇ Test editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply() started.
+◇ Test startupLoadsTheFileAndAppliesThroughTheSamePath() started.
+◇ Test resetFromTheMenuRestoresDefaultsAndKeepsABackup() started.
+◇ Test fakeHelperFeedThenStyleChangeKeepsLayersAndPositions() started.
+◇ Test menuOpenFileUsesOnlyTheRecordingOpener() started.
+◇ Test noFileMeansDefaultStyleAndNothingApplied() started.
+◇ Test menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite() started.
+✔ Test hideAccruesTimeUpToHideMoment() passed after 1.829 seconds.
+✔ Test emptyHistoryKeepsBandBlank() passed after 1.829 seconds.
+✔ Test liveAppendKeepsOrderAndStyle() passed after 1.829 seconds.
+✔ Test multipleLiveItemsPlayOldestFirst() passed after 1.830 seconds.
+✔ Test repeatedShowIsIdempotent() passed after 1.830 seconds.
+✔ Test hideForOneHourDoesNotJump() passed after 1.830 seconds.
+✔ Test coreReportsProtocolVersion() passed after 1.830 seconds.
+✔ Test liveItemGetsTimeStringToo() passed after 1.830 seconds.
+✔ Test placedItemsKeepTheirStyleAfterModeChange() passed after 1.830 seconds.
+✔ Test repeatedHideIsIdempotent() passed after 1.830 seconds.
+✔ Test newMessageDuringReplayAppendsAfterTailWithoutInterrupting() passed after 1.844 seconds.
+✔ Test startupSnapshotNeverTriggersLive() passed after 1.844 seconds.
+✔ Test afterLiveQueueDrainsReturnsToReplayStartingFromNewest() passed after 1.845 seconds.
+✔ Test resumesFromFrozenTapeTime() passed after 1.844 seconds.
+✔ Test hiddenFlagFollowsHideShow() passed after 1.844 seconds.
+✔ Test droppedCountAccumulatesAcrossMessages() passed after 1.900 seconds.
+✔ Test exactly30DropsNothing() passed after 1.900 seconds.
+✔ Test hiddenDoesNotFillButQueueKeepsLiveItems() passed after 1.900 seconds.
+✔ Test replayWithFewerThanTenCyclesOverWhatExists() passed after 1.900 seconds.
+✔ Test replayCyclesBackToNewestAfterTen() passed after 1.900 seconds.
+✔ Test eachLiveItemPlaysLiveExactlyOnce() passed after 1.900 seconds.
+✔ Test decodesStatusError() passed after 1.900 seconds.
+✔ Test over30DropsOldest() passed after 1.900 seconds.
+✔ Test orderViolations() passed after 1.900 seconds.
+✔ Test extraFieldsRejected() passed after 1.900 seconds.
+✔ Test reconfigureTogglesShowTimeForLaterItemsOnly() passed after 1.900 seconds.
+✔ Test tileWidthsSumToTotalAndNeverExceedLimit() passed after 1.900 seconds.
+✔ Test idAsNumberRejected() passed after 1.900 seconds.
+✔ Test tunablesExposeExactlySixFields() passed after 1.900 seconds.
+✔ Test decodesSnapshotPreservingOrder() passed after 1.900 seconds.
+✔ Test checkerFailsOnMissingDirectory() passed after 1.900 seconds.
+✔ Test fakeClockDrivesFiveSecondsWithoutWaiting() passed after 1.900 seconds.
+✔ Test droppedItemsStillInLatestTenAndReplayLater() passed after 1.900 seconds.
+✔ Test badStatusState() passed after 1.900 seconds.
+✔ Test togglesReflectCurrentStyle() passed after 1.900 seconds.
+✔ Test visualXIsTapeXMinusScrollOffset() passed after 1.900 seconds.
+✔ Test veryLateTickRestartsFromRightEdgeWhenTailAlreadyLeft() passed after 1.900 seconds.
+✔ Test timeElapsedBeforeReconfigureIsCountedAtOldSpeed() passed after 1.900 seconds.
+✔ Test unsupportedVersionDoesNotLookAtRest() passed after 1.900 seconds.
+✔ Test actionsChangeOnlyTheirOwnFieldsAndStayValidAfterClamp() passed after 1.900 seconds.
+✔ Test timeZoneAffectsOnlyLaterItems() passed after 1.900 seconds.
+✔ Test enlargingViewportFillsToNewRightEdgeWithGap() passed after 1.900 seconds.
+✔ Test rebaseAfterReconfigureKeepsVisualPositions() passed after 1.900 seconds.
+✔ Test oversizeBeatsEverything() passed after 1.900 seconds.
+✔ Test tapeXAndWidthNeverChangeAfterPlacement() passed after 1.900 seconds.
+✔ Test fillsWhenTailHasRoomAtGap() passed after 1.900 seconds.
+✔ Test schedulerConfigShowTimeDefaultsTrue() passed after 1.900 seconds.
+✔ Test shrinkingReplayCountMidRoundDoesNotCrashAndCyclesOnlyLatest() passed after 1.900 seconds.
+✔ Test decodesItems() passed after 1.900 seconds.
+✔ Test defaultEntriesAreInSpecOrderWithoutNotice() passed after 1.900 seconds.
+✔ Test seekAfterSpeedChangeAlignsTargetToLeftEdge() passed after 1.900 seconds.
+✔ Test replayCountStepsAndCheckmarks() passed after 1.900 seconds.
+✔ Test clickThroughNeverPauses() passed after 1.900 seconds.
+✔ Test speedChangeKeepsVisualPositionsAndContinuesAtNewSpeed() passed after 1.900 seconds.
+✔ Test configProblemAddsADisabledNoticeFirst() passed after 1.900 seconds.
+✔ Test clockRollbackDoesNotMoveTapeTimeBackwards() passed after 1.900 seconds.
+✔ Test slidersCarryTheValidRangesAndCurrentValues() passed after 1.900 seconds.
+✔ Test unknownAndMissingType() passed after 1.900 seconds.
+✔ Test emptyBandStartsAtRightEdge() passed after 1.900 seconds.
+✔ Test versionNonIntegerIsSchema() passed after 1.900 seconds.
+✔ Test emptyItemsRejected() passed after 1.900 seconds.
+✔ Test publishedAtWrongTypes() passed after 1.900 seconds.
+✔ Test liveColorPresetsAreThreeReadableAndCheckedOnExactMatch() passed after 1.900 seconds.
+✔ Test showTimeFalseWithLinkSlotStillReservesSlot() passed after 1.900 seconds.
+✔ Test emptyTextRejected() passed after 1.900 seconds.
+✔ Test spacingIsConstantWithIrregularTicks() passed after 1.900 seconds.
+✔ Test hiddenPanelCountsAsOutside() passed after 1.900 seconds.
+✔ Test edgesAreHalfOpen() passed after 1.900 seconds.
+✔ Test scrollOffsetIsPureFunctionOfTapeTime() passed after 1.900 seconds.
+✔ Test fontSizeStepsAndCheckmarks() passed after 1.900 seconds.
+✔ Test insideAndOutside() passed after 1.900 seconds.
+✔ Test showTimeFalseDisplaysOnlyText() passed after 1.900 seconds.
+✔ Test identicalTunablesChangeNothing() passed after 1.900 seconds.
+✔ Test widthAddsSlotAndFlagsIt() passed after 1.900 seconds.
+✔ Test mixedInvalidItemRejectsWholeMessage() passed after 1.904 seconds.
+✔ Test reconcileOverridesLostExitEvent() passed after 1.904 seconds.
+✔ Test invalidUTF8IsNotJSON() passed after 1.904 seconds.
+✔ Test seekNeverChangesAnyTapeXOrWidth() passed after 1.904 seconds.
+✔ Test notJSON() passed after 1.905 seconds.
+✔ Test rulesConstants() passed after 1.923 seconds.
+✔ Test holdIsUnaffectedBySpeedChange() passed after 1.922 seconds.
+✔ Test zeroHoldSecondsMeansNoHold() passed after 1.922 seconds.
+✔ Test showTimeDefaultsToTrueAndIsIdentical() passed after 1.922 seconds.
+✔ Test growingReplayCountUsesMoreHistoryLater() passed after 1.923 seconds.
+✔ Test reconfigureWhileHiddenIsLegalAndKeepsFrozenTime() passed after 1.923 seconds.
+✔ Test showTimeFalseTruncationHasNoTimePrefix() passed after 1.923 seconds.
+✔ Test holdsForOneSecondThenResumesWithoutJump() passed after 1.923 seconds.
+✔ Test truncationBudgetSubtractsSlot() passed after 1.923 seconds.
+✔ Test statusOkMayHaveEmptyMessage() passed after 1.923 seconds.
+✔ Test placedItemsUnchangedAndNewOnesUseNewTunables() passed after 1.924 seconds.
+✔ Test defaultIsOneSecond() passed after 1.924 seconds.
+✔ Test importCheckerDetectsBannedImports() passed after 1.925 seconds.
+✔ Test emptyTapeAndHiddenAndNoMaterial() passed after 1.924 seconds.
+✔ Test lastOfRoundNextJumpsToNextRoundStart() passed after 1.924 seconds.
+✔ Test reconfigureKeepsModeQueueAndFixedFields() passed after 1.924 seconds.
+✔ Test forcedPlacementDoesNotCreateInterferenceWhenSeekIsBackward() passed after 1.924 seconds.
+✔ Test speedToZeroAndBackIsContinuous() passed after 1.924 seconds.
+✔ Test withoutURLOrWithZeroSlotIsIdenticalToBefore() passed after 1.924 seconds.
+✔ Test nextForcePlacesWithNormalGapWhenNotYetPlaced() passed after 1.924 seconds.
+✔ Test pointerInsideWithoutHoldFreezesScrolling() passed after 1.924 seconds.
+✔ Test rebaseKeepsRecentPlacedSoPreviousStillWorks() passed after 1.924 seconds.
+✔ Test shrinkingViewportDoesNotRemoveOrMove() passed after 1.924 seconds.
+✔ Test noOtherInstanceProceedsSilently() passed after 1.924 seconds.
+✔ Test raceOtherIsLaterDoesNotAskAndProceeds() passed after 1.924 seconds.
+✔ Test sameLaunchDateDecidedByPid() passed after 1.924 seconds.
+✔ Test rebaseDoesNotChangeModeQueueOrOrder() passed after 1.924 seconds.
+✔ Test smallRetainCountMakesPreviousNotRetained() passed after 1.924 seconds.
+✔ Test shouldRebaseThresholdIsPure() passed after 1.924 seconds.
+✔ Test closeOldTerminatesThenProceedsWithoutForce() passed after 1.924 seconds.
+✔ Test bothSidesNeverAsk() passed after 1.924 seconds.
+✔ Test setPointerInsideIsIdempotent() passed after 1.924 seconds.
+✔ Test missingFixtureFileFailsLoudly() passed after 1.925 seconds.
+✔ Test hiddenAndPointerAreIndependent() passed after 1.924 seconds.
+✔ Test positionIsPureFunctionOfTapeTimeBetweenSeeks() passed after 1.924 seconds.
+✔ Test pointerInsideFreezesAndDoesNotConsumeHold() passed after 1.924 seconds.
+✔ Test coreSourcesDoNotImportUIFrameworks() passed after 1.926 seconds.
+✔ Test forcedLiveItemIsNotPlayedAgain() passed after 1.924 seconds.
+✔ Test secondSeekResetsHoldNotAccumulates() passed after 1.924 seconds.
+✔ Test timeBeforePointerEntersIsCounted() passed after 1.924 seconds.
+✔ Test environmentOneSkipsEverything() passed after 1.924 seconds.
+✔ Test missingLaunchDateFallsBackToPid() passed after 1.924 seconds.
+✔ Test nextTakesLiveQueueFirst() passed after 1.924 seconds.
+✔ Test appDelegateChecksBeforePanelAndFeed() passed after 1.924 seconds.
+✔ Test secondSeekResetsToOneSecondNotAccumulates() passed after 1.924 seconds.
+✔ Test rebaseWhileHiddenDoesNotJumpOnResume() passed after 1.924 seconds.
+✔ Test holdFreezesThenResumesWithoutJump() passed after 1.924 seconds.
+✔ Test cancelQuitsSelfAndNeverTouchesOld() passed after 1.924 seconds.
+✔ Test buttonsFollowLabelWidthWhenLabelHidden() passed after 1.924 seconds.
+✔ Test doesNotProceedBeforeOldIsGone() passed after 1.924 seconds.
+✔ Test zeroLinkSlotWidthDisablesAllLinks() passed after 1.924 seconds.
+✔ Test previousAtListStartDoesNothing() passed after 1.924 seconds.
+✔ Test buttonsAreInTheControlStripRightOfTheLabel() passed after 1.924 seconds.
+✔ Test nextUsesAlreadyPlacedItem() passed after 1.924 seconds.
+✔ Test itemWithoutLinkSlotIsDrag() passed after 1.924 seconds.
+✔ Test retainNeverDropsBelowOldBehaviourKeepRule() passed after 1.924 seconds.
+✔ Test failsWithSecondAlertWhenForceDoesNotWork() passed after 1.924 seconds.
+✔ Test hideDuringHoldDoesNotConsumeIt() passed after 1.924 seconds.
+✔ Test partialConsumptionInOneStep() passed after 1.924 seconds.
+✔ Test tickStillFillsDuringHold() passed after 1.924 seconds.
+✔ Test liveBatchIdentityAndTotals() passed after 1.924 seconds.
+✔ Test bitmapRendererProducesTilesWhoseWidthsEqualPlan() passed after 1.926 seconds.
+✔ Test everythingElseIsDrag() passed after 1.924 seconds.
+✔ Test plantedActivateInOtherFileIsStillCaught() passed after 1.924 seconds.
+✔ Test overflowDropShrinksOpenBatchTotal() passed after 1.924 seconds.
+✔ Test otherEnvironmentValuesDoNotSkip() passed after 1.924 seconds.
+✔ Test linkZoneIncludingHitSlop() passed after 1.924 seconds.
+✔ Test forceTerminatesWhenStillAliveAfterFiveSeconds() passed after 1.924 seconds.
+✔ Test previousAlignsTargetToLeftEdgeAndStartsHold() passed after 1.924 seconds.
+✔ Test buttonBeatsLinkBeneathIt() passed after 1.924 seconds.
+✔ Test rightEdgeEqualToInsetMeansNextOne() passed after 1.924 seconds.
+✔ Test rebaseDoesNotChangeIdentityFields() passed after 1.924 seconds.
+✔ Test historyShorterThanReplayCount() passed after 1.924 seconds.
+✔ Test terminateIsOnlyEverCalledOnOthersNeverSelf() passed after 1.924 seconds.
+✔ Test urlIsCarriedUnchangedAndLinkSlotFlagged() passed after 1.924 seconds.
+✔ Test readingInsetIsSmallerThanEveryItemWidth() passed after 1.924 seconds.
+✔ Test liveAppendWhileLiveIncreasesTotal() passed after 1.924 seconds.
+✔ Test zeroLinkSlotKeepsLayoutIdenticalEvenWithURL() passed after 1.924 seconds.
+✔ Test firstMatchingLinkWinsWhenSlopsOverlap() passed after 1.924 seconds.
+✔ Test linkHiddenByLabelOrStripIsNotALink() passed after 1.924 seconds.
+✔ Test allBeyondRightEdgeIsNil() passed after 1.924 seconds.
+✔ Test queryIsPureAndHasNoSideEffects() passed after 1.924 seconds.
+✔ Test liveBatchTotalGrowsAndLeftEdgeListWins() passed after 1.924 seconds.
+✔ Test keepsTailAndContinuesFillingWithGapLikeControl() passed after 1.925 seconds.
+✔ Test sourcesAllowedOnlyInWorkspaceOpenerFiles() passed after 1.924 seconds.
+✔ Test itemNearLeftEdgeIsReading() passed after 1.924 seconds.
+✔ Test hiddenKeepsTheSameResultAsAtHideMoment() passed after 1.924 seconds.
+✔ Test utf8CharacterSplitAcrossChunks() passed after 1.924 seconds.
+✔ Test replayPositionIndexAndTotal() passed after 1.924 seconds.
+✔ Test plantedViolationInTestsFails() passed after 1.924 seconds.
+✔ Test previousStillWorksAfterLongRunRebase() passed after 1.925 seconds.
+✔ Test visualPositionsUnchangedAndMagnitudesShrink() passed after 1.925 seconds.
+✔ Test emptyTapeHasNoReadingItem() passed after 1.924 seconds.
+✔ Test plantedActivationCallIsDetected() passed after 1.924 seconds.
+✔ Test showTimeFalseInConfigPlacesTextOnly() passed after 1.924 seconds.
+✔ Test manifestAndDirectoryAreOneToOne() passed after 1.927 seconds.
+✔ Test newConfigDefaultsDoNotChangeExistingBehaviour() passed after 1.924 seconds.
+✔ Test exactlyAtLimitIsEmitted() passed after 1.924 seconds.
+✔ Test multipleLinesInOneChunk() passed after 1.924 seconds.
+✔ Test defaultLimitIsContractLimit() passed after 1.924 seconds.
+✔ Test generatedBoundarySamplesPresentAndCorrect() passed after 1.927 seconds.
+✔ Test testsNeverTouchRealAlertOrTerminator() passed after 1.925 seconds.
+✔ Test replayRoundSequenceAndListIndex() passed after 1.924 seconds.
+✔ Test duplicatesInsideOneSnapshotKeepLast() passed after 1.924 seconds.
+✔ Test midStreamSnapshotReplacesHistoryOnlyAndKeepsQueueAndTape() passed after 1.924 seconds.
+✔ Test oversizeChunkedEqualsWhole() passed after 1.924 seconds.
+✔ Test emptyLinesAreReported() passed after 1.924 seconds.
+✔ Test snapshotBuildsNewestTenDescending() passed after 1.924 seconds.
+✔ Test limitPlusOneIsDroppedThenRecovers() passed after 1.924 seconds.
+✔ Test midStreamSnapshotDoesNotTriggerLive() passed after 1.924 seconds.
+✔ Test historyIsCapped() passed after 1.924 seconds.
+✔ Test everySampleMatchesManifest() passed after 1.927 seconds.
+✔ Test goodGarbageGoodIntegration() passed after 1.924 seconds.
+✔ Test halfLineAcrossChunks() passed after 1.924 seconds.
+✔ Test duplicateKeyUpdatesHistoryButIsNotQueuedAgain() passed after 1.924 seconds.
+✔ Test allLogLinesStartWithStylePrefix() passed after 1.924 seconds.
+✔ Test itemsMergeAndPushOutOldest() passed after 1.924 seconds.
+✔ Test activateAppearsOnlyInSingleInstanceGuardExactlyOnce() passed after 1.926 seconds.
+✔ Test realTreeIsClean() passed after 1.925 seconds.
+✔ Test helperPathOverrideAndBundleLookup() passed after 1.924 seconds.
+✔ Test trailingHalfLineAtEOFIsNotEmitted() passed after 1.924 seconds.
+✔ Test environmentVariableOverridesPath() passed after 1.924 seconds.
+✔ Test realLimitBoundaryWithGeneratedLines() passed after 1.925 seconds.
+✔ Test oversizeFileIsTreatedAsUnreadable() passed after 1.924 seconds.
+✔ Test statusMessagesAreIgnored() passed after 1.924 seconds.
+✔ Test corruptFileGivesDefaultKeepsFileAndFlagsProblem() passed after 1.924 seconds.
+✔ Test overriddenPathIsTheOnlyFileTouched() passed after 1.924 seconds.
+✔ Test partialOutOfRangeFieldsAreClampedAndLogged() passed after 1.924 seconds.
+✔ Test itemsBeforeFirstSnapshotAreIgnoredWithErrorEvent() passed after 1.924 seconds.
+✔ Test fiftyMovesWithinOneHundredMillisecondsWriteOnceWithFinalPosition() passed after 1.924 seconds.
+✔ Test noFileGivesDefaultAndDoesNotCreateFile() passed after 1.924 seconds.
+✔ Test byteByByteEqualsWhole() passed after 1.924 seconds.
+✔ Test separatedMovesWriteSeparately() passed after 1.924 seconds.
+✔ Test sameSeedIsDeterministic() passed after 1.925 seconds.
+✔ Test overrideEnvironmentStartsThatHelperInsteadOfBundleOne() passed after 1.924 seconds.
+✔ Test staleGenerationEventsAreIgnored() passed after 1.924 seconds.
+✔ Test hugeTextTruncatesWithFewMeasurements() passed after 1.924 seconds.
+✔ Test isValidURLMatchesDecoder() passed after 1.924 seconds.
+✔ Test memberwiseInitDefaultsUrlToNil() passed after 1.924 seconds.
+✔ Test negativeOffsetTimezone() passed after 1.924 seconds.
+✔ Test timeStringIsNeverTruncated() passed after 1.924 seconds.
+✔ Test rejectsNonHttpSchemes() passed after 1.924 seconds.
+✔ Test schemeRules() passed after 1.924 seconds.
+✔ Test sameIdDifferentSourceAreDistinct() passed after 1.924 seconds.
+✔ Test crashRestartsWithExponentialBackoffUsingFakeClock() passed after 1.925 seconds.
+✔ Test ellipsisDoesNotFitStillReturnsTimeAndEllipsis() passed after 1.924 seconds.
+✔ Test missingUrlIsAcceptedAndNil() passed after 1.924 seconds.
+✔ Test cjkVersusLatinTruncateDifferently() passed after 1.924 seconds.
+✔ Test truncatesWithEllipsisKeepingLongestPrefix() passed after 1.924 seconds.
+✔ Test lengthBoundaryIs2048Bytes() passed after 1.924 seconds.
+✔ Test validUrlIsDecoded() passed after 1.924 seconds.
+✔ Test noTruncationAtExactlyMaxWidth() passed after 1.924 seconds.
+✔ Test rejectsEmptyWhitespaceAndControlCharacters() passed after 1.924 seconds.
+✔ Test doesNotSplitGraphemeClusters() passed after 1.924 seconds.
+✔ Test rejectsUserinfoAndMissingHost() passed after 1.924 seconds.
+✔ Test hostFirstCharacterRules() passed after 1.924 seconds.
+✔ Test zeroPaddedAnd24Hour() passed after 1.924 seconds.
+✔ Test widthComesFromMeasurer() passed after 1.924 seconds.
+✔ Test unknownExtraFieldIsStillRejected() passed after 1.924 seconds.
+✔ Test acceptsPlainHttpAndHttps() passed after 1.924 seconds.
+✔ Test utc8Format() passed after 1.924 seconds.
+✔ Test nonASCIIIsRejected() passed after 1.924 seconds.
+✔ Test badUrlRejectsWholeMessage() passed after 1.924 seconds.
+✔ Test nonStringIsRejected() passed after 1.924 seconds.
+✔ Test emptyAndWhitespaceAndControlCharacters() passed after 1.924 seconds.
+✔ Test utcFormat() passed after 1.925 seconds.
+✔ Test mixedItemsKeepPerItemUrl() passed after 1.924 seconds.
+✔ Test nullIsRejectedAsSchema() passed after 1.924 seconds.
+✔ Test rejectsOverlongAndAcceptsExactLimit() passed after 1.924 seconds.
+✔ Test shellConfigClampsAlphaToFloor() passed after 1.924 seconds.
+✔ Test invariantsHoldOverLongRandomRun() passed after 1.925 seconds.
+✔ Test storeSurfaceHasNoClickThroughField() passed after 1.924 seconds.
+✔ Test invariantsHoldWithRuntimeReconfigure() passed after 1.926 seconds.
+✔ Test roundTripPlacementAndAlpha() passed after 1.924 seconds.
+✔ Test halfLineIsAssembledAndBadLineIsSkipped() passed after 1.925 seconds.
+✔ Test atomicReplaceByRenameIsStillDetected() passed after 1.924 seconds.
+✔ Test wholeFileFailureKindsAllKeepOldValue() passed after 1.924 seconds.
+✔ Test identicalBytesAreNotReparsedOrReapplied() passed after 1.924 seconds.
+✔ Test differentSeedsAlsoHold() passed after 1.926 seconds.
+✔ Test editAppliesAfterDebounceExactlyOnce() passed after 1.924 seconds.
+✔ Test fieldLevelErrorUsesFieldDefaultAndAppliesRest() passed after 1.924 seconds.
+✔ Test reconfigureSeedsAlsoHold() passed after 1.926 seconds.
+✔ Test launchFailureOfExecutableWithoutValidFormatIsFatal() passed after 1.924 seconds.
+✔ Test backoffResetsOnlyAfterStableRunOverSixtySeconds() passed after 1.925 seconds.
+✔ Test stderrFloodDoesNotBlockHelper() passed after 1.925 seconds.
+✔ Test wakeNotificationFromWorkspaceCenterReachesClient() passed after 1.924 seconds.
+✔ Test syntaxErrorKeepsOldValueThenRecovers() passed after 1.924 seconds.
+✔ Test burstOfFiftyEventsCoalescesToOneRead() passed after 1.924 seconds.
+✔ Test staleOrphanHelperIsKilledBeforeNewOneStarts() passed after 1.924 seconds.
+✔ Test deletedFileKeepsEffectiveStyleAndLogs() passed after 1.924 seconds.
+✔ Test nonExecutableIsFatalWithoutBackoffLoop() passed after 1.924 seconds.
+✔ Test differentBytesButEqualStyleParsesButDoesNotNotify() passed after 1.924 seconds.
+✔ Test noOutputBeyondThresholdIsStuckAndRestarts() passed after 1.924 seconds.
+✔ Test doublesFromOneAndCapsAtSixty() passed after 1.924 seconds.
+✔ Test partialLineBytesCountAsAlive() passed after 1.924 seconds.
+✔ Test stopWatchingCancelsPendingReload() passed after 1.924 seconds.
+✔ Test outputIsNormalizedJSON() passed after 1.924 seconds.
+✔ Test normalOutputIsDeliveredInOrder() passed after 1.926 seconds.
+✔ Test unwritableDirectoryDoesNotCrash() passed after 1.924 seconds.
+✔ Test resetsOnlyWhenStableLongerThanSixtySeconds() passed after 1.924 seconds.
+✔ Test injectedRandomnessIsTheOnlySourceOfJitter() passed after 1.924 seconds.
+✔ Test ownWriteIsNotReappliedAndNotEvenReparsed() passed after 1.924 seconds.
+✔ Test jitterIsWithinPlusMinusTwentyPercent() passed after 1.924 seconds.
+✔ Test sliderBurstAppliesEveryTimeButWritesOnce() passed after 1.924 seconds.
+✔ Test writeIsAtomicTempThenReplaceAndLeavesNoTemp() passed after 1.924 seconds.
+✔ Test backupsFileWhoseFieldsWouldBeRewrittenByClamping() passed after 1.924 seconds.
+✔ Test backupsFileWithUnknownKeysAndDropsThemFromNewFile() passed after 1.924 seconds.
+✔ Test noBackupWhenOriginalWasCleanOrMissing() passed after 1.924 seconds.
+✔ Test ensureFileExistsCreatesOnlyWhenMissing() passed after 1.924 seconds.
+✔ Test externalEditWinsOverPendingMenuWrite() passed after 1.924 seconds.
+✔ Test backupsUnreadableOriginalBeforeOverwriting() passed after 1.924 seconds.
+✔ Test writeFailureKeepsStyleAndDoesNotCrash() passed after 1.924 seconds.
+✔ Test oversizeAcrossManyChunksBoundedBufferAndSingleEvent() passed after 1.924 seconds.
+✔ Test resetWhenNoFileMakesNoBackup() passed after 1.924 seconds.
+✔ Test noOpUpdateDoesNothing() passed after 1.924 seconds.
+✔ Test missingScreenFallsBackToPrimaryAndIsVisible() passed after 1.924 seconds.
+✔ Test savedExternalScreenIsRestoredOntoExternal() passed after 1.923 seconds.
+✔ Test updateClampsToValidRange() passed after 1.924 seconds.
+✔ Test noScreensYieldsNil() passed after 1.923 seconds.
+✔ Test noSavedPlacementCentersAtTopOfPrimary() passed after 1.923 seconds.
+✔ Test reclampAfterScreenUnplugMovesPanelOntoPrimary() passed after 1.923 seconds.
+✔ Test clampLeavesAlreadyVisibleFrameUntouched() passed after 1.923 seconds.
+✔ Test clampPullsFullyOffscreenFrameBackInside() passed after 1.924 seconds.
+✔ Test placementUsesScreenWithLargestOverlap() passed after 1.923 seconds.
+✔ Test offsetOutsideVisibleAreaIsClampedToPartiallyVisibleAtLeast() passed after 1.923 seconds.
+✔ Test testsNeverCallTheRealOpen() passed after 1.923 seconds.
+✔ Test styleMenuSourcesNeverCreateWindowsAlertsOrActivate() passed after 1.923 seconds.
+✔ Test paperclipColorFollowsStyle() passed after 1.923 seconds.
+✔ Test boundariesAndTwoDigits() passed after 1.923 seconds.
+✔ Test formatsParenSlash() passed after 1.923 seconds.
+✔ Test paperclipIsDrawnInLinkSlotOnlyWhenItemHasLink() passed after 1.923 seconds.
+✔ Test invalidNumbersAreNotShown() passed after 1.923 seconds.
+✔ Test missingExecutableIsFatalWithSingleAttempt() passed after 1.925 seconds.
+✔ Test usesAsciiDigitsRegardlessOfLocale() passed after 1.923 seconds.
+✔ Test nilMeansEmptyNotZeroZero() passed after 1.923 seconds.
+✔ Test boldPrefixIsExactlyTheTimeAndSpaceAware() passed after 1.923 seconds.
+✔ Test measurerUsesTheSameAttributedStringAsDrawing() passed after 1.923 seconds.
+✔ Test hexParsingAndNormalization() passed after 1.923 seconds.
+✔ Test contrastRatioMatchesWCAGReferenceValues() passed after 1.923 seconds.
+✔ Test defaultColorsMatchPrototypeWithinOneOver255() passed after 1.923 seconds.
+✔ Test schedulerWidthWithSlotEqualsMeasurerPlusSlotAndMatchesBitmap() passed after 1.923 seconds.
+✔ Test readmeTableParserDetectsMissingAndExtraKeys() passed after 1.923 seconds.
+✔ Test isValidRejectsOutOfRangeFields() passed after 1.922 seconds.
+✔ Test defaultStyleHasNoContrastWarning() passed after 1.923 seconds.
+✔ Test defaultsAgreeWithShellConfigPrototypeConstants() passed after 1.922 seconds.
+✔ Test readmeFieldTableListsExactlyTheStyleKeys() passed after 1.922 seconds.
+✔ Test defaultsAreExactlyThePrototypeValues() passed after 1.922 seconds.
+✔ Test roundTripThroughCodable() passed after 1.922 seconds.
+✔ Test timeRunIsBoldAndRestIsRegular() passed after 1.922 seconds.
+✔ Test threeLivePresetsAllMeetAA() passed after 1.923 seconds.
+✔ Test invalidHexForms() passed after 1.923 seconds.
+✔ Test resetToDefaultBacksUpThenWritesDefault() passed after 1.923 seconds.
+✔ Test encodedKeysMatchSpecTableExactly() passed after 1.922 seconds.
+✔ Test gearSlotCanBeInsertedByShiftingTheSingleOffset() passed after 1.922 seconds.
+✔ Test sourceFileImportsOnlyFoundation() passed after 1.922 seconds.
+✔ Test rangesAreTheSpecifiedOnes() passed after 1.922 seconds.
+✔ Test tapeViewportWidthFormula() passed after 1.922 seconds.
+✔ Test rangesTileTheStripRightOfTheLabel() passed after 1.922 seconds.
+✔ Test normalizedJSONIsSortedIndentedUppercaseWithTrailingNewline() passed after 1.922 seconds.
+✔ Test defaultWidthIsHundred() passed after 1.922 seconds.
+✔ Test onlyTheTwoWorkspaceOpenerFilesMayCallTheRealOpen() passed after 1.924 seconds.
+✔ Test startOnMissingDirectoryReturnsFalse() passed after 1.922 seconds.
+✔ Test anyOutputResetsTheTimerEvenWithoutStatus() passed after 1.926 seconds.
+✔ Test rangesWithoutLabelStartAtPanelLeft() passed after 1.920 seconds.
+✔ Test parseIsPureAndRepeatable() passed after 1.917 seconds.
+✔ Test boundariesThemselvesAreAcceptedWithoutWarning() passed after 1.917 seconds.
+✔ Test presetsProduceNoWarning() passed after 1.917 seconds.
+✔ Test sizeLimit64KB() passed after 1.917 seconds.
+✔ Test restartHappensOnlyAfterTheBackoffDelay() passed after 1.927 seconds.
+✔ Test wrongTypesFallBackToFieldDefaultsOnly() passed after 1.917 seconds.
+✔ Test emptyObjectGivesDefaultsWithoutWarnings() passed after 1.917 seconds.
+✔ Test outOfRangeNumbersAreClampedWithOneWarningEach() passed after 1.917 seconds.
+✔ Test versionAcceptsOneAndOnePointZero() passed after 1.917 seconds.
+✔ Test randomGarbageBytesNeverCrash() passed after 1.917 seconds.
+✔ Test lowContrastWarnsButKeepsValues() passed after 1.917 seconds.
+✔ Test labelLengthCountsCharactersNotUTF16Units() passed after 1.917 seconds.
+✔ Test labelTextRules() passed after 1.917 seconds.
+✔ Test validColorsAreNormalized() passed after 1.917 seconds.
+✔ Test utf8BOMIsTolerated() passed after 1.917 seconds.
+✔ Test extremeNumbersClampWithoutTrapping() passed after 1.917 seconds.
+✔ Test wholeFileFailures() passed after 1.917 seconds.
+✔ Test threeGroupsAreCheckedIndependently() passed after 1.917 seconds.
+✔ Test duplicateKeysDoNotCrashAndStayValid() passed after 1.917 seconds.
+✔ Test replayCountMustBeInteger() passed after 1.917 seconds.
+✔ Test writtenNormalizedFormReparsesToSameStyleWithoutWarnings() passed after 1.917 seconds.
+✔ Test invalidColorsFallBackToFieldDefault() passed after 1.917 seconds.
+✔ Test wrongTypeDoesNotAffectOtherFields() passed after 1.917 seconds.
+✔ Test missingAndUnknownKeys() passed after 1.917 seconds.
+✔ Test versionMissingMeansOne() passed after 1.916 seconds.
+✔ Test rebasePreservesVisualPositionsAndPrunesScrolledOut() passed after 1.867 seconds.
+✔ Suite FreezeResumeTests passed after 1.935 seconds.
+✔ Suite ReplayLiveStateTests passed after 1.935 seconds.
+✔ Suite PackageSkeletonTests passed after 1.935 seconds.
+✔ Suite LiveQueueLimitTests passed after 1.935 seconds.
+✔ Suite ProtocolDecodingTests passed after 1.935 seconds.
+✔ Suite ReconfigureTests passed after 1.935 seconds.
+✔ Suite TilingTests passed after 1.935 seconds.
+✔ Suite TapeModelTests passed after 1.935 seconds.
+✔ Suite StyleMenuModelTests passed after 1.935 seconds.
+✔ Suite PointerHoverTests passed after 1.935 seconds.
+✔ Suite LinkSlotLayoutTests passed after 1.935 seconds.
+✔ Suite SeekHoldTests passed after 1.935 seconds.
+✔ Suite DefaultSeekHoldTests passed after 1.935 seconds.
+✔ Suite SingleInstanceGuardTests passed after 1.935 seconds.
+✔ Suite RebaseTests passed after 1.935 seconds.
+✔ Suite ContractFixturesTests passed after 1.936 seconds.
+✔ Suite HitTestingTests passed after 1.935 seconds.
+✔ Suite ListIdentityTests passed after 1.935 seconds.
+✔ Suite ReadingPositionTests passed after 1.936 seconds.
+✔ Suite LinkOpenerGuardTests passed after 1.936 seconds.
+✔ Suite LineBufferTests passed after 1.936 seconds.
+✔ Suite HistoryTests passed after 1.936 seconds.
+✔ Suite StyleStoreLoadTests passed after 1.936 seconds.
+✔ Suite FeedClientTests passed after 1.936 seconds.
+✔ Suite PersistenceDebounceTests passed after 1.936 seconds.
+✔ Suite SchedulerInvariantTests passed after 1.936 seconds.
+✔ Suite TickerLayoutTests passed after 1.936 seconds.
+✔ Suite ItemURLTests passed after 1.936 seconds.
+✔ Suite LinkPolicyTests passed after 1.936 seconds.
+✔ Suite PersistenceStoreTests passed after 1.936 seconds.
+✔ Suite StyleStoreHotReloadTests passed after 1.936 seconds.
+✔ Suite BackoffPolicyTests passed after 1.936 seconds.
+✔ Suite StyleStoreWriteBackTests passed after 1.936 seconds.
+✔ Suite PersistenceClampTests passed after 1.936 seconds.
+✔ Suite StyleMenuGuardTests passed after 1.936 seconds.
+✔ Suite TickerRendererLinkSlotTests passed after 1.936 seconds.
+✔ Suite PositionIndicatorTests passed after 1.936 seconds.
+✔ Suite TickerRendererBoldTimeTests passed after 1.936 seconds.
+✔ Suite TickerStyleTests passed after 1.936 seconds.
+✔ Suite ControlStripLayoutTests passed after 1.936 seconds.
+✔ Suite TrackModelTests passed after 1.935 seconds.
+✔ Test pidFileOfUnrelatedLiveProcessIsNotKilled() passed after 1.946 seconds.
+✔ Test wakeGivesAFreshGracePeriod() passed after 2.042 seconds.
+✔ Test randomInputsAlwaysYieldValidStyle() passed after 2.049 seconds.
+✔ Suite StyleParserTests passed after 2.065 seconds.
+✔ Test eofClearsHandlerAndStopsInvocations() passed after 2.066 seconds.
+✔ Suite PipeReaderTests passed after 2.074 seconds.
+✔ Test realWatcherFiresOnCreateAndOnRenameReplace() passed after 2.144 seconds.
+✔ Test storeWithRealWatcherReloadsEditInTempDirectory() passed after 2.145 seconds.
+✔ Suite DispatchSourceWatcherTests passed after 2.156 seconds.
+✔ Test shutdownClosesStdinAndCooperativeHelperIsNotSigtermed() passed after 2.661 seconds.
+✔ Test shutdownWhileBackingOffCancelsRestart() passed after 3.167 seconds.
+✔ Test shutdownSendsSigtermAfterTimeoutWhenHelperIgnoresEof() passed after 3.614 seconds.
+✔ Suite FeedClientResilienceTests passed after 3.621 seconds.
+✔ Test demoHelperExitsOnStdinEofWithoutOrphan() passed after 4.416 seconds.
+ALIGN-REPORT [showLabel] (4/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (1/1): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (10/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [showLabel] (2/30): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (4/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (1/1): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (10/10): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+ALIGN-REPORT [noLabel+r21] (2/30): centerY(px) <=42.0 ind=42.5 >=42.0 stripMid=42.0 rows <[28,55] ind[30,54] >[28,55]
+✔ Test hideTogglesTitleToShowAndFiresCallback() passed after 4.917 seconds.
+✔ Test labelTextAndColorsApplyImmediately() passed after 4.916 seconds.
+✔ Test quitFiresCallbackAndSameMenuInstanceServesPanelRightClick() passed after 4.917 seconds.
+✔ Test menuContainsFiveKindsWithExpectedTitles() passed after 4.917 seconds.
+✔ Test fontSizeOnlyAffectsItemsPlacedAfterTheChange() passed after 4.916 seconds.
+✔ Test sliderRangeMatchesFloorAndAlphaIsClamped() passed after 4.917 seconds.
+✔ Test nonColorChangeDoesNotRedrawAnything() passed after 4.916 seconds.
+✔ Test openerProtocolOnlyAcceptsOpenableURL() passed after 4.917 seconds.
+✔ Test cornerRadiusDoesNotChangeHitAreaOrPanelFrame() passed after 4.916 seconds.
+✔ Test clickThroughIsNeverPersistedAndResetsOnRecreate() passed after 4.917 seconds.
+✔ Test showTimeTrueUsesTimeStringLengthAndJoinsWithOneSpace() passed after 4.916 seconds.
+✔ Test hidingTheLabelWidensViewportAndKeepsTapePositions() passed after 4.916 seconds.
+✔ Test colorChangeAfterFontChangeStillUsesTheOldFontForOldItems() passed after 4.916 seconds.
+✔ Test alignmentHoldsWithoutLabelAndWithRoundedCorners() passed after 4.916 seconds.
+✔ Test endToEndSchedulerWithShowTimeFalseDrawsNoLeadingSpaceAndNoBold() passed after 4.916 seconds.
+✔ Test showTimeFalseBodyThatLooksLikeATimeIsNeverBold() passed after 4.916 seconds.
+✔ Test workspaceOpenerConformsButIsNeverInvokedHere() passed after 4.917 seconds.
+✔ Test opensExactlyOnceWithTheValidatedURL() passed after 4.916 seconds.
+✔ Test prunedItemReaddedAfterFontChangeIsRebuiltWithItsOriginalFont() passed after 4.916 seconds.
+✔ Test openerFailureIsReportedNotRetried() passed after 4.916 seconds.
+✔ Test cornerRadiusIsClampedToHalfPanelHeightAndMasksAllLayers() passed after 4.916 seconds.
+✔ Test printMeasuredNumbers() passed after 4.916 seconds.
+✔ Test alignmentHoldsForOtherTexts() passed after 4.916 seconds.
+✔ Suite NavigationLinkOpenerTests passed after 4.923 seconds.
+✔ Suite StatusMenuTests passed after 4.923 seconds.
+✔ Suite StyleApplyBoldTimeTests passed after 4.923 seconds.
+✔ Test mixedClicksOnlyRecordHttpOrHttps() passed after 4.930 seconds.
+✔ Test colorChangeKeepsPositionsAndRedrawsBitmapsInPlace() passed after 4.935 seconds.
+✔ Test threeGlyphsShareOneVerticalCenter() passed after 4.935 seconds.
+✔ Suite StripAlignmentTests passed after 4.942 seconds.
+✔ Test applyingTheSameStyleTwiceIsANoOp() passed after 5.001 seconds.
+✔ Test flappingSequenceUnderOneSecondNeverFreezes() passed after 5.000 seconds.
+✔ Test sustainedInvisibilityFreezesOnlyAfterDelay() passed after 5.000 seconds.
+✔ Test blockedURLsNeverReachTheOpener() passed after 5.000 seconds.
+✔ Test staleTimerFromCancelledRoundCannotFreezeALaterRound() passed after 5.000 seconds.
+✔ Test visibleWhileAlreadyVisibleDecidesNothing() passed after 5.000 seconds.
+✔ Suite StyleApplyViewTests passed after 5.008 seconds.
+✔ Suite LinkOpeningTests passed after 5.007 seconds.
+✔ Test fixedAttributes() passed after 5.000 seconds.
+✔ Test levelAndBehaviorComeFromShellConfigProvisionalValues() passed after 5.000 seconds.
+✔ Test briefInvisibilityUnderOneSecondNeverFreezes() passed after 5.000 seconds.
+✔ Test clickOnBandIsPerformDragAndRightClickUsesSharedMenu() passed after 5.000 seconds.
+✔ Test sourcesNeverCallApplicationActivation() passed after 5.000 seconds.
+✔ Test menuActionUpdatesStyleNotifiesAndWritesBackAfterDebounce() passed after 5.000 seconds.
+✔ Test alphaValueDrivesOpacityAndNoVisualEffectView() passed after 5.000 seconds.
+✔ Test eightSecondCadenceCyclesReplayLiveReplayRepeatedly() passed after 5.000 seconds.
+✔ Test visibleAfterFreezeThawsImmediately() passed after 5.000 seconds.
+✔ Test openFileWhenMissingCreatesItFirstThenOpensExactlyOnce() passed after 5.000 seconds.
+✔ Test configDelayIsOneSecondAssumption() passed after 5.000 seconds.
+✔ Test styleMaskIsBorderlessNonactivatingOnlyAndNotHud() passed after 5.000 seconds.
+✔ Test menuLivePresetWritesBothLiveColorsOnly() passed after 5.000 seconds.
+✔ Test openFileWhenPresentDoesNotRewriteIt() passed after 5.000 seconds.
+✔ Test repeatedInvisibleNotesDoNotExtendTheTimer() passed after 5.000 seconds.
+✔ Test openFileOpenerFailureIsOnlyLogged() passed after 5.000 seconds.
+✔ Test hotReloadedValuesAreVisibleToTheMenuOnNextOpen() passed after 5.000 seconds.
+✔ Test policyBlockedURLNeverReachesTheOpener() passed after 5.000 seconds.
+✔ Test stepFeedsRendererInOrderAndSetsOffset() passed after 4.999 seconds.
+✔ Test clickThroughDisablesRouter() passed after 4.999 seconds.
+✔ Test clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse() passed after 4.999 seconds.
+✔ Test hiddenFreezesAndResumesWithoutJump() passed after 4.999 seconds.
+✔ Test previousAtListStartDoesNothing() passed after 4.999 seconds.
+✔ Test pointerInsideFreezesScrollingAndLeavingResumes() passed after 4.999 seconds.
+✔ Test rebaseKeepsEveryScreenPositionUnchanged() passed after 5.000 seconds.
+✔ Test offscreenPanelRendersAndOptionallyWritesPNG() passed after 4.999 seconds.
+✔ Test lostExitEventIsRecoveredByMouseLocationReconcile() passed after 4.999 seconds.
+✔ Test buildingAndRunningEveryActionCreatesNoWindowOrAlert() passed after 4.999 seconds.
+✔ Test resetBacksUpThenWritesDefault() passed after 5.000 seconds.
+✔ Test prunesScrolledOutLayersSoMemoryDoesNotGrow() passed after 5.000 seconds.
+✔ Test failedOpenIsNotRetried() passed after 4.999 seconds.
+✔ Test itemsWithoutURLShowNoPaperclipAndCannotOpen() passed after 4.999 seconds.
+✔ Test occlusionAndUserHiddenAreCombined() passed after 4.999 seconds.
+✔ Test menuNeedsUpdateRefreshesFromTheLatestStyle() passed after 4.999 seconds.
+✔ Test actionItemsAndSlidersCallOnAction() passed after 4.999 seconds.
+✔ Test mouseUpWithoutMatchingMouseDownDoesNothing() passed after 4.999 seconds.
+✔ Suite PanelShellTests passed after 5.008 seconds.
+✔ Test statusMenuHasFiveItemsAndStyleSubmenuIsTheSharedOne() passed after 4.999 seconds.
+✔ Test dragThenReleaseOverButtonDoesNotFire() passed after 4.999 seconds.
+✔ Test linkOnlyWithinVisibleBandNotUnderControlStrip() passed after 4.999 seconds.
+✔ Test arrowButtonsChangePositionAndHoldTimer() passed after 5.000 seconds.
+✔ Test viewTrackingAreaIsAlwaysActiveEnterExit() passed after 4.999 seconds.
+✔ Test disabledRouterIgnoresEverything() passed after 4.999 seconds.
+✔ Test buttonsFireOnMouseUpNotMouseDown() passed after 4.999 seconds.
+✔ Test configProblemNoticeRowIsDisabledAndAppearsFirst() passed after 4.999 seconds.
+✔ Test releasingOutsideThePressedTargetDoesNotFire() passed after 4.999 seconds.
+✔ Test hiddenLabelKeepsGearAtLeftAndStripRightNextToIt() passed after 4.999 seconds.
+✔ Test panelWidthFollowsGearSlotWidthAndKeepsViewport370() passed after 4.999 seconds.
+✔ Test buildsMenuFromModelAndMirrorsCheckmarks() passed after 4.999 seconds.
+✔ Test onlyDragTargetCallsPerformDrag() passed after 4.999 seconds.
+✔ Test rightAndOtherButtonsNeverTrigger() passed after 4.999 seconds.
+✔ Test gearSlotIsAHalfOpenRangeAtTheLeftEdge() passed after 4.999 seconds.
+✔ Test linkFiresOnMouseUpWithItsSeq() passed after 4.999 seconds.
+✔ Test viewportAndSchedulerConfigIncludeTheGearSlot() passed after 4.999 seconds.
+✔ Test layersAreLaidOutWithLabelShiftedByTheGearSlot() passed after 4.999 seconds.
+✔ Suite DemoCadenceTests passed after 5.008 seconds.
+✔ Test geometryComesFromShellConfig() passed after 4.999 seconds.
+✔ Test buttonsAreShiftedByTheGearSlot() passed after 4.999 seconds.
+✔ Test releasingOutsideTheGearDoesNotFire() passed after 4.999 seconds.
+✔ Test hiddenLabelStillHasGearAtLeft() passed after 4.999 seconds.
+✔ Test idleAndHoverOpacitiesAreDistinctAndValid() passed after 4.999 seconds.
+✔ Test gearClickDoesNotTriggerOtherActions() passed after 4.999 seconds.
+✔ Suite OcclusionDebouncerTests passed after 5.008 seconds.
+✔ Test viewPointerCallbackReportsEnterAndExit() passed after 4.999 seconds.
+✔ Test gearFiresOnMouseUpOnlyAndNeverDrags() passed after 4.999 seconds.
+✔ Suite StyleActionRunnerTests passed after 5.008 seconds.
+✔ Test controlStripLayoutIsOnlyTranslatedByTheGearSlot() passed after 4.999 seconds.
+✔ Suite PanelSnapshotTests passed after 5.008 seconds.
+✔ Suite TickerDriverTests passed after 5.008 seconds.
+✔ Suite StyleMenuControllerTests passed after 5.008 seconds.
+✔ Suite NavigationViewTests passed after 5.008 seconds.
+✔ Test rightButtonAndClickThroughDoNotFire() passed after 4.999 seconds.
+✔ Test togglingLabelMovesStripButNotGear() passed after 5.000 seconds.
+✔ Test defaultPanelWidthIsDerivedNotHardCoded() passed after 5.000 seconds.
+✔ Test hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit() passed after 4.999 seconds.
+✔ Test hoverFollowsGeometryWhenLabelToggles() passed after 4.999 seconds.
+✔ Test userHiddenFreezesImmediatelyAndIsNotAffectedByDebounce() passed after 4.999 seconds.
+✔ Test gearInkIsCenteredInTheSlot() passed after 4.999 seconds.
+✔ Test gearVerticalCenterMatchesTheChevrons() passed after 4.999 seconds.
+✔ Test gearBeatsLinkZoneBeneathIt() passed after 4.999 seconds.
+✔ Test hoverChangesTheRenderedBrightness() passed after 4.999 seconds.
+✔ Test hitGeometryCarriesGearSlotAndLabelSeparately() passed after 5.000 seconds.
+✔ Test gearStaysAtTheLeftWhenLabelIsHidden() passed after 4.999 seconds.
+✔ Test dragStillWorksOnLabelAndTape() passed after 4.999 seconds.
+✔ Test yellowLiveBackgroundWithBlackText() passed after 4.999 seconds.
+✔ Test writesPanelPNGsWhenAsked() passed after 4.999 seconds.
+✔ Test schedulerSpeedIsPrototype90AndActuallyScrolls90PerSecond() passed after 4.999 seconds.
+✔ Test flappingDoesNotTouchRendererPauseAtAll() passed after 4.999 seconds.
+✔ Test defaultStyle() passed after 4.999 seconds.
+✔ Test viewLayersMatchPrototypeConstants() passed after 4.999 seconds.
+✔ Test largeFont() passed after 4.999 seconds.
+✔ Test cornerRadius21LeavesCornersTransparentToTheBackdrop() passed after 4.999 seconds.
+✔ Test labelHidden() passed after 4.999 seconds.
+✔ Test customLabelAndEverythingTogether() passed after 4.999 seconds.
+✔ Test maxCornerRadiusDoesNotClipTheGear() passed after 4.999 seconds.
+✔ Test measuredWidthEqualsThePrototypeFormula() passed after 4.999 seconds.
+✔ Test disabledButtonsAreDimmedAndIndicatorTextShown() passed after 4.999 seconds.
+✔ Test speedChangeKeepsVisualPositionsThenAdvancesAtNewSpeed() passed after 4.999 seconds.
+✔ Test driverPushesControlStateOnlyWhenItChanges() passed after 4.999 seconds.
+✔ Test fontSizeIsPrototype16WithBoldTime() passed after 4.999 seconds.
+✔ Test replayCountAndShowTimeReachTheScheduler() passed after 4.999 seconds.
+✔ Test liveIsWhiteOnBlackTextAndReplayIsBlackOnWhiteTextPixels() passed after 4.999 seconds.
+✔ Test linksCoveredByGearLabelOrStripAreNeverLinks() passed after 4.999 seconds.
+✔ Test nothingIsRebuiltOnApply() passed after 4.999 seconds.
+✔ Test backwardSeekRebuildsPrunedLayersWithoutDuplicates() passed after 4.996 seconds.
+✔ Test viewAddTwiceKeepsOneLayer() passed after 4.995 seconds.
+✔ Test seekNextForcePlacesAndAddsNewLayer() passed after 4.995 seconds.
+✔ Test stateFromReadingPosition() passed after 4.999 seconds.
+✔ Test tapeViewportIsDerivedFromControlStripNotHardCoded() passed after 4.999 seconds.
+✔ Test trackModelAddIsIdempotentPerSeq() passed after 4.995 seconds.
+✔ Test corruptFileKeepsTheEffectiveStyleAndLogsTheError() passed after 4.119 seconds.
+✔ Test resetFromTheMenuRestoresDefaultsAndKeepsABackup() passed after 3.868 seconds.
+✔ Test editingTheFileChangesTheEffectiveStyleAndTheViewReceivesOneApply() passed after 3.965 seconds.
+✔ Test startupLoadsTheFileAndAppliesThroughTheSamePath() passed after 3.874 seconds.
+✔ Test shellConfigBuildsTheSchedulerConfigFromTheStyle() passed after 4.999 seconds.
+✔ Test viewLayoutMatchesControlStripLayoutAndHitTesting() passed after 4.999 seconds.
+✔ Test menuOpenFileUsesOnlyTheRecordingOpener() passed after 3.868 seconds.
+✔ Test menuChangeAppliesImmediatelyWritesBackAndIsNotReappliedFromItsOwnWrite() passed after 3.868 seconds.
+✔ Suite OcclusionDriverIntegrationTests passed after 5.009 seconds.
+✔ Suite GearSnapshotTests passed after 5.009 seconds.
+✔ Suite GearLayoutTests passed after 5.009 seconds.
+✔ Suite TickerRendererIdempotencyTests passed after 5.009 seconds.
+✔ Suite DefaultStyleRendersLikePrototypeTests passed after 5.009 seconds.
+✔ Suite StyleApplySchedulerTests passed after 5.009 seconds.
+✔ Suite StyleSnapshotTests passed after 5.009 seconds.
+✔ Test noFileMeansDefaultStyleAndNothingApplied() passed after 3.868 seconds.
+✔ Suite TickerRendererControlStripTests passed after 5.009 seconds.
+✔ Suite GearHitTests passed after 5.009 seconds.
+✔ Test fakeHelperFeedThenStyleChangeKeepsLayersAndPositions() passed after 3.898 seconds.
+✔ Suite AppSmokeStyleTests passed after 5.040 seconds.
+✔ Test snapshotThenItemsDriveSchedulerReplayToLiveToReplay() passed after 5.305 seconds.
+✔ Suite AppSmokeTests passed after 5.314 seconds.
+✔ Test coordinatorCountsItemsWithURLFromDemoHelper() passed after 6.195 seconds.
+✔ Suite AppSmokeNavigationTests passed after 6.204 seconds.
+✔ Test run with 525 tests in 71 suites passed after 6.205 seconds.

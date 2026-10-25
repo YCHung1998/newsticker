@@ -1,0 +1,78 @@
+[S1 seekHold 範圍下限放寬到 0]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clampedAppliesTheSameRules', 'defaultsKeepTodaysBehaviour', 'seekHoldOutOfRangeIsClampedWithWarning']
+  ['✘ Test run with 142 tests in 15 suites failed after 0.342 seconds with 7 issues.']
+[S2 最近檔位平手取較小者]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clampedAppliesTheSameRules', 'pollIntervalNonStepClampsToNearestStepTiesGoToTheLarger', 'storeClampsAndWritesBack']
+  ['✘ Test run with 142 tests in 15 suites failed after 0.330 seconds with 6 issues.']
+[S3 解析不夾制輪詢間隔]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['pollIntervalNonStepClampsToNearestStepTiesGoToTheLarger']
+  ['Swift/arm64e-apple-macos.swiftinterface:39435: Fatal error: Double value cannot be converted to Int because the result would be greater than Int.max', "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --filter SettingsValues|TickerStyleTests|StyleParser|StyleStore|StyleMenu|StyleApply /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[S4 clamped() 不夾制輪詢間隔]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clampedAppliesTheSameRules', 'storeClampsAndWritesBack']
+  ['✘ Test run with 142 tests in 15 suites failed after 0.328 seconds with 4 issues.']
+[S5 預設停留秒數改 2]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['changingSeekHoldDuringAHoldDoesNotJumpOrExtendIt', 'defaultsKeepTodaysBehaviour', 'oldFilesWithoutTheNewKeysStillLoadWithDefaultsAndNoWarnings', 'schedulerConfigCarriesSeekHoldFromTheStyle', 'seekHoldSecondsReachesTheSchedulerAndTheNextSeekUsesIt', 'seekHoldWrongTypeFallsBackToDefault']
+  ['✘ Test run with 142 tests in 15 suites failed after 0.341 seconds with 9 issues.']
+[S6 輪詢動作寫到別的欄位]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['actionsSetOnlyTheirOwnField', 'storeClampsAndWritesBack']
+  ['✘ Test run with 142 tests in 15 suites failed after 0.340 seconds with 3 issues.']
+[K1 reconfigure 不更新 seekHoldSeconds]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['reconfigureChangesSeekHoldForTheNextSeekOnly', 'seekHoldSecondsReachesTheSchedulerAndTheNextSeekUsesIt', 'zeroSeekHoldMeansNoHold']
+  ['✘ Test run with 103 tests in 11 suites failed after 4.182 seconds with 5 issues.']
+[K2 reconfigure 清掉進行中的保持]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['changingSeekHoldDuringAHoldDoesNotJumpOrExtendIt', 'holdIsUnaffectedBySpeedChange', 'inProgressHoldIsNotTouchedByReconfigure', 'invariantsHoldWithRuntimeReconfigure', 'reconfigureSeedsAlsoHold']
+  ['✘ Test run with 103 tests in 11 suites failed after 4.144 seconds with 12 issues.']
+[K3 StyleApplier 漏傳 seekHoldSeconds]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['seekHoldSecondsReachesTheSchedulerAndTheNextSeekUsesIt']
+  ['✘ Test run with 103 tests in 11 suites failed after 4.227 seconds with 2 issues.']
+[K4 Tunables.init(config:) 不帶現值]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['changingOtherTunablesLeavesSeekHoldAlone', 'tunablesCarryTheCurrentSeekHoldAndDefaultIsOne']
+  ['✘ Test run with 103 tests in 11 suites failed after 3.818 seconds with 2 issues.']
+[P1 計畫性重啟進入退避流程]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['helperIgnoringEofIsTerminatedBySigtermAndLeavesNoOrphan', 'sameArgumentsDoNotRestart', 'secondCallWhileRestartIsPendingMergesIntoOneRestart', 'staleOutputFromTheOldGenerationIsIgnoredAfterRestart']
+  ['Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range', "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --filter FeedClient|PollInterval|SnapshotResend|HelperArguments|StyleApply|AppSmoke|ReplayLive|Rebase /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[P2 相同參數也重啟]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=[]
+  ['Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range', "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --filter FeedClient|PollInterval|SnapshotResend|HelperArguments|StyleApply|AppSmoke|ReplayLive|Rebase /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[P3 重啟進行中不合併（再次關 stdin 並重排計時）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=[]
+  ['Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range', "error: Process '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --filter FeedClient|PollInterval|SnapshotResend|HelperArguments|StyleApply|AppSmoke|ReplayLive|Rebase /Users/eason.hung/Documents/github/newsticker/.build/arm64-apple-macosx/debug/FastBullTickerPackageTests.xctest/Contents/MacOS/FastBullTickerPackageTests --testing-library swift-testing' exited with unexpected signal code 5"]
+[P4 reconfigure 不更新儲存的參數]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['plannedRestartsDoNotTouchTheBackoffState', 'reconfigureBeforeStartUsesTheNewArgumentsAtStart', 'reconfigureWhileBackingOffOnlyUpdatesTheNextLaunch', 'restartResendsSnapshotWithoutTriggeringLiveOrClearingTheBelt', 'restartWhileLiveKeepsTheLiveQueue', 'runningHelperIsRestartedWithTheNewArguments', 'sameArgumentsDoNotRestart', 'secondCallWhileRestartIsPendingMergesIntoOneRestart']
+  ['✘ Test run with 116 tests in 18 suites failed after 26.505 seconds with 11 issues.']
+[P5 啟動套用也回呼輪詢間隔]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['applierCallbackFiresOncePerChangeAndNeverOnStartup', 'snapshotThenItemsDriveSchedulerReplayToLiveToReplay']
+  ['✘ Test run with 116 tests in 18 suites failed after 9.254 seconds with 2 issues.']
+[P6 預設間隔也帶 --interval-ms]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['defaultIntervalPassesNoArguments', 'restartResendsSnapshotWithoutTriggeringLiveOrClearingTheBelt', 'snapshotThenItemsDriveSchedulerReplayToLiveToReplay']
+  ['✘ Test run with 116 tests in 18 suites failed after 7.863 seconds with 3 issues.']
+[P7 Core：中途 snapshot 清掉即時佇列]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['resendDuringLiveKeepsTheLiveQueueAndOrder', 'restartWhileLiveKeepsTheLiveQueue']
+  ['✘ Test run with 116 tests in 18 suites failed after 9.771 seconds with 3 issues.']
+[P8 Core：中途 snapshot 把模式設回 replay]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['resendDuringLiveKeepsTheLiveQueueAndOrder', 'restartWhileLiveKeepsTheLiveQueue']
+  ['✘ Test run with 116 tests in 18 suites failed after 10.693 seconds with 3 issues.']
+[P9 重啟不升級 SIGTERM（忽略 EOF 的 helper 卡死）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['helperIgnoringEofIsTerminatedBySigtermAndLeavesNoOrphan', 'secondCallWhileRestartIsPendingMergesIntoOneRestart']
+  ['✘ Test run with 116 tests in 18 suites failed after 27.113 seconds with 5 issues.']
+
+還原後（完整 swift test）rc=0 失敗測試=[] ['✔ Test run with 575 tests in 76 suites passed after 7.533 seconds.']  存活的 mutation 數=0

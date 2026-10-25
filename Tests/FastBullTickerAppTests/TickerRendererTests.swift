@@ -372,7 +372,7 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
         let cfg = ShellConfig.provisional
         let v = TickerView(config: cfg)
         let l = v.layoutSnapshot
-        let inset = Double(cfg.labelWidth)          // 控制列在標籤右側（nav-layout-tweaks）
+        let inset = cfg.gearSlotWidth + Double(cfg.labelWidth)          // 控制列在齒輪槽與標籤之右（nav-layout-tweaks、settings-gear；單一偏移）
         let labelSlant = 12.0                       // 控制列底延伸到標籤斜切邊下方
         #expect(Double(l.stripFrame.minX) == inset - labelSlant && Double(l.stripFrame.maxX) == inset + cfg.controlStripWidth)
         #expect(Double(l.previousFrame.minX) == cfg.strip.previousButtonRange(leftInset: inset).lowerBound)
@@ -407,8 +407,8 @@ func sampleItems(_ n: Int, base: Int64 = 1_761_292_800_000) -> [Item] {
         #expect(cfg.tapeViewportWidth == 370 && cfg.controlStripWidth == 100)
         #expect(cfg.schedulerConfig().viewportWidth == 370 && cfg.schedulerConfig().linkSlotWidth == cfg.linkSlotWidth)
         cfg.strip = ControlStripLayout(buttonWidth: 30, indicatorWidth: 60)
-        #expect(cfg.tapeViewportWidth == 620 - 150 - 120)
+        #expect(cfg.tapeViewportWidth == 648 - 28 - 150 - 120)
         let l = TickerView(config: cfg).layoutSnapshot
-        #expect(Double(l.clipFrame.minX) == 150 + 120 && Double(l.clipFrame.width) == 350 && Double(l.clipFrame.maxX) == 620)
+        #expect(Double(l.clipFrame.minX) == 28 + 150 + 120 && Double(l.clipFrame.width) == 350 && Double(l.clipFrame.maxX) == 648)
     }
 }

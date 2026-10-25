@@ -142,7 +142,7 @@ final class StyleRig {
         #expect(close(rgbComponents(l.labelFill), Self.prototypeLabelRed), "標籤紅 \(rgbComponents(l.labelFill))")
         #expect(rgbComponents(l.labelTextColor).prefix(3).allSatisfy { $0 == 1 })
         #expect(l.cornerRadius == 0)
-        #expect(Double(l.clipFrame.maxX) == 620 && Double(l.clipFrame.minX) == 150 + 100, "帶子可視區在標籤與控制列之後（nav-layout-tweaks）")
+        #expect(Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.minX) == 28 + 150 + 100, "帶子可視區在齒輪槽、標籤與控制列之後（settings-gear；原 620／250 各平移 28）")
         #expect(l.scrollOriginX == 0)
         // 色彩空間也與原型相同（Generic RGB），否則顯示出來的紅色不一樣
         let space = TickerView(config: .provisional).layoutSnapshot.labelFill?.colorSpace?.name as String?
@@ -334,17 +334,17 @@ final class StyleRig {
         rig.applier.apply(s, source: "test")
         let l = rig.view.layoutSnapshot
         #expect(l.labelHidden)
-        #expect(Double(l.clipFrame.minX) == 100 && Double(l.clipFrame.maxX) == 620, "標籤隱藏：控制列貼面板左緣，帶子從控制列右緣（x=100）顯示到面板右緣")
+        #expect(Double(l.clipFrame.minX) == 128 && Double(l.clipFrame.maxX) == 648, "標籤隱藏：控制列貼齒輪槽右緣（x=28），帶子從控制列右緣（x=128）顯示到面板右緣")
         #expect(l.scrollOriginX + rig.driver.scheduler.scrollOffset == 0, "捲動圖層原點在可視區左緣（位置＝原點 − 位移）")
         #expect(rig.driver.scheduler.config.viewportWidth == 520, "可視寬度增加標籤寬 150")
         #expect(rig.view.router.geometry.labelWidth == 0)
         #expect(seqs.map { rig.view.layerTapeX(seq: $0) } == xs, "已排入訊息的 tapeX 不變")
-        #expect(Double(l.stripFrame.minX) == 0 && Double(l.stripFrame.maxX) == 100, "控制列貼面板左緣")
-        #expect(Double(l.previousFrame.minX) == 0 && Double(l.nextFrame.maxX) == 100)
+        #expect(Double(l.stripFrame.minX) == 28 && Double(l.stripFrame.maxX) == 128, "控制列貼齒輪槽右緣")
+        #expect(Double(l.previousFrame.minX) == 28 && Double(l.nextFrame.maxX) == 128)
         s.showLabel = true
         rig.applier.apply(s, source: "test")
         #expect(!rig.view.layoutSnapshot.labelHidden && rig.driver.scheduler.config.viewportWidth == 370 && rig.view.router.geometry.labelWidth == 150)
-        #expect(Double(rig.view.layoutSnapshot.previousFrame.minX) == 150 && Double(rig.view.layoutSnapshot.clipFrame.minX) == 250, "標籤回來：控制列回到標籤右側")
+        #expect(Double(rig.view.layoutSnapshot.previousFrame.minX) == 178 && Double(rig.view.layoutSnapshot.clipFrame.minX) == 278, "標籤回來：控制列回到標籤右側（齒輪槽 28 + 標籤 150）")
     }
 
     @Test func labelTextAndColorsApplyImmediately() {
@@ -405,6 +405,44 @@ final class StyleRig {
         #expect(c.speed == 150 && c.replayCount == 5 && !c.showTime && c.viewportWidth == 520 && c.maxItemWidth == 600)
         let d = ShellConfig.provisional.schedulerConfig(style: .default, timeZone: StyleRig.utc)
         #expect(d.speed == 90 && d.replayCount == 10 && d.showTime && d.viewportWidth == 370)
+    }
+
+    // MARK: settings-gear task 4：seekHoldSeconds 經 StyleApplier → Core reconfigure 生效
+
+    @Test func seekHoldSecondsReachesTheSchedulerAndTheNextSeekUsesIt() throws {
+        let rig = StyleRig()
+        rig.snapshot(); rig.driver.step()
+        #expect(rig.run(until: { (rig.driver.scheduler.readingPosition?.index ?? 0) >= 3 }))
+        #expect(rig.driver.scheduler.config.seekHoldSeconds == 1)
+        var s = TickerStyle.default; s.seekHoldSeconds = 4
+        #expect(rig.applier.apply(s, source: "test"))
+        #expect(rig.driver.scheduler.config.seekHoldSeconds == 4 && rig.driver.scheduler.holdRemaining == 0)
+        guard case .moved = rig.driver.seek(.previous) else { Issue.record("expected moved"); return }
+        #expect(rig.driver.scheduler.holdRemaining == 4)
+        #expect(rig.log.recorded.contains { $0.hasPrefix("style: applied") && $0.contains("changed=[seekHoldSeconds]") })
+    }
+
+    @Test func changingSeekHoldDuringAHoldDoesNotJumpOrExtendIt() throws {
+        let rig = StyleRig()
+        rig.snapshot(); rig.driver.step()
+        #expect(rig.run(until: { (rig.driver.scheduler.readingPosition?.index ?? 0) >= 3 }))
+        guard case .moved = rig.driver.seek(.previous) else { Issue.record("expected moved"); return }
+        let off = rig.driver.scheduler.scrollOffset
+        var s = TickerStyle.default; s.seekHoldSeconds = 9
+        rig.applier.apply(s, source: "test")
+        #expect(rig.driver.scheduler.holdRemaining == 1 && rig.driver.scheduler.scrollOffset == off)
+    }
+
+    @Test func schedulerConfigCarriesSeekHoldFromTheStyle() {
+        var s = TickerStyle.default; s.seekHoldSeconds = 2.5
+        #expect(ShellConfig.provisional.schedulerConfig(style: s).seekHoldSeconds == 2.5)
+        #expect(ShellConfig.provisional.schedulerConfig().seekHoldSeconds == 1)
+    }
+
+    @Test func changedKeysCoverTheTwoNewFields() {
+        var s = TickerStyle.default; s.seekHoldSeconds = 3; s.pollIntervalSeconds = 30
+        #expect(StyleApplier.changedKeys(from: .default, to: s) == ["seekHoldSeconds", "pollIntervalSeconds"])
+        #expect(s.summary.contains("seekHold=3.0") && s.summary.contains("pollInterval=30"))
     }
 
     @Test func nothingIsRebuiltOnApply() {

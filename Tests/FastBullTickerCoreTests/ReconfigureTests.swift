@@ -191,9 +191,55 @@ import Foundation
         #expect(s.config.gap == gap && s.config.liveQueueLimit == lim && s.config.historyLimit == hist && s.config.rebaseThreshold == rb)
     }
 
-    @Test func tunablesExposeExactlySixFields() {
+    // settings-gear task 4：原本的六欄位清單增加第七個 `seekHoldSeconds`（原六個名稱逐字不變）；測試改名為 Seven。
+    @Test func tunablesExposeExactlySevenFields() {
         let names = Mirror(reflecting: SchedulerTunables(config: SchedulerConfig())).children.compactMap(\.label).sorted()
-        #expect(names == ["maxItemWidth", "replayCount", "showTime", "speed", "timeZone", "viewportWidth"])
+        #expect(names == ["maxItemWidth", "replayCount", "seekHoldSeconds", "showTime", "speed", "timeZone", "viewportWidth"])
+    }
+
+    // MARK: seekHoldSeconds（settings-gear task 4）
+
+    @Test func tunablesCarryTheCurrentSeekHoldAndDefaultIsOne() {
+        #expect(SchedulerTunables(config: SchedulerConfig()).seekHoldSeconds == 1)
+        let (_, s) = make { $0.seekHoldSeconds = 3.5 }
+        #expect(SchedulerTunables(config: s.config).seekHoldSeconds == 3.5)
+    }
+
+    @Test func reconfigureChangesSeekHoldForTheNextSeekOnly() {
+        var (_, s) = make()
+        #expect(s.config.seekHoldSeconds == 1)
+        s.reconfigure(tunables(s) { $0.seekHoldSeconds = 5 }, measurer: flatMeasure)
+        #expect(s.config.seekHoldSeconds == 5 && s.holdRemaining == 0, "設定本身不啟動保持")
+        guard case .moved = s.seek(.previous) else { Issue.record("expected moved"); return }
+        #expect(s.holdRemaining == 5)
+    }
+
+    @Test func inProgressHoldIsNotTouchedByReconfigure() {
+        var (clock, s) = make()
+        guard case .moved = s.seek(.previous) else { Issue.record("expected moved"); return }
+        #expect(s.holdRemaining == 1)
+        clock.t += 0.4; _ = s.tick()
+        let remaining = s.holdRemaining, off = s.scrollOffset
+        #expect(abs(remaining - 0.6) < 1e-9)
+        s.reconfigure(tunables(s) { $0.seekHoldSeconds = 9 }, measurer: flatMeasure)
+        #expect(s.holdRemaining == remaining && s.scrollOffset == off, "進行中的保持依原剩餘期滿")
+        clock.t += 0.6; _ = s.tick()
+        #expect(s.holdRemaining == 0 && abs(s.scrollOffset - off) < 1e-9)
+        clock.t += 1; _ = s.tick()
+        #expect(s.scrollOffset > off, "期滿後從原位置接著捲動")
+    }
+
+    @Test func changingOtherTunablesLeavesSeekHoldAlone() {
+        var (_, s) = make { $0.seekHoldSeconds = 2 }
+        s.reconfigure(tunables(s) { $0.speed = 150 }, measurer: flatMeasure)
+        #expect(s.config.seekHoldSeconds == 2)
+    }
+
+    @Test func zeroSeekHoldMeansNoHold() {
+        var (_, s) = make()
+        s.reconfigure(tunables(s) { $0.seekHoldSeconds = 0 }, measurer: flatMeasure)
+        guard case .moved = s.seek(.previous) else { Issue.record("expected moved"); return }
+        #expect(s.holdRemaining == 0)
     }
 
     // MARK: SchedulerConfig.showTime

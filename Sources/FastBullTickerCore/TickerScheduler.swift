@@ -26,8 +26,8 @@ public struct SchedulerConfig: Sendable {
     public init() {}
 }
 
-/// 執行期可變更的欄位（`TickerScheduler.reconfigure`）。刻意只含六個欄位：`gap`、`liveQueueLimit`、`historyLimit`、
-/// `rebaseThreshold` 等維持建構時的值，縮小風險面。
+/// 執行期可變更的欄位（`TickerScheduler.reconfigure`）。刻意只含七個欄位（settings-gear 增加 `seekHoldSeconds`）：
+/// `gap`、`liveQueueLimit`、`historyLimit`、`rebaseThreshold` 等維持建構時的值，縮小風險面。
 public struct SchedulerTunables: Sendable, Equatable {
     public var speed: Double
     public var viewportWidth: Double
@@ -35,16 +35,21 @@ public struct SchedulerTunables: Sendable, Equatable {
     public var replayCount: Int
     public var showTime: Bool
     public var timeZone: TimeZone
+    /// seek 成功後捲動保持的秒數（`>= 0`）。只影響之後的成功 seek；進行中的保持不變。
+    public var seekHoldSeconds: Double
 
-    public init(speed: Double, viewportWidth: Double, maxItemWidth: Double, replayCount: Int, showTime: Bool, timeZone: TimeZone) {
+    public init(speed: Double, viewportWidth: Double, maxItemWidth: Double, replayCount: Int, showTime: Bool, timeZone: TimeZone,
+                seekHoldSeconds: Double) {
         self.speed = speed; self.viewportWidth = viewportWidth; self.maxItemWidth = maxItemWidth
         self.replayCount = replayCount; self.showTime = showTime; self.timeZone = timeZone
+        self.seekHoldSeconds = seekHoldSeconds
     }
 
-    /// 取目前設定的六個欄位（呼叫端改幾個欄位再傳回 `reconfigure`）。
+    /// 取目前設定的七個欄位（呼叫端改幾個欄位再傳回 `reconfigure`）。
     public init(config: SchedulerConfig) {
         self.init(speed: config.speed, viewportWidth: config.viewportWidth, maxItemWidth: config.maxItemWidth,
-                  replayCount: config.replayCount, showTime: config.showTime, timeZone: config.timeZone)
+                  replayCount: config.replayCount, showTime: config.showTime, timeZone: config.timeZone,
+                  seekHoldSeconds: config.seekHoldSeconds)
     }
 }
 
@@ -188,13 +193,14 @@ public struct TickerScheduler {
 
     // MARK: 執行期重新設定
 
-    /// 套用 `SchedulerTunables`（不重建排程器）。前置條件同建構時：`speed ≥ 0`、`viewportWidth > 0`、`1 ≤ replayCount ≤ historyLimit`（呼叫端先夾制）。
+    /// 套用 `SchedulerTunables`（不重建排程器）。前置條件同建構時：`speed ≥ 0`、`viewportWidth > 0`、`1 ≤ replayCount ≤ historyLimit`、`seekHoldSeconds ≥ 0`（呼叫端先夾制）。
+    /// `seekHoldSeconds` 只更新設定、不動進行中的 `holdRemaining`（下一次成功 `seek` 才使用新值）。
     /// - 速度改變保持視覺連續：先以舊速度結算到現在，再調整 `baseOffset`，使 `scrollOffset` 在呼叫前後相同。
     /// - 已排入訊息的 `tapeX`／`width`／`seq`／文字完全不動；`viewportWidth`／`maxItemWidth`／`showTime`／`timeZone`／measurer
     ///   只影響之後排入者；`replayCount` 只影響之後的重播取料（游標取模，進行中的一輪不重排）。
     /// - 隱藏、保持、指標停留、即時佇列、歷史、模式不受影響；隱藏中呼叫合法且不解除凍結。
     public mutating func reconfigure(_ t: SchedulerTunables, measurer newMeasurer: @escaping TextMeasurer) {
-        precondition(t.speed >= 0 && t.viewportWidth > 0)
+        precondition(t.speed >= 0 && t.viewportWidth > 0 && t.seekHoldSeconds >= 0)
         precondition(t.replayCount > 0 && t.replayCount <= config.historyLimit)
         advance()                                             // 呼叫之前流逝的時間屬於舊速度（隱藏／停留時不推進）
         baseOffset += (config.speed - t.speed) * tapeTime     // scrollOffset = baseOffset + speed × tapeTime 前後相同
@@ -204,6 +210,7 @@ public struct TickerScheduler {
         config.replayCount = t.replayCount
         config.showTime = t.showTime
         config.timeZone = t.timeZone
+        config.seekHoldSeconds = t.seekHoldSeconds
         measurer = newMeasurer
     }
 

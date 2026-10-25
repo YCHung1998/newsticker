@@ -18,6 +18,9 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var styleStore: StyleStore?
     private var styleApplier: StyleApplier?
     private var styleRunner: StyleActionRunner?
+    private var settingsPanel: SettingsPanel?
+    private var settingsController: SettingsPanelController?
+    private var settingsCoordinator: SettingsPanelCoordinator?
     private var feed: FeedClient?
     private var wake: WakeObserver?
     private var saver: PlacementSaver?
@@ -95,6 +98,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.onVisibilityChanged = { [weak self] hidden in
             guard let self else { return }
             if hidden { self.panel?.orderOut(nil) } else { self.panel?.present() }
+            if hidden { self.settingsCoordinator?.tickerWillHide() }        // 設定面板顯示期間跑馬燈被隱藏：一併關閉
             self.driver?.setUserHidden(hidden)
             self.log.write("menu: hidden=\(hidden)")
         }
@@ -102,7 +106,18 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.onQuit = { NSApp.terminate(nil) }
         let runner = StyleActionRunner(store: styleStore, opener: WorkspaceFileOpener(onFailure: { log.write("style: open file failed: \($0.localizedDescription)") }), log: log)
         self.styleRunner = runner
-        StyleWiring.connect(store: styleStore, applier: applier, menu: menu.styleMenu, runner: runner)
+
+        // 設定面板（settings-gear）：控制項、樣式動作、熱重載同步都走與選單相同的 runner／store／applier 路徑；開機啟動只經 LaunchAtLoginController。
+        let settingsContent = SettingsPanelContentView()
+        let settingsPanel = SettingsPanel(config: config, content: settingsContent)
+        let settings = SettingsPanelWiring.assemble(
+            content: settingsContent, window: settingsPanel, monitor: GlobalMouseDownMonitor(), launch: SystemLaunchAtLoginService(),
+            store: styleStore, runner: runner, view: view,
+            tickerFrame: { [weak panel] in panel?.frame ?? .zero },
+            visibleFrame: { [weak panel] in (panel?.screen ?? NSScreen.main)?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900) })
+        settings.coordinator.onOpenChange = { [weak self] open in self?.log.write("settings: panel \(open ? "opened" : "closed")") }
+        self.settingsPanel = settingsPanel; self.settingsController = settings.controller; self.settingsCoordinator = settings.coordinator
+        StyleWiring.connect(store: styleStore, applier: applier, menu: menu.styleMenu, runner: runner, onApplied: settings.refreshIfOpen)
         styleStore.startWatching()
         menu.install()
         view.contextMenu = menu.menu
@@ -208,8 +223,14 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         log.write("feed: helper=\(url.path)")
-        let client = FeedClient(config: FeedClientConfig(helperURL: url), onEvent: AppCoordinator.bridge(to: coordinator))
+        // 啟動參數由載入的樣式決定；之後輪詢間隔變更（熱重載／面板）由 `StyleApplier.onPollIntervalChange` 計畫性重啟 helper。
+        let args = FeedClientConfig.helperArguments(pollIntervalSeconds: styleStore?.style.pollIntervalSeconds ?? TickerStyle.default.pollIntervalSeconds)
+        let client = FeedClient(config: FeedClientConfig(helperURL: url, arguments: args), onEvent: AppCoordinator.bridge(to: coordinator))
         feed = client
+        styleApplier?.onPollIntervalChange = { [weak self] seconds in
+            self?.log.write("feed: poll interval -> \(seconds)s, restarting helper")
+            self?.feed?.reconfigure(arguments: FeedClientConfig.helperArguments(pollIntervalSeconds: seconds))
+        }
         wake = WakeObserver(client: client)
         client.start()
     }
@@ -230,6 +251,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     public func applicationWillTerminate(_ notification: Notification) {
+        settingsCoordinator?.shutdown()
         feedTimer?.invalidate(); statsTimer?.invalidate(); view?.stop()
         styleStore?.stopWatching()
         styleStore?.flushWrite()

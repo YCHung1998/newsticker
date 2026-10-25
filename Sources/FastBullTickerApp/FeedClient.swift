@@ -64,6 +64,11 @@ public struct FeedClientConfig: Sendable {
     public static let helperEnvironmentVariable = "FASTBULL_TICKER_HELPER"
     public static let helperExecutableName = "ticker-connect"
 
+    /// helper 輪詢間隔參數（settings-gear）：預設的 10 秒不帶參數（命令列與加入本設定之前完全相同），其他值為 `--interval-ms N`。
+    public static func helperArguments(pollIntervalSeconds: Int) -> [String] {
+        pollIntervalSeconds == TickerStyle.default.pollIntervalSeconds ? [] : ["--interval-ms", String(pollIntervalSeconds * 1000)]
+    }
+
     /// 先看環境變數覆寫，再找 bundle 內 `Contents/MacOS/ticker-connect`。
     public static func resolveHelperURL(environment: [String: String] = ProcessInfo.processInfo.environment,
                                         bundle: Bundle = .main) -> URL? {
@@ -90,7 +95,7 @@ public struct FeedDiagnostics: Equatable, Sendable {
 /// 管理 helper 行程：Process＋Pipe、generation token、退避重啟、卡死判定、喚醒寬限、
 /// 不可恢復錯誤、優雅結束、pid file。所有可變狀態只在內部序列佇列上存取。
 public final class FeedClient: @unchecked Sendable {
-    private let config: FeedClientConfig
+    private var config: FeedClientConfig       // 只有 `arguments` 會在 `reconfigure` 時改變（在 `queue` 上）
     private let clock: FeedClock
     private let random: @Sendable () -> Double
     private let onEvent: @Sendable (FeedEvent) -> Void
@@ -114,6 +119,8 @@ public final class FeedClient: @unchecked Sendable {
     private var restartTimer: FeedTimer?
     private var killTimer: FeedTimer?
     private var stopping = false
+    /// 計畫性重啟（`reconfigure`）進行中：目前這個 generation 結束後立即以新參數啟動，不進退避。
+    private var restartPending = false
     private var shutdownCompletions: [@Sendable () -> Void] = []
 
     public init(config: FeedClientConfig,
@@ -136,6 +143,23 @@ public final class FeedClient: @unchecked Sendable {
         queue.async { [self] in wakeMark = clock.now() }
     }
 
+    /// 計畫性重啟（settings-gear「poll-interval」）：以新的命令列參數重啟 helper。
+    /// - 參數相同＝no-op；`shutdown` 之後忽略；
+    /// - 執行中：以與 `shutdown` 相同的優雅方式結束目前 helper（關 stdin → 逾時 SIGTERM → 再逾時 SIGKILL），
+    ///   結束後立即以新參數啟動，**不進退避、不改變退避狀態**（計畫性重啟不是崩潰）；重啟進行中再次呼叫只更新參數（合併）；
+    /// - 其他狀態（退避等待、尚未啟動、已失敗）：只更新參數，下一次啟動使用新參數。
+    public func reconfigure(arguments: [String]) {
+        queue.async { [self] in
+            guard !stopping, arguments != config.arguments else { return }
+            config.arguments = arguments
+            guard case .running = state, let p = process, p.isRunning, !restartPending else { return }
+            restartPending = true
+            stuckTimer?.cancel(); stuckTimer = nil
+            try? stdinHandle?.close()
+            armTerminationTimers(generation: generation)
+        }
+    }
+
     /// 正常結束：關閉 helper 的 stdin；逾時仍未結束則 SIGTERM（再逾時 SIGKILL）。完成後呼叫 `completion`。
     public func shutdown(completion: @escaping @Sendable () -> Void = {}) {
         queue.async { [self] in
@@ -146,15 +170,7 @@ public final class FeedClient: @unchecked Sendable {
             stuckTimer?.cancel(); stuckTimer = nil
             if let p = process, p.isRunning {
                 try? stdinHandle?.close()
-                let gen = generation
-                killTimer = clock.schedule(after: config.terminateTimeout, on: queue) { [self] in
-                    guard gen == generation, let p = process, p.isRunning else { return }
-                    p.terminate()                                      // SIGTERM
-                    killTimer = clock.schedule(after: config.terminateTimeout, on: queue) { [self] in
-                        guard gen == generation, let p = process, p.isRunning else { return }
-                        kill(p.processIdentifier, SIGKILL)             // 最後防線，避免孤兒
-                    }
-                }
+                armTerminationTimers(generation: generation)
             } else {
                 finishShutdown()
             }
@@ -170,6 +186,18 @@ public final class FeedClient: @unchecked Sendable {
     }
 
     // MARK: 內部（queue 上）
+
+    /// stdin 已關閉後的升級流程：`terminateTimeout` 後 SIGTERM，再逾時 SIGKILL（`shutdown` 與計畫性重啟共用）。
+    private func armTerminationTimers(generation gen: Int) {
+        killTimer = clock.schedule(after: config.terminateTimeout, on: queue) { [self] in
+            guard gen == generation, let p = process, p.isRunning else { return }
+            p.terminate()                                      // SIGTERM
+            killTimer = clock.schedule(after: config.terminateTimeout, on: queue) { [self] in
+                guard gen == generation, let p = process, p.isRunning else { return }
+                kill(p.processIdentifier, SIGKILL)             // 最後防線，避免孤兒
+            }
+        }
+    }
 
     private func finishShutdown() {
         state = .stopped
@@ -277,6 +305,11 @@ public final class FeedClient: @unchecked Sendable {
         process = nil
         try? stdinHandle?.close(); stdinHandle = nil
         if stopping { return finishShutdown() }
+        if restartPending {                        // 計畫性重啟：不進退避、不碰退避狀態
+            restartPending = false
+            onEvent(.exited(generation: gen, status: status, restartIn: 0))
+            return launch()
+        }
 
         backoff.processEnded(ranFor: clock.now() - startedAt, policy: config.backoff)
         let delay = backoff.nextDelay(policy: config.backoff, randomUnit: random())

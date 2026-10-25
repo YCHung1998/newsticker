@@ -15,6 +15,9 @@ public final class StyleApplier {
     /// 實際套用（樣式有變）的次數；相同樣式不重套，不計。
     public private(set) var applyCount = 0
     public private(set) var lastReport: TickerView.StyleApplyReport?
+    /// `pollIntervalSeconds` 變更時呼叫（參數為新值，秒）。啟動套用（`source == "startup"`）不呼叫：啟動時 helper 尚未建立，
+    /// 啟動參數由載入的樣式直接決定（settings-gear「poll-interval」）。
+    public var onPollIntervalChange: ((Int) -> Void)?
 
     /// `initial` 必須是 `view` 與 `driver` 建構時所用的樣式（預設樣式）。
     public init(config: ShellConfig, view: TickerView, driver: TickerDriver, log: AppLog?,
@@ -40,6 +43,8 @@ public final class StyleApplier {
         if a.liveText != b.liveText { k.append("liveText") }
         if a.replayBackground != b.replayBackground { k.append("replayBackground") }
         if a.replayText != b.replayText { k.append("replayText") }
+        if a.seekHoldSeconds != b.seekHoldSeconds { k.append("seekHoldSeconds") }
+        if a.pollIntervalSeconds != b.pollIntervalSeconds { k.append("pollIntervalSeconds") }
         return k
     }
 
@@ -48,12 +53,15 @@ public final class StyleApplier {
     public func apply(_ style: TickerStyle, source: String) -> Bool {
         guard style != current else { return false }
         let changed = Self.changedKeys(from: current, to: style)
+        let pollChanged = style.pollIntervalSeconds != current.pollIntervalSeconds
         let report = view.apply(style: style)
         let viewport = config.tapeViewport(showLabel: style.showLabel)
         let tunables = SchedulerTunables(speed: style.scrollSpeed, viewportWidth: viewport, maxItemWidth: max(viewport, 600),
-                                         replayCount: style.replayCount, showTime: style.showTime, timeZone: timeZone)
+                                         replayCount: style.replayCount, showTime: style.showTime, timeZone: timeZone,
+                                         seekHoldSeconds: style.seekHoldSeconds)
         driver.reconfigure(tunables, measurer: view.itemMeasurer)
         current = style
+        if pollChanged && source != "startup" { onPollIntervalChange?(style.pollIntervalSeconds) }
         applyCount += 1
         lastReport = report
         log?.write("style: applied source=\(source) changed=[\(changed.joined(separator: ","))] viewport=\(Int(viewport)) "
@@ -67,11 +75,16 @@ public final class StyleApplier {
 /// `store.onChange` 必須在主執行緒呼叫（正式的 `StyleStore` 以 `.main` 為 queue；選單操作本來就在主執行緒）。
 @MainActor
 public enum StyleWiring {
-    public static func connect(store: StyleStore, applier: StyleApplier, menu: StyleMenuController, runner: StyleActionRunner) {
+    /// `onApplied`：每次經 `store.onChange` 套用之後呼叫（設定面板據此重新整理控制項；主執行緒）。
+    public static func connect(store: StyleStore, applier: StyleApplier, menu: StyleMenuController, runner: StyleActionRunner,
+                               onApplied: (@MainActor () -> Void)? = nil) {
         menu.source = { [weak store] in (store?.style ?? .default, store?.hasConfigProblem ?? false) }
         menu.onAction = { [weak runner] in runner?.run($0) }
         store.onChange = { [weak applier] style, src in
-            MainActor.assumeIsolated { _ = applier?.apply(style, source: src == .file ? "file" : "menu") }
+            MainActor.assumeIsolated {
+                _ = applier?.apply(style, source: src == .file ? "file" : "menu")
+                onApplied?()
+            }
         }
     }
 }
@@ -81,6 +94,6 @@ extension TickerStyle {
     public var summary: String {
         "cornerRadius=\(cornerRadius) fontSize=\(fontSize) scrollSpeed=\(scrollSpeed) replayCount=\(replayCount) showTime=\(showTime) showLabel=\(showLabel) "
         + "labelText=\(labelText) live=\(liveBackground.hex)/\(liveText.hex) replay=\(replayBackground.hex)/\(replayText.hex) "
-        + "label=\(labelBackground.hex)/\(labelColor.hex) tape=\(tapeBackground.hex)"
+        + "label=\(labelBackground.hex)/\(labelColor.hex) tape=\(tapeBackground.hex) seekHold=\(seekHoldSeconds) pollInterval=\(pollIntervalSeconds)"
     }
 }

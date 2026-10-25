@@ -28,6 +28,7 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 | 建置與簽名、`FeedClient`（`app-shell` 第 A 段：1.1、2.1、2.2） | 已完成（2026-10-24，自動測試通過；尚未接上畫面） | `make helper && make app && make sign` 可產生 ad-hoc 簽名的 `build/FastBullTicker.app`；`FeedClient` 以假 helper 腳本測過，**沒有連正式網站** |
 | 導覽與連結（`ticker-navigation-link`：粗體時間、`(n/N)`、`<` `>`、迴紋針；分支 `change/ticker-navigation-link`，2026-10-25 實作完成） | 已實作，自動測試通過；**未目視驗證，9.1 人工驗收未做**（使用者尚未在機器前確認） | 協定 `url`、Rust 取 `data-href`、Core `seek`／閱讀位置、控制列與迴紋針渲染、命中測試、`WorkspaceURLOpener`；點迴紋針會真的開啟瀏覽器，**自動測試從未開過瀏覽器**；細節見第 5.4 節 |
 | 樣式設定（`ticker-style-settings`：圓角、即時／重播配色、字級、捲動速度、訊息量、時間／標籤顯示、標籤文字；`style.json` 熱重載＋選單列「樣式」子選單；分支 `change/ticker-style-settings`，2026-10-25 實作完成） | 已實作，自動測試通過；**未目視驗證，8.1 人工驗收未做**（圓角、配色、字級的實際觀感、滑桿手感、編輯器熱重載相容性都只有自動測試與離屏 PNG） | `TickerStyle`／`StyleParser`、Core `reconfigure`、`StyleStore`（原子寫回、`.bak`、目錄監看）、外觀套用、「樣式」子選單；不改設定時畫面與原型一致（以測試斷言，**未目視比對**）；細節見第 5.5 節 |
+| 齒輪與設定面板（`settings-gear`；分支 `change/settings-gear`，2026-10-25）：最左邊齒輪、點齒輪彈出非啟用設定面板、輪詢間隔、停留時間、開機自動啟動 | A 段（齒輪槽、設定值、helper 重啟、開機啟動服務）與 B 段（面板、控制項、開關與全域滑鼠監看、組裝）已實作，自動測試通過；**未目視驗證，task 12 實機驗收未做**：面板位置、非啟用面板內各控制項是否一次點擊就生效／滑桿可否拖動、開機自動啟動在 ad-hoc 簽名 App 的實際結果，都只有自動測試與離屏 PNG | 細節見第 5.6 節 |
 | App 視窗、選單列、渲染（`app-shell` 第 B 段：3.1–4.2） | 已實作（2026-10-24，自動測試通過；**未目視驗證**） | 面板／選單／渲染的 level、collectionBehavior 等為**暫定值**，尚未通過全螢幕可見性實驗（S1）；離線示範 helper 見第 4.3 節 |
 
 ## 3. 環境需求
@@ -94,7 +95,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段後為 410 個、S2 段後為 471 個，`main` 較少）
+make test                                # 全部自動測試（等同 swift test；`change/settings-gear` B 段後為 658 個、83 個 suite；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段後為 410 個、S2 段後為 471 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
@@ -114,7 +115,7 @@ FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Co
 
 **預期看到什麼（設計意圖；除下表「已驗證」外，都是未目視驗證）**
 
-- 螢幕上方中間出現一條約 620×42 的浮動帶子；最左邊是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，緊接著是 **100pt 的控制列：`<`、`(n/N)`、`>`**（nav-layout-tweaks：位於標籤右側，不再在面板右端；【假設】待你看實物後確認），再右邊是由右向左捲動的訊息（可視寬度 370pt）。標籤左側預留一個之後才做的齒輪設定槽（目前寬度 0，沒有畫任何東西）。每則訊息開頭的時間是**粗體**，有連結的訊息最右側有**迴紋針**。
+- 螢幕上方中間出現一條約 648×42 的浮動帶子；齒輪槽之後是**紅色斜切標籤「即時財經快訊」**【假設，來自你提供的參考截圖】，緊接著是 **100pt 的控制列：`<`、`(n/N)`、`>`**（nav-layout-tweaks：位於標籤右側，不再在面板右端；【假設】待你看實物後確認），再右邊是由右向左捲動的訊息（可視寬度 370pt）。最左邊是 28pt 的**齒輪設定槽**（`settings-gear`：深灰底、白灰色齒輪，點它彈出設定面板，見第 5.6 節；整個面板因此是 648pt 寬）。每則訊息開頭的時間是**粗體**，有連結的訊息最右側有**迴紋針**。
 - 重播訊息：**黑底白字**；即時訊息：**白底黑字**；每則前面有 `HH:mm:ss`（本機時區）。
 - 剛啟動先是重播（最新 10 則循環）；示範 helper 約 8 秒後送來新訊息，輪到它時會以白底黑字出現；這些即時訊息播完後回到黑底白字的重播，如此循環。因為訊息要排隊接在前一則後面，所以即時訊息不會在到達的瞬間出現，要等前面已排上帶子的訊息讓出位置（未量測實際延遲）。
 - 選單列有報紙圖示：透明度滑桿（下限 30%【假設】）、隱藏／顯示、點穿模式、**樣式**（子選單，見第 5.5 節）、結束；在帶子上按右鍵是同一份選單。拖曳帶子移動位置；重啟後回到同一個螢幕位置與透明度。點穿模式每次啟動都是關。
@@ -217,6 +218,8 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 | `liveText` | 色彩 | `#000000` | `#RRGGBB` | 即時訊息文字色 |
 | `replayBackground` | 色彩 | `#000000` | `#RRGGBB` | 重播訊息底色 |
 | `replayText` | 色彩 | `#FFFFFF` | `#RRGGBB` | 重播訊息文字色 |
+| `seekHoldSeconds` | 數字（秒） | `1` | `0.5`–`10` | 左右切換（`<` `>`）後停留秒數【假設】；越界夾到邊界；只影響之後的切換（`settings-gear`；設定面板「切換後停留」滑桿） |
+| `pollIntervalSeconds` | 整數（秒） | `10` | 僅 `10`／`30`／`60` | helper 輪詢間隔【假設；5 秒未實測不提供】；非檔位夾到最近檔位（平手取較大）；變更時重啟 helper（`settings-gear`；設定面板「輪詢間隔」分段控制項） |
 
 ```json
 { "fontSize": 20, "scrollSpeed": 120, "cornerRadius": 10, "liveBackground": "#FFE45C", "liveText": "#000000", "replayCount": 20 }
@@ -233,6 +236,31 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 離屏渲染檢查（**不是實機畫面**）：`Tests/evidence/s2-*.png`（`S2_SNAPSHOT_DIR=<目錄> swift test --filter StyleSnapshotTests` 可重新輸出）：預設、特大字級、圓角 21、黃底黑字、隱藏標籤、組合；我看過這些圖，內容見 `Tests/README.md` S2 段。
 
 已知限制與待確認：字級／顯示時間不重排畫面上已有的訊息（Core 不變量：排入後 `tapeX`／寬度不變），所以改字級後會有一段新舊字級並存；切換「顯示標籤」時畫面上已有的訊息會整體平移 150pt（一次性跳動，**未目視驗證**）；圓角外是透明的，**圓角外的區域不能拖曳／點擊**（視窗本身仍是矩形，這個行為未實測）；寫回會丟註解與未知鍵（見上）；預設圓角為 0（直角），若你想要預設就有圓角需另行決定；三組即時配色的色碼、字級與訊息量檔位、各欄位範圍、0.3／0.5 秒 debounce、Generic RGB 解讀色碼，皆為**【假設】**。
+
+### 5.6 齒輪與設定面板（`settings-gear`，設計意圖；**未目視驗證，task 12 實機驗收未做**）
+
+**怎麼用**：重新建置啟動（`make helper app sign`）後，點跑馬燈**最左邊的齒輪**，會在跑馬燈**正下方 6pt**（下方放不下就放上方，並夾在螢幕可視區內）彈出一個深色純色、圓角的設定面板；面板是**非啟用面板**，不會搶走目前前景 App 的焦點。再點一次齒輪、點面板底部的「關閉」按鈕、或在面板與跑馬燈**以外**按下滑鼠（左右鍵）都會關閉；按在跑馬燈的非齒輪處（`<` `>`、訊息、拖曳）也會關閉，但該次點擊原本的行為照常進行；跑馬燈被選單隱藏或結束 App 時一併關閉。面板外偵測用 `NSEvent.addGlobalMonitorForEvents`，**只監看滑鼠按下，不需要輔助使用（Accessibility）權限**；面板開啟時才安裝、關閉就移除。
+
+| 面板項目 | 控制項 | 內容 | 對應 `style.json` 欄位 |
+|---|---|---|---|
+| 字級 | 分段 | 小 13／標準 16／大 20／特大 24（只影響之後排入的訊息） | `fontSize` |
+| 捲動速度 | 滑桿＋數字 | 20–300 px/s | `scrollSpeed` |
+| 圓角 | 滑桿＋數字 | 0–21 pt | `cornerRadius` |
+| 重播訊息量 | 分段 | 5／10／20 則 | `replayCount` |
+| 即時配色 | 分段 | 白底黑字／黃底黑字／綠底白字 | `liveBackground`、`liveText` |
+| 顯示時間、顯示標籤 | 開關 | | `showTime`、`showLabel` |
+| 切換後停留 | 滑桿＋秒數 | 0.5–10 秒（`<` `>` 後停留） | `seekHoldSeconds` |
+| 輪詢間隔 | 分段 | 10／30／60 秒；**改變會重啟 helper**（下述） | `pollIntervalSeconds` |
+| 開機自動啟動 | 開關＋狀態文字 | 顯示**實際狀態**；需核准時多一顆「開啟系統設定」 | **不寫入** `style.json` |
+| 開啟樣式設定檔…／重設為預設／關閉 | 按鈕 | 同選單列「樣式」子選單的同名項目（重設會先備份 `style.json.bak`） | — |
+
+所有樣式控制項走與選單列「樣式」子選單**同一條路徑**（`StyleMenuAction` → `StyleMenuModel.apply` → `StyleActionRunner` → `StyleStore.update`）：立即生效、0.5 秒 debounce 後寫回 `style.json`、越界值由 `StyleStore` 夾制，控制項再回到實際值；選單列「樣式」子選單保留。熱重載或選單操作之後，開著的面板會同步更新全部控制項。設定檔有問題時面板頂端顯示橘色「設定檔有誤，沿用上次有效值」。選單「樣式」子選單**不含**停留時間與輪詢間隔（只在面板）。
+
+- **輪詢間隔會重啟 helper**：切換 10／30／60 後，`FeedClient` 以計畫性重啟換上帶 `--interval-ms` 的新 helper（預設 10 秒不帶參數）；重啟不進退避、舊 helper 先收到 stdin EOF 再升級 SIGTERM，新 helper 的 snapshot 只取代歷史、不會觸發即時模式，畫面上的訊息帶子不中斷（以假 helper 的自動測試證明：`PollIntervalSmokeTests`、`SettingsPanelSmokeTests`；**真 helper 與實機未驗證**）。其他樣式變更不會重啟 helper。
+- **開機自動啟動**（`SMAppService.mainApp`，只在 `SystemLaunchAtLoginService.swift` 出現）：面板每次開啟都重新讀取實際狀態；開關位置是「呼叫後重新讀到的狀態」而不是你按了什麼。本 App 是 ad-hoc 簽名、無 team ID、未 notarize、通常不在 `/Applications`，所以 `register()` 可能直接成功、可能成功但要到「系統設定 → 一般 → 登入項目」核准、也可能丟錯，面板都如實顯示（狀態文字／錯誤訊息；錯誤以紅字顯示）。App 被移動（例如從 `build/` 搬走）後登入項目仍指向舊路徑，這是平台行為。**實際結果未驗證**（自動測試只用假服務，從不真的註冊）。
+- **已知限制／風險**：(1) **非啟用面板內的 `NSSlider`／`NSSegmentedControl`／`NSSwitch` 能否第一次點擊就生效、滑桿能否拖動，是平台行為，自動測試無法證明，也沒有實機驗證**；退路（設計決定 10）：改用步進按鈕（−／＋），或讓面板可成為 key 但不啟用 App。(2) 面板層級為跑馬燈 level + 1（讓面板在跑馬燈上方），並未通過全螢幕可見性實驗。(3) 面板位置、6pt 間距、寬 330pt、深色底色、控制項外觀皆為【假設】，未目視。(4) 面板高度會隨提示行／「開啟系統設定」按鈕出現而改變（開著時就地重新定位）。(5) 設定面板的兩個真實依賴（`GlobalMouseDownMonitor` 的 `install`、`SystemLaunchAtLoginService`）從未被自動測試執行。
+
+離屏渲染檢查（**不是實機畫面**；`GB_SNAPSHOT_DIR=<目錄> swift test --filter SettingsPanelSnapshot` 可重新輸出）：`Tests/evidence/gb-settings-default.png`、`gb-settings-approval.png`（開機啟動需核准）、`gb-settings-error.png`（設定檔有誤＋失敗訊息）。離屏時視窗不是前景，控制項以灰階（非強調色）繪製，與實機外觀可能不同。
 
 ### 5.3 已知風險（尚未驗證）
 
@@ -257,6 +285,7 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 | 樣式 mutation | `python3 Tests/s2-mutations.py` | 36 組破壞全部變紅（D1 第一輪存活，補測試後補跑變紅；M11 以測試行程崩潰的形式被偵測到） | `Tests/evidence/s2-mutations.log` |
 | 示範 helper 協定 | `python3 Tests/demo-helper-protocol-check.py` | 實跑 6.5 秒，所有輸出行通過協定驗證（含 `url`）；snapshot 12 則中 8 則帶 `url` | `Tests/demo-helper-protocol-check.py` |
 | N3 mutation | `python3 Tests/n3-mutations.py` | 22 組破壞全部變紅（第一輪 A1 存活，加強測試後補跑變紅），還原後 309 個全綠 | `Tests/evidence/n3-mutations.log` |
+| 設定面板（`settings-gear` B 段） | `swift test --filter SettingsPanel`；`python3 Tests/gb-mutations.py`；`swift test`（全部） | 71 個通過；20 組 mutation 全部變紅；全部 **658 個、83 個 suite**，單次通過，但**連跑 8 次有 2 次因 `coordinatorCountsItemsWithURLFromDemoHelper`（行程啟動時序逾時）失敗**，A 段 HEAD 連跑 12 次無失敗，詳見 `Tests/README.md` | `Tests/FastBullTickerAppTests/SettingsPanel*Tests.swift`；`Tests/evidence/gb-mutations.log`、`gb-8x-swift-test.log` |
 | 實驗用腳本 | `cd spikes && swift build && tests/run_script_tests.sh` | 41 項通過 | `spikes/tests/run_script_tests.sh` |
 | 單一實例（`single-instance-guard`） | `swift test`（全部）；`swift test --filter SingleInstanceGuardTests`；`python3 Tests/g1-mutations.py` | 全部 **498 個、68 個 suite** 通過（新增 17）；14 組 mutation 全部變紅、存活 0 | `Tests/FastBullTickerAppTests/SingleInstanceGuardTests.swift`、`Tests/evidence/g1-mutations.log` |
 | 規格一致性 | `openspec validate --all --strict` | 13 項（含主 specs 與各 change）全部通過 | `openspec/changes/` |
@@ -280,6 +309,9 @@ Rust 與 Swift 兩端都讀同一份 `protocol/fixtures/manifest.json`：合法�
 - 自動化測試**絕不連正式網站**；唯一一次連線是手動跑 35 秒，得到 1 則 snapshot（20 則）與 1 則心跳。當時沒有 VPN 或 Proxy。
 - 樣式設定的實際觀感（圓角、配色、字級、滑桿手感）、`style.json` 對 TextEdit／`vim`／VS Code 存檔方式的熱重載相容性、選單展開 60 秒不斷料、「開啟樣式設定檔…」開啟的編輯器、已在畫面上的訊息就地重繪的實際成本：**皆未驗證**（只有自動測試與離屏 PNG）；`AppDelegate` 裡的正式監看器與正式 opener 沒有被任何測試執行過。
 - 記憶體與 CPU 的目標（App ≤35MB、helper ≤15MB）是**【假設】**，還沒有量過基準。
+- **已知問題（2026-10-25，開發暫停時記錄）**：
+  - **字體顏色配對**：使用者回報「字體顏色配對還沒成功」（設定面板中顏色與文字色的搭配未達預期）。細節尚未釐清，**尚未調查、尚未修復**。
+  - **測試偶發失敗**：`swift test` 連跑時，會啟動真行程的測試（假 helper、示範 helper）偶發逾時（觀察到約 1/5 至 1/4 的失敗率，單獨跑單一 suite 則穩定）。**產品功能不受影響，只影響測試可信度**；根因未證實，修復工作中途暫停，未完成的修改保存在 `git stash`（訊息 `WIP flaky-test fix`）。
 
 ---
 
@@ -357,7 +389,7 @@ flowchart LR
 5. 程式啟動時抓到的既有訊息都是歷史，直接重播，不算即時。
 6. 樣式跟著每一則訊息本身，不會改變已在畫面上的訊息。
 7. 隱藏視窗時帶子時間凍結，顯示後接著走；隱藏期間的新訊息仍進佇列，佇列上限 30，超過丟最舊（被丟的仍會出現在最新 10 則）。
-8. 面板版面由左至右：〔預留齒輪槽，寬 0〕→ 紅色標籤 → 控制列 `< (n/N) >`（100pt）→ 訊息帶子；帶子可視寬度 = 面板寬 − 標籤寬 − 控制列寬（620 − 150 − 100 = 370；標籤隱藏時控制列貼面板左緣，520）。帶子座標 0（左右切換對齊位置與「閱讀中」參考線）在控制列右緣。所有座標由單一偏移（標籤右緣）推導，見 `ControlStripLayout`。
+8. 面板版面由左至右：〔齒輪槽，寬 28（settings-gear）〕→ 紅色標籤 → 控制列 `< (n/N) >`（100pt）→ 訊息帶子；帶子可視寬度 = 面板寬 − 標籤寬 − 控制列寬（648 − 28 − 150 − 100 = 370；標籤隱藏時控制列緊接齒輪槽，520）。帶子座標 0（左右切換對齊位置與「閱讀中」參考線）在控制列右緣。所有座標由單一偏移（標籤右緣）推導，見 `ControlStripLayout`。
 9. 左右切換後捲動暫停 1 秒（`seekHoldSeconds`，注入時鐘計時），期間再次切換重設為 1 秒；滑鼠停在面板上時另外凍結。
 
 時間格式為本機時區的 `HH:mm:ss`，單則文字過長時以**量測後的寬度**截斷並加「…」。

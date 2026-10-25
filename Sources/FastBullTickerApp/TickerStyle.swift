@@ -86,6 +86,10 @@ public enum StyleRanges {
     public static let scrollSpeed: ClosedRange<Double> = 20...300
     public static let replayCount: ClosedRange<Int> = 3...30
     public static let labelTextLength: ClosedRange<Int> = 1...16
+    /// settings-gear：左右切換後停留秒數【假設】。下限 0.5：設定面板不提供「關閉停留」（Core 的 0 仍合法，檔案中的 0 被夾制為 0.5）。
+    public static let seekHoldSeconds: ClosedRange<Double> = 0.5...10
+    /// settings-gear：輪詢間隔檔位（秒）【假設】。5 秒未實測，不提供。
+    public static let pollIntervalSteps: [Int] = [10, 30, 60]
     public static let supportedVersion = 1
     public static let maxFileBytes = 64 * 1024
 }
@@ -109,10 +113,15 @@ public struct TickerStyle: Equatable, Sendable, Codable {
     public var liveText: RGBColor
     public var replayBackground: RGBColor
     public var replayText: RGBColor
+    /// 左右切換後停留秒數（settings-gear）；經 Core `reconfigure` 生效。
+    public var seekHoldSeconds: Double
+    /// helper 輪詢間隔秒數（settings-gear），只能是 `StyleRanges.pollIntervalSteps` 之一；變更時重啟 helper。
+    public var pollIntervalSeconds: Int
 
     /// JSON 鍵（順序即檔案欄位表；README 表格與測試比對這份清單）。
     public static let keys = ["version", "cornerRadius", "fontSize", "scrollSpeed", "replayCount", "showTime", "showLabel", "labelText",
-                              "labelBackground", "labelColor", "tapeBackground", "liveBackground", "liveText", "replayBackground", "replayText"]
+                              "labelBackground", "labelColor", "tapeBackground", "liveBackground", "liveText", "replayBackground", "replayText",
+                              "seekHoldSeconds", "pollIntervalSeconds"]
 
     /// 與原型一致的預設值。色碼為原型 RGB 浮點值的 8 位元量化（誤差 ≤ 1/255）：
     /// 空隙 (0.09, 0.09, 0.10) → `#17171A`、標籤紅 (0.85, 0.10, 0.13) → `#D91A21`。
@@ -122,7 +131,15 @@ public struct TickerStyle: Equatable, Sendable, Codable {
         labelBackground: RGBColor(hex: "#D91A21")!, labelColor: RGBColor(hex: "#FFFFFF")!,
         tapeBackground: RGBColor(hex: "#17171A")!,
         liveBackground: RGBColor(hex: "#FFFFFF")!, liveText: RGBColor(hex: "#000000")!,
-        replayBackground: RGBColor(hex: "#000000")!, replayText: RGBColor(hex: "#FFFFFF")!)
+        replayBackground: RGBColor(hex: "#000000")!, replayText: RGBColor(hex: "#FFFFFF")!,
+        seekHoldSeconds: 1, pollIntervalSeconds: 10)
+
+    /// 夾制到最近的輪詢檔位；平手取較大者（較少請求）。
+    public static func nearestPollStep(_ v: Double) -> Int {
+        var best = StyleRanges.pollIntervalSteps[0]
+        for step in StyleRanges.pollIntervalSteps.dropFirst() where abs(Double(step) - v) <= abs(Double(best) - v) { best = step }
+        return best
+    }
 
     /// 每個欄位都在合法範圍內（`StyleParser` 的輸出永遠為真）。
     public var isValid: Bool {
@@ -130,6 +147,7 @@ public struct TickerStyle: Equatable, Sendable, Codable {
             && StyleRanges.cornerRadius.contains(cornerRadius) && StyleRanges.fontSize.contains(fontSize)
             && StyleRanges.scrollSpeed.contains(scrollSpeed) && StyleRanges.replayCount.contains(replayCount)
             && StyleRanges.labelTextLength.contains(labelText.count)
+            && StyleRanges.seekHoldSeconds.contains(seekHoldSeconds) && StyleRanges.pollIntervalSteps.contains(pollIntervalSeconds)
             && labelText == labelText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
@@ -142,6 +160,8 @@ public struct TickerStyle: Equatable, Sendable, Codable {
         s.fontSize = c(fontSize, StyleRanges.fontSize)
         s.scrollSpeed = c(scrollSpeed, StyleRanges.scrollSpeed)
         s.replayCount = min(max(replayCount, StyleRanges.replayCount.lowerBound), StyleRanges.replayCount.upperBound)
+        s.seekHoldSeconds = c(seekHoldSeconds, StyleRanges.seekHoldSeconds)
+        s.pollIntervalSeconds = TickerStyle.nearestPollStep(Double(pollIntervalSeconds))
         let t = labelText.trimmingCharacters(in: .whitespacesAndNewlines)
         s.labelText = t.isEmpty ? TickerStyle.default.labelText : String(t.prefix(StyleRanges.labelTextLength.upperBound))
         return s
@@ -285,6 +305,16 @@ public enum StyleParser {
                 s.replayCount = Int(c)
             } else {
                 warn(.invalidType, "replayCount", "應為整數（讀到\(v.typeName) \(v.brief)），改用預設值 \(TickerStyle.default.replayCount)")
+            }
+        }
+        s.seekHoldSeconds = double("seekHoldSeconds", StyleRanges.seekHoldSeconds, TickerStyle.default.seekHoldSeconds)
+        if let v = obj["pollIntervalSeconds"] {
+            if case .number(let n) = v, n == n.rounded() {
+                let step = TickerStyle.nearestPollStep(n)
+                if Double(step) != n { warn(.clamped, "pollIntervalSeconds", "\(v.brief) 不是檔位 \(StyleRanges.pollIntervalSteps.map(String.init).joined(separator: "／"))，夾制為最近的 \(step)") }
+                s.pollIntervalSeconds = step
+            } else {
+                warn(.invalidType, "pollIntervalSeconds", "應為整數檔位（讀到\(v.typeName) \(v.brief)），改用預設值 \(TickerStyle.default.pollIntervalSeconds)")
             }
         }
         s.showTime = bool("showTime", TickerStyle.default.showTime)

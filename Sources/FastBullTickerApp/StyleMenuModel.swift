@@ -13,6 +13,8 @@ public enum StyleMenuAction: Equatable, Sendable {
     case toggleShowLabel
     case openFile
     case resetToDefault
+    case setSeekHoldSeconds(Double)      // settings-gear：只出現在設定面板，不在「樣式」子選單
+    case setPollIntervalSeconds(Int)
 }
 
 public enum StyleMenuModel {
@@ -95,6 +97,8 @@ public enum StyleMenuModel {
             style.liveText = LiveColorPreset.all[i].text            // 只動這兩個欄位，不動重播配色
         case .toggleShowTime: style.showTime.toggle()
         case .toggleShowLabel: style.showLabel.toggle()
+        case .setSeekHoldSeconds(let v): style.seekHoldSeconds = v
+        case .setPollIntervalSeconds(let n): style.pollIntervalSeconds = n
         case .openFile, .resetToDefault: return false
         }
         return true
