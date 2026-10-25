@@ -75,11 +75,16 @@ public final class StyleApplier {
 /// `store.onChange` 必須在主執行緒呼叫（正式的 `StyleStore` 以 `.main` 為 queue；選單操作本來就在主執行緒）。
 @MainActor
 public enum StyleWiring {
-    public static func connect(store: StyleStore, applier: StyleApplier, menu: StyleMenuController, runner: StyleActionRunner) {
+    /// `onApplied`：每次經 `store.onChange` 套用之後呼叫（設定面板據此重新整理控制項；主執行緒）。
+    public static func connect(store: StyleStore, applier: StyleApplier, menu: StyleMenuController, runner: StyleActionRunner,
+                               onApplied: (@MainActor () -> Void)? = nil) {
         menu.source = { [weak store] in (store?.style ?? .default, store?.hasConfigProblem ?? false) }
         menu.onAction = { [weak runner] in runner?.run($0) }
         store.onChange = { [weak applier] style, src in
-            MainActor.assumeIsolated { _ = applier?.apply(style, source: src == .file ? "file" : "menu") }
+            MainActor.assumeIsolated {
+                _ = applier?.apply(style, source: src == .file ? "file" : "menu")
+                onApplied?()
+            }
         }
     }
 }

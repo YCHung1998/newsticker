@@ -56,7 +56,7 @@
 - **THEN** `style.json` SHALL 不變，狀態文字 SHALL 反映 `LaunchAtLoginService.status`
 
 ### Requirement: 關閉規則與全域滑鼠監看
-面板 MUST 在下列任一情況關閉：再次點擊齒輪、在面板與跑馬燈**以外**按下滑鼠（左鍵或右鍵）、點擊面板內關閉鈕。面板外偵測 MUST 使用 `NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown])`，**只監看滑鼠按下事件，MUST NOT 需要輔助使用（Accessibility）權限、MUST NOT 監看鍵盤事件**；全域監看器 MUST 在面板開啟時安裝、關閉時移除（不得洩漏）。因全域監看器不會收到本 App 自己視窗內的事件，面板內與跑馬燈（含齒輪）上的點擊 MUST 由本地命中測試處理，不得被誤判為「面板外」而關閉。判斷「是否在面板外」MUST 為純函式（輸入螢幕座標點、面板 frame、跑馬燈 frame）。
+面板 MUST 在下列任一情況關閉：再次點擊齒輪、在面板與跑馬燈**以外**按下滑鼠（左鍵或右鍵）、點擊面板內關閉鈕。面板外偵測 MUST 使用 `NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown])`，**只監看滑鼠按下事件，MUST NOT 需要輔助使用（Accessibility）權限、MUST NOT 監看鍵盤事件**；全域監看器 MUST 在面板開啟時安裝、關閉時移除（不得洩漏）。因全域監看器不會收到本 App 自己視窗內的事件，本 App 視窗內的點擊 MUST 由本地處理：面板內的點擊不得關閉面板；跑馬燈上按在齒輪者由 `onGear` 切換（不得被判為「面板外」而先關閉再重開）；跑馬燈上**齒輪以外**的按下（左鍵含導覽按鈕、迴紋針、拖曳；右鍵）【假設：B 段實作時依協調者指示補充，使面板不會在跑馬燈被拖走後留在原處】視為面板外而關閉，由 `TickerView.onTickerPointerDown` 回報，MUST NOT 阻擋既有導覽、連結與拖曳行為。判斷「是否在面板外」MUST 為純函式（輸入螢幕座標點、面板 frame、跑馬燈 frame；點落在跑馬燈矩形內者不算面板外，供全域事件落在跑馬燈矩形時使用，例如點穿模式）。
 
 #### Scenario: 點面板外關閉
 - **WHEN** 面板開啟時在其他 App 的視窗上按下滑鼠
@@ -69,6 +69,10 @@
 #### Scenario: 點齒輪切換
 - **WHEN** 面板開啟時點齒輪
 - **THEN** 面板 SHALL 關閉（不得先被「面板外」邏輯關閉再被齒輪重新開啟）
+
+#### Scenario: 點跑馬燈非齒輪處關閉
+- **WHEN** 面板開啟時在跑馬燈的 `>` 按鈕、訊息或標籤上按下左鍵（或按右鍵）
+- **THEN** 面板 SHALL 關閉並移除全域監看器，且該次點擊原本的行為（導覽、拖曳、選單）SHALL 照常進行
 
 #### Scenario: 不需要輔助使用權限
 - **WHEN** 檢查監看器遮罩

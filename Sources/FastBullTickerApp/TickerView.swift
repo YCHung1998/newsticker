@@ -80,6 +80,8 @@ public final class TickerView: NSView, TickerRenderer {
     public let router: NavigationInputRouter
     /// 指標進出面板（追蹤區事件）；由 App 層接到 `TickerDriver.setPointerInside`。
     public var onPointerInside: ((Bool) -> Void)?
+    /// 跑馬燈上按下滑鼠（左鍵於命中測試啟用時、右鍵一律）；參數＝是否按在齒輪上。設定面板用它判斷「面板外」。
+    public var onTickerPointerDown: ((Bool) -> Void)?
     public private(set) var frameCallbacks = 0
 
     public init(config: ShellConfig, style: TickerStyle = .default) {
@@ -372,6 +374,10 @@ public final class TickerView: NSView, TickerRenderer {
 
     public override func mouseDown(with event: NSEvent) {
         let p = convert(event.locationInWindow, from: nil)
+        // 先回報按下（設定面板據此判斷「面板外」：齒輪上不關閉），再交給既有路由，不改變導覽／拖曳行為。
+        if kind(event) == .left, router.isEnabled {
+            onTickerPointerDown?(HitTesting.target(at: p, in: router.geometry, items: router.hitItems()) == .gear)
+        }
         router.mouseDown(at: p, button: kind(event), performDrag: { [weak self] in self?.window?.performDrag(with: event) })
     }
 
@@ -380,6 +386,7 @@ public final class TickerView: NSView, TickerRenderer {
     }
 
     public override func rightMouseDown(with event: NSEvent) {
+        onTickerPointerDown?(false)
         guard let menu = contextMenu else { return }
         NSMenu.popUpContextMenu(menu, with: event, for: self)
     }

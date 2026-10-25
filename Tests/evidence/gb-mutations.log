@@ -1,0 +1,61 @@
+[G1 下方放不下也放下方] filter='SettingsPanelShell'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['neitherSideFitsPicksTheLargerSideAndClamps', 'notEnoughRoomBelowGoesAbove', 'panelTallerThanTheScreenIsPinnedToItsBottom']
+  ['✘ Test run with 13 tests in 1 suite failed after 0.172 seconds with 6 issues.']
+[G2 間距未套用] filter='SettingsPanelShell'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['exactlyEnoughRoomBelowStaysBelow', 'placedBelowWithSixPointGapAndLeftEdgeAligned', 'worksOnASecondaryScreenWithNonZeroOrigin']
+  ['✘ Test run with 13 tests in 1 suite failed after 0.156 seconds with 3 issues.']
+[G3 水平不夾制] filter='SettingsPanelShell'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['horizontallyClampedIntoVisibleFrame', 'worksOnASecondaryScreenWithNonZeroOrigin']
+  ['✘ Test run with 13 tests in 1 suite failed after 0.150 seconds with 4 issues.']
+[G4 面板外判斷忽略跑馬燈] filter='SettingsPanelShell|SettingsPanelDismiss'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['globalClickOverTheTickerRectDoesNotCloseByItself', 'outsideMeansOutsideBothPanelAndTicker']
+  ['✘ Test run with 29 tests in 2 suites failed after 0.234 seconds with 2 issues.']
+[G5 面板可成為 key] filter='SettingsPanelShell'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['neverBecomesKeyOrMainAndDoesNotHideOnDeactivate']
+  ['✘ Test run with 13 tests in 1 suite failed after 0.148 seconds with 1 issue.']
+[G6 面板層級同跑馬燈] filter='SettingsPanelShell'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['levelIsOneAboveTheTickerAndBehaviorMatchesIt']
+  ['✘ Test run with 13 tests in 1 suite failed after 0.172 seconds with 1 issue.']
+[G7 關閉時不移除監看器] filter='SettingsPanelDismiss|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['clickOutsideClosesAndRemovesTheMonitor', 'clickingTheGearTogglesExactlyOnceEachTime', 'closeButtonCommandClosesThePanel', 'closeIsIdempotentAndReopeningInstallsExactlyOneMonitorEachTime', 'closedPanelIsNotRefreshedByStyleChanges', 'panelCloseButtonClosesIt', 'pressingTheTapeWhileOpenClosesThePanelAndRemovesTheMonitor', 'secondToggleClosesAndRemovesTheMonitor', 'tickerHiddenOrQuitClosesThePanel', 'tickerPressOutsideTheGearClosesButGearPressDoesNot']
+  ['✘ Test run with 24 tests in 2 suites failed after 1.337 seconds with 12 issues.']
+[G8 齒輪按下也關閉（關了又重開）] filter='SettingsPanelDismiss'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['clickingTheGearTogglesExactlyOnceEachTime', 'tickerPressOutsideTheGearClosesButGearPressDoesNot']
+  ['✘ Test run with 16 tests in 1 suite failed after 0.105 seconds with 2 issues.']
+[G9 全域遮罩加入鍵盤] filter='SettingsPanelDismiss'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['realMonitorMaskIsMouseDownOnly', 'sourcesHaveNoAccessibilityOrEventTapOrKeyboardMonitoring']
+  ['✘ Test run with 16 tests in 1 suite failed after 0.106 seconds with 3 issues.']
+[G10 跑馬燈按下不回報] filter='SettingsPanelDismiss|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['pressingOnTheTapeClosesThePanelButStillReachesTheRouter', 'pressingTheTapeWhileOpenClosesThePanelAndRemovesTheMonitor']
+  ['✘ Test run with 24 tests in 2 suites failed after 1.342 seconds with 2 issues.']
+[G11 onGear 未接] filter='SettingsPanelDismiss|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['changingPollIntervalInThePanelRestartsTheFakeHelperExactlyOnce', 'closedPanelIsNotRefreshedByStyleChanges', 'gearOpensThePanelAndAStyleChangeReachesTheViewOnceAndTheFile', 'launchAtLoginSwitchDoesNotTouchStyleOrApplyCount', 'menuChangeAndFileEditRefreshTheOpenPanel', 'openFileButtonUsesOnlyTheInjectedOpener', 'panelCloseButtonClosesIt', 'pressingTheTapeWhileOpenClosesThePanelAndRemovesTheMonitor']
+  ['✘ Test run with 24 tests in 2 suites failed after 0.517 seconds with 12 issues.']
+[G12 輪詢檔位與選單不一致] filter='SettingsPanelModel|SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['controlOptionsAreTheSharedSteps', 'pollIntervalStepsComeFromStyleRanges']
+  ['✘ Test run with 31 tests in 2 suites failed after 1.113 seconds with 3 issues.']
+[G13 字級檔位少一檔] filter='SettingsPanelModel|SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['configProblemShowsTheNoticeAndClearsWhenFixed', 'controlOptionsAreTheSharedSteps', 'resetRestoresDefaultsAndMakesABackup', 'segmentedStepsAreTheSameAsStyleMenuModel']
+  ['✘ Test run with 31 tests in 2 suites failed after 1.082 seconds with 6 issues.']
+[G14 停留步進 1] filter='SettingsPanelModel|SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['sliderCommandsRoundLikeTheMenuSliders', 'slidersApplyContinuouslyAndClamp', 'slidersShareRangesWithStyleRanges', 'valueTexts']
+  ['✘ Test run with 31 tests in 2 suites failed after 0.979 seconds with 6 issues.']
+[G15 值變也重建控制項] filter='SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['draggingASliderKeepsTheSameControlInstance', 'sliderKnobIsNotSnappedWhileDragging']
+  ['✘ Test run with 18 tests in 1 suite failed after 2.666 seconds with 3 issues.']
+[G16 拖動中旋鈕回彈] filter='SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['sliderKnobIsNotSnappedWhileDragging']
+  ['✘ Test run with 18 tests in 1 suite failed after 1.017 seconds with 1 issue.']
+[G17 開啟時不重讀開機啟動狀態] filter='SettingsPanelControls'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['approvalButtonAppearsAndDisappearsWithStatus', 'openingThePanelRereadsTheRealStatus']
+  ['✘ Test run with 18 tests in 1 suite failed after 0.957 seconds with 3 issues.']
+[G18 開機啟動寫進樣式] filter='SettingsPanelControls|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['launchAtLoginSwitchDoesNotTouchStyleOrApplyCount', 'launchSwitchGoesThroughControllerAndNeverTouchesTheStyleFile']
+  ['✘ Test run with 26 tests in 2 suites failed after 2.098 seconds with 3 issues.']
+[G19 樣式變更不重新整理面板] filter='SettingsPanelControls|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['menuChangeAndFileEditRefreshTheOpenPanel']
+  ['✘ Test run with 26 tests in 2 suites failed after 2.208 seconds with 2 issues.']
+[G20 控制項不隨熱重載更新（segmented）] filter='SettingsPanelControls|SettingsPanelSmoke'
+  破壞後 rc=1（非 0 = 紅） 失敗測試=['closedPanelIsNotRefreshedByStyleChanges', 'hotReloadRefreshesTheOpenPanel', 'menuChangeAndFileEditRefreshTheOpenPanel', 'resetRestoresDefaultsAndMakesABackup']
+  ['✘ Test run with 26 tests in 2 suites failed after 2.049 seconds with 6 issues.']
+[還原後] filter='SettingsPanel' rc=0 ['✔ Test run with 71 tests in 6 suites passed after 3.068 seconds.']

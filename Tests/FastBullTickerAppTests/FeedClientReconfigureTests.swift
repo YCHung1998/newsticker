@@ -202,6 +202,8 @@ import FastBullTickerCore
         #expect(waitUntil { log.startedCount == 1 })
         c.reconfigure(arguments: ["--interval-ms", "30000"])
         #expect(waitUntil { log.startedCount == 2 })
+        // 新世代 helper 啟動後也會送一次 snapshot；先等它到齊再取基準，否則會把「新世代的合法輸出」誤判成舊世代洩漏（競態）。
+        #expect(waitUntil { log.messages.filter { if case .snapshot = $0 { return true } else { return false } }.count == 2 })
         let before = log.messages.count
         c.queue.sync { c.receive(Data((Lines.items + "\n").utf8), generation: 1) }     // 舊世代的延遲輸出
         #expect(log.messages.count == before)

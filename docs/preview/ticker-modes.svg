@@ -13,7 +13,7 @@
   <text x="34" y="92" font-size="14" font-weight="700" fill="#fff">即時財經快訊</text>
   <text x="262" y="92" font-size="14" fill="#fff">16:28:48 沙烏地民防部門：塔伊夫危險已解除。</text>
   <text x="610" y="92" font-size="14" fill="#fff" opacity="0.95">16:27:25 沙烏地民防…</text>
-  <text x="150" y="124" font-size="11" fill="#777">↑ 控制列在標籤右側：&lt; (n/N) &gt;（齒輪位置預留在標籤左側，尚未實作）</text>
+  <text x="150" y="124" font-size="11" fill="#777">↑ 控制列在標籤右側：&lt; (n/N) &gt;（最左邊另有 28pt 齒輪槽，settings-gear；此圖未重繪）</text>
   <text x="742" y="124" font-size="11" text-anchor="end" fill="#777">← 帶子向左捲動</text>
 
   <!-- B. LIVE -->

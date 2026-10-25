@@ -561,3 +561,30 @@ python3 Tests/ga-mutations.py [G|S|K|P|L 前綴…]                       # muta
 ## 已知問題：既有測試 `AppSmokeTests.snapshotThenItemsDriveSchedulerReplayToLiveToReplay` 偶發失敗
 
 加入 A 段測試後全量 `swift test` 約 12 次中失敗 2 次（`Tests/evidence/ga-5-green-2.log` 是其中一次）：該測試在收到 snapshot 後立刻斷言 `driver.mode == .replay`，但示範 helper 約 2 秒後就送 items；同一個 `@MainActor` suite 內另一個測試用阻塞式 `waitUntil`（`demoHelperExitsOnStdinEofWithoutOrphan`）占住主執行緒時，這個測試的輪詢被延後，items 先到就看到 `.live`。這是**既有測試的時間敏感設計**（單獨重跑該 suite 8 次全過），不是 A 段實作的問題；但 A 段新增的測試增加了平行負載，可能提高發生機率。未修改該測試。
+
+---
+
+# settings-gear 第 B 段（tasks 7–11）：設定面板殼、控制項、開關與全域滑鼠監看、組裝、文件（2026-10-25）
+
+接手前一位工程師被中途停止留下的半成品：盤點時 `swift build` 通過、`swift test` 658 個全綠（含新增 71 個 `SettingsPanel*` 測試），保留沿用；我補的是 `FeedClientReconfigureTests` 的競態修正、離屏 PNG、mutation 重跑、8 次連跑與文件。全部不開真實視窗（`SettingsPanel` 只當離屏宿主、從不顯示）、不裝真實全域監看器、不真的註冊登入項目、不寫真實 `style.json`。
+
+```sh
+swift test                                              # 658 個、83 個 suite（A 段 587；B 段新增 71）
+swift test --filter SettingsPanelShell                  # task 7   SettingsPanelShellTests.swift（styleMask／位置純函式／面板外判斷）
+swift test --filter SettingsPanelModel                  # task 8   SettingsPanelModelTests.swift
+swift test --filter SettingsPanelControls               # task 8   SettingsPanelControlsTests.swift（直接呼叫控制項 action）
+swift test --filter SettingsPanelDismiss                # task 9   SettingsPanelDismissTests.swift（假監看器）
+swift test --filter SettingsPanelSmoke                  # task 10  SettingsPanelSmokeTests.swift（假視窗＋暫存 StyleStore＋假 helper 腳本＋真 FeedClient）
+GB_SNAPSHOT_DIR=$PWD/Tests/evidence swift test --filter SettingsPanelSnapshot   # 離屏 PNG
+python3 Tests/gb-mutations.py                           # 20 組 mutation，輸出 Tests/evidence/gb-mutations.log
+```
+
+## 證據（誠實說明）
+
+- **紅**：前一位工程師的先紅後綠沒有留下檔案；我沒有重做逐項先紅，改以 mutation 證明咬合力。**20 組破壞全部變紅**（重跑結果 `Tests/evidence/gb-mutations.log`：G1–G6 位置／間距／夾制／面板外／key／層級，G7–G11 監看器移除／齒輪關了又重開／遮罩加鍵盤／跑馬燈按下不回報／onGear 未接，G12–G14 輪詢檔位／字級檔位／停留步進與選單不一致，G15–G17 控制項重建／拖動回彈／開啟不重讀開機狀態，G18–G20 開機啟動寫進樣式／樣式變更不重新整理／熱重載不更新），還原後原始檔雜湊與破壞前相同，`SettingsPanel` 71 個全綠。
+- **本次修正的我方測試競態**：`FeedClientReconfigureTests.staleOutputFromTheOldGenerationIsIgnoredAfterRestart`（8 連跑第一輪曾紅：`log.messages.count 2 == 1`）。原因是新世代 helper 的合法 snapshot 晚於基準值到達，被誤判成舊世代洩漏；改為先等兩個 snapshot 到齊再取基準（沒有放寬斷言）。
+- **綠**：`make helper app sign test` 658 個通過；`codesign --verify --strict build/FastBullTicker.app` 通過；`sh Tests/app-packaging-check.sh` ALL PASS；`cargo test` 76；`python3 -m unittest discover -s protocol/tests` 12；`spikes` 建置＋`run_script_tests.sh` 41；`openspec validate --all --strict` 16 通過；`swift build` 0 warning。
+
+## 連跑 8 次 `swift test`（`Tests/evidence/gb-8x-swift-test.log`）：**沒有全綠**
+
+最後一次 8 連跑：6 次 658 全綠、2 次紅，兩次都是 `AppSmokeNavigationTests.coordinatorCountsItemsWithURLFromDemoHelper`（`AppSmokeTests.swift:271` 逾時；其中一次 `itemsReceived` 只有 snapshot 的 12，代表 10 秒內連一個 items 批次都沒到）。前一批 8 連跑也有 2 次紅（同一測試；另一輪 `FeedClientReconfigure` 那條競態，已修）。對照：以 `git archive HEAD`（A 段）在暫存目錄建置，連跑 12 次 587 個全綠、0 次紅；以 `--skip SettingsPanelSmoke` 連跑 14 次，10 次全綠後第 11 次有 4 個行程類測試（假 helper 啟動／EOF／SIGTERM 等待）逾時。結論：這是**行程啟動時序在測試平行負載下的逾時**，B 段新增的測試量增加了負載使其更容易出現，**並非單一 B 測試的邏輯錯誤，也不是 `SettingsPanelSmoke` 專屬**；根因未證實，我沒有放寬任何斷言或逾時。需要協調者決定處理方式（例如串行化行程類 suite 或加大測試負載隔離）。
