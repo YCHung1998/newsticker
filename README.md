@@ -7,6 +7,19 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 
 ---
 
+## 下載與安裝（macOS，Apple Silicon）
+
+最新版在 [Releases](../../releases)。需求：**macOS 14 以上、Apple Silicon（arm64）**；不支援 Intel。
+
+1. 下載 `FastBullTicker-<版本>-arm64.zip`，解壓得到 `FastBullTicker.app`，拖到「應用程式」。
+2. **這個 App 沒有 Apple 開發者簽名與公證（只有 ad-hoc 簽名）**，第一次開啟 macOS 會擋。擇一處理：
+   - 在 Finder 對 App 按右鍵 →「打開」→ 再按「打開」；若仍被擋，到「系統設定 → 隱私權與安全性」捲到底按「仍要打開」；或
+   - 終端機執行：`xattr -dr com.apple.quarantine /Applications/FastBullTicker.app`
+3. 啟動後沒有 Dock 圖示，畫面上方會出現浮動跑馬燈，選單列有報紙圖示。
+4. 驗證下載完整：`shasum -a 256 FastBullTicker-<版本>-arm64.zip` 與 Release 頁面列出的雜湊相同。
+
+> 這是原型階段的軟體：許多視覺與互動行為只通過自動測試與離屏渲染，**未經大量實機驗證**（見第 6.3 節）。與 FastBull、Jin10 等資料來源網站**無任何關係**；資料來源的使用條款請自行確認。`docs/fixtures/` 內的 FastBull 頁面快照僅作解析測試資料，其內容版權屬原網站，若有疑慮請聯絡作者移除。授權：MIT（見 `LICENSE`）。
+
 ## 1. 目標
 
 1. **自動取得帶時間的即時訊息**：輪詢 FastBull「推薦」快訊，每則含發布時間與內文。
