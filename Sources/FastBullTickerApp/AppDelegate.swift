@@ -208,8 +208,14 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         log.write("feed: helper=\(url.path)")
-        let client = FeedClient(config: FeedClientConfig(helperURL: url), onEvent: AppCoordinator.bridge(to: coordinator))
+        // 啟動參數由載入的樣式決定；之後輪詢間隔變更（熱重載／面板）由 `StyleApplier.onPollIntervalChange` 計畫性重啟 helper。
+        let args = FeedClientConfig.helperArguments(pollIntervalSeconds: styleStore?.style.pollIntervalSeconds ?? TickerStyle.default.pollIntervalSeconds)
+        let client = FeedClient(config: FeedClientConfig(helperURL: url, arguments: args), onEvent: AppCoordinator.bridge(to: coordinator))
         feed = client
+        styleApplier?.onPollIntervalChange = { [weak self] seconds in
+            self?.log.write("feed: poll interval -> \(seconds)s, restarting helper")
+            self?.feed?.reconfigure(arguments: FeedClientConfig.helperArguments(pollIntervalSeconds: seconds))
+        }
         wake = WakeObserver(client: client)
         client.start()
     }

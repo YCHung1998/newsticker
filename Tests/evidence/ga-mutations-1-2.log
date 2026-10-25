@@ -1,0 +1,60 @@
+[G1 面板寬寫死 620]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['defaultPanelWidthIsDerivedNotHardCoded', 'defaultStyle', 'defaultsAgreeWithShellConfigPrototypeConstants', 'hiddenLabelKeepsGearAtLeftAndStripRightNextToIt', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'hitGeometryCarriesGearSlotAndLabelSeparately', 'layersAreLaidOutWithLabelShiftedByTheGearSlot', 'noFileMeansDefaultStyleAndNothingApplied']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.761 seconds with 27 issues.']
+[G2 標籤不右移齒輪槽寬]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['defaultStyle', 'gearInkIsCenteredInTheSlot', 'gearVerticalCenterMatchesTheChevrons', 'hoverChangesTheRenderedBrightness', 'layersAreLaidOutWithLabelShiftedByTheGearSlot', 'maxCornerRadiusDoesNotClipTheGear', 'snapshotThenItemsDriveSchedulerReplayToLiveToReplay']
+  ['✘ Test run with 145 tests in 24 suites failed after 4.831 seconds with 7 issues.']
+[G3 可視寬度漏加齒輪槽（leftInset 不含槽寬）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hiddenLabelKeepsGearAtLeftAndStripRightNextToIt', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'layersAreLaidOutWithLabelShiftedByTheGearSlot', 'noFileMeansDefaultStyleAndNothingApplied', 'panelWidthFollowsGearSlotWidthAndKeepsViewport370', 'resetFromTheMenuRestoresDefaultsAndKeepsABackup', 'shellConfigBuildsTheSchedulerConfigFromTheStyle', 'startupLoadsTheFileAndAppliesThroughTheSamePath']
+  ['✘ Test run with 145 tests in 24 suites failed after 4.875 seconds with 28 issues.']
+[G4 命中測試漏加齒輪槽（inset 只含標籤）]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer', 'buttonsAreShiftedByTheGearSlot', 'buttonsFireOnMouseUpNotMouseDown', 'clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse', 'failedOpenIsNotRetried', 'gearClickDoesNotTriggerOtherActions', 'hiddenLabelStillHasGearAtLeft', 'linkFiresOnMouseUpWithItsSeq']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.813 seconds with 26 issues.']
+[G5 控制列圖層漏加槽寬]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['alignmentHoldsForOtherTexts', 'gearStaysAtTheLeftWhenLabelIsHidden', 'gearVerticalCenterMatchesTheChevrons', 'hiddenLabelKeepsGearAtLeftAndStripRightNextToIt', 'hidingTheLabelWidensViewportAndKeepsTapePositions', 'layersAreLaidOutWithLabelShiftedByTheGearSlot', 'startupLoadsTheFileAndAppliesThroughTheSamePath', 'tapeViewportIsDerivedFromControlStripNotHardCoded']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.842 seconds with 29 issues.']
+[G6 makeHitGeometry 不帶齒輪槽寬]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['arrowButtonsChangePositionAndHoldTimer', 'buttonsAreShiftedByTheGearSlot', 'buttonsFireOnMouseUpNotMouseDown', 'clickingPaperclipOpensExactlyOneHttpURLAndNeverAnythingElse', 'failedOpenIsNotRetried', 'gearBeatsLinkZoneBeneathIt', 'gearClickDoesNotTriggerOtherActions', 'gearFiresOnMouseUpOnlyAndNeverDrags']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.470 seconds with 39 issues.']
+[G7 齒輪槽不命中 .gear]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['gearBeatsLinkZoneBeneathIt', 'gearClickDoesNotTriggerOtherActions', 'gearFiresOnMouseUpOnlyAndNeverDrags', 'gearSlotIsAHalfOpenRangeAtTheLeftEdge', 'hiddenLabelStillHasGearAtLeft', 'hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit', 'hoverChangesTheRenderedBrightness', 'hoverFollowsGeometryWhenLabelToggles']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.599 seconds with 12 issues.']
+[G8 齒輪 mouse-down 就觸發]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['gearClickDoesNotTriggerOtherActions', 'gearFiresOnMouseUpOnlyAndNeverDrags', 'releasingOutsideTheGearDoesNotFire', 'rightButtonAndClickThroughDoNotFire']
+  ['✘ Test run with 145 tests in 24 suites failed after 4.783 seconds with 5 issues.']
+[G9 離開面板不復原 hover]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.505 seconds with 1 issue.']
+[G10 hover 判斷恆為真]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit', 'hoverFollowsGeometryWhenLabelToggles']
+  ['✘ Test run with 145 tests in 24 suites failed after 3.815 seconds with 2 issues.']
+[G11 齒輪路徑偏離中心 3pt]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['gearInkIsCenteredInTheSlot']
+  ['✘ Test run with 145 tests in 24 suites failed after 4.632 seconds with 1 issue.']
+[G12 mouse-up 不檢查放開位置]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['releasingOutsideThePressedTargetDoesNotFire']
+  ['✘ Test run with 145 tests in 24 suites failed after 4.859 seconds with 1 issue.']
+[G13 點穿模式仍觸發齒輪]
+  破壞後 rc=0 !!! 仍然綠（測試沒抓到）
+  失敗測試=[]
+  ['✔ Test run with 145 tests in 24 suites passed after 4.776 seconds.']
+
+還原後（完整 swift test）rc=0 失敗測試=[] ['✔ Test run with 525 tests in 71 suites passed after 6.119 seconds.']  存活的 mutation 數=1
+[G13 點穿模式仍觸發齒輪]
+  破壞後 rc=1 紅（偵測到）
+  失敗測試=['clickThroughTurnedOnBetweenDownAndUpCancelsTheGear']
+  ['✘ Test run with 146 tests in 24 suites failed after 4.783 seconds with 1 issue.']
+
+還原後（完整 swift test）rc=0 失敗測試=[] ['✔ Test run with 526 tests in 71 suites passed after 6.037 seconds.']  存活的 mutation 數=0

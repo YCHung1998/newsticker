@@ -1,0 +1,1360 @@
+[0/1] Planning build
+Building for debugging...
+[0/6] Write sources
+[1/6] Write swift-version--58304C5D6DBC2206.txt
+[3/8] Compiling FastBullTickerAppTests GearSnapshotTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearSnapshotTests.swift:82:14: error: value of type 'TickerView' has no member 'pointerMoved'
+ 80 |         let view = TickerView(config: .provisional)
+ 81 |         let idle = try StripRender.bitmap(of: view)
+ 82 |         view.pointerMoved(to: CGPoint(x: 14, y: 21))
+    |              `- error: value of type 'TickerView' has no member 'pointerMoved'
+ 83 |         let hov = try StripRender.bitmap(of: view)
+ 84 |         let bg = Self.slotBackground(idle)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearSnapshotTests.swift:114:29: error: value of type 'TickerView' has no member 'pointerMoved'
+112 |             driver.step()
+113 |             for _ in 0..<40 { clock.t += 0.25; driver.step() }
+114 |             if hover { view.pointerMoved(to: CGPoint(x: 14, y: 21)) }
+    |                             `- error: value of type 'TickerView' has no member 'pointerMoved'
+115 |             let b = try StripRender.bitmap(of: view)
+116 |             #expect(b.w == Int(cfg.panelSize.width) * StripRender.scale)
+[4/8] Compiling FastBullTickerAppTests GearLayoutTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:13:19: error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+11 |     @Test func defaultPanelWidthIsDerivedNotHardCoded() {
+12 |         let c = ShellConfig.provisional
+13 |         #expect(c.gearSlotWidth == 28)
+   |                   `- error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+14 |         #expect(c.panelSize.width == 648 && c.panelSize.height == 42)
+15 |         let derived = ShellConfig.panelWidth(gearSlotWidth: c.gearSlotWidth, labelWidth: Double(c.labelWidth), strip: c.strip,
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:15:35: error: type 'ShellConfig' has no member 'panelWidth'
+13 |         #expect(c.gearSlotWidth == 28)
+14 |         #expect(c.panelSize.width == 648 && c.panelSize.height == 42)
+15 |         let derived = ShellConfig.panelWidth(gearSlotWidth: c.gearSlotWidth, labelWidth: Double(c.labelWidth), strip: c.strip,
+   |                                   `- error: type 'ShellConfig' has no member 'panelWidth'
+16 |                                              tapeViewport: ShellConfig.designTapeViewport)
+17 |         #expect(derived == 28 + 150 + 100 + 370 && Double(c.panelSize.width) == derived)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:15:63: error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+13 |         #expect(c.gearSlotWidth == 28)
+14 |         #expect(c.panelSize.width == 648 && c.panelSize.height == 42)
+15 |         let derived = ShellConfig.panelWidth(gearSlotWidth: c.gearSlotWidth, labelWidth: Double(c.labelWidth), strip: c.strip,
+   |                                                               `- error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+16 |                                              tapeViewport: ShellConfig.designTapeViewport)
+17 |         #expect(derived == 28 + 150 + 100 + 370 && Double(c.panelSize.width) == derived)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:16:72: error: type 'ShellConfig' has no member 'designTapeViewport'
+14 |         #expect(c.panelSize.width == 648 && c.panelSize.height == 42)
+15 |         let derived = ShellConfig.panelWidth(gearSlotWidth: c.gearSlotWidth, labelWidth: Double(c.labelWidth), strip: c.strip,
+16 |                                              tapeViewport: ShellConfig.designTapeViewport)
+   |                                                                        `- error: type 'ShellConfig' has no member 'designTapeViewport'
+17 |         #expect(derived == 28 + 150 + 100 + 370 && Double(c.panelSize.width) == derived)
+18 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:23:33: error: type 'ShellConfig' has no member 'panelWidth'
+21 |         let strip = ControlStripLayout()
+22 |         for g in [0.0, 24, 28, 40] {
+23 |             let w = ShellConfig.panelWidth(gearSlotWidth: g, labelWidth: 150, strip: strip, tapeViewport: 370)
+   |                                 `- error: type 'ShellConfig' has no member 'panelWidth'
+24 |             #expect(w == g + 150 + 100 + 370)
+25 |             var c = ShellConfig.provisional
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:26:15: error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+24 |             #expect(w == g + 150 + 100 + 370)
+25 |             var c = ShellConfig.provisional
+26 |             c.gearSlotWidth = g
+   |               `- error: value of type 'ShellConfig' has no member 'gearSlotWidth'
+27 |             c.panelSize = CGSize(width: w, height: 42)
+28 |             #expect(c.tapeViewport(showLabel: true) == 370, "槽寬 \(g)：可視寬度仍為 370")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:44:19: error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+42 |     @Test func hitGeometryCarriesGearSlotAndLabelSeparately() {
+43 |         let g = ShellConfig.provisional.makeHitGeometry(showLabel: true)
+44 |         #expect(g.gearSlotWidth == 28 && g.labelWidth == 150 && g.panelSize.width == 648)
+   |                   `- error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+45 |         let n = ShellConfig.provisional.makeHitGeometry(showLabel: false)
+46 |         #expect(n.gearSlotWidth == 28 && n.labelWidth == 0, "標籤隱藏時齒輪槽仍在")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:46:19: error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+44 |         #expect(g.gearSlotWidth == 28 && g.labelWidth == 150 && g.panelSize.width == 648)
+45 |         let n = ShellConfig.provisional.makeHitGeometry(showLabel: false)
+46 |         #expect(n.gearSlotWidth == 28 && n.labelWidth == 0, "標籤隱藏時齒輪槽仍在")
+   |                   `- error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+47 |     }
+48 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:52:26: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+50 |         let v = TickerView(config: .provisional)
+51 |         let l = v.layoutSnapshot
+52 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+   |                          `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+53 |         #expect(Double(l.labelFrame.minX) == 28 && Double(l.labelFrame.maxX) == 178)
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:52:63: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+50 |         let v = TickerView(config: .provisional)
+51 |         let l = v.layoutSnapshot
+52 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+   |                                                               `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+53 |         #expect(Double(l.labelFrame.minX) == 28 && Double(l.labelFrame.maxX) == 178)
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:53:26: error: value of type 'TickerView.LayoutSnapshot' has no member 'labelFrame'
+51 |         let l = v.layoutSnapshot
+52 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+53 |         #expect(Double(l.labelFrame.minX) == 28 && Double(l.labelFrame.maxX) == 178)
+   |                          `- error: value of type 'TickerView.LayoutSnapshot' has no member 'labelFrame'
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+55 |         #expect(Double(l.clipFrame.minX) == 278 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 370)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:53:61: error: value of type 'TickerView.LayoutSnapshot' has no member 'labelFrame'
+51 |         let l = v.layoutSnapshot
+52 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+53 |         #expect(Double(l.labelFrame.minX) == 28 && Double(l.labelFrame.maxX) == 178)
+   |                                                             `- error: value of type 'TickerView.LayoutSnapshot' has no member 'labelFrame'
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+55 |         #expect(Double(l.clipFrame.minX) == 278 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 370)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:56:26: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearFrame'
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+55 |         #expect(Double(l.clipFrame.minX) == 278 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 370)
+56 |         #expect(Double(l.gearFrame.minX) == 0 && Double(l.gearFrame.width) == 28)
+   |                          `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearFrame'
+57 |     }
+58 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:56:59: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearFrame'
+54 |         #expect(Double(l.previousFrame.minX) == 178 && Double(l.indicatorFrame.minX) == 202 && Double(l.nextFrame.minX) == 254 && Double(l.nextFrame.maxX) == 278)
+55 |         #expect(Double(l.clipFrame.minX) == 278 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 370)
+56 |         #expect(Double(l.gearFrame.minX) == 0 && Double(l.gearFrame.width) == 28)
+   |                                                           `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearFrame'
+57 |     }
+58 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:64:26: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+62 |         let l = v.layoutSnapshot
+63 |         #expect(l.labelHidden)
+64 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+   |                          `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+65 |         #expect(Double(l.previousFrame.minX) == 28 && Double(l.nextFrame.maxX) == 128)
+66 |         #expect(Double(l.clipFrame.minX) == 128 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 520)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:64:63: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+62 |         let l = v.layoutSnapshot
+63 |         #expect(l.labelHidden)
+64 |         #expect(Double(l.gearSlotFrame.minX) == 0 && Double(l.gearSlotFrame.maxX) == 28)
+   |                                                               `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+65 |         #expect(Double(l.previousFrame.minX) == 28 && Double(l.nextFrame.maxX) == 128)
+66 |         #expect(Double(l.clipFrame.minX) == 128 && Double(l.clipFrame.maxX) == 648 && Double(l.clipFrame.width) == 520)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:73:94: error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+71 |         var s = TickerStyle.default; s.showLabel = false
+72 |         v.apply(style: s)
+73 |         #expect(Double(v.layoutSnapshot.previousFrame.minX) == 28 && Double(v.layoutSnapshot.gearSlotFrame.minX) == 0)
+   |                                                                                              `- error: value of type 'TickerView.LayoutSnapshot' has no member 'gearSlotFrame'
+74 |         #expect(v.router.geometry.gearSlotWidth == 28 && v.router.geometry.labelWidth == 0)
+75 |         v.apply(style: .default)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearLayoutTests.swift:74:35: error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+72 |         v.apply(style: s)
+73 |         #expect(Double(v.layoutSnapshot.previousFrame.minX) == 28 && Double(v.layoutSnapshot.gearSlotFrame.minX) == 0)
+74 |         #expect(v.router.geometry.gearSlotWidth == 28 && v.router.geometry.labelWidth == 0)
+   |                                   `- error: value of type 'HitGeometry' has no member 'gearSlotWidth'
+75 |         v.apply(style: .default)
+76 |         #expect(Double(v.layoutSnapshot.previousFrame.minX) == 178 && v.router.geometry.labelWidth == 150)
+[5/8] Emitting module FastBullTickerAppTests
+[6/8] Compiling FastBullTickerAppTests GearHitTests.swift
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:16:16: error: value of type 'NavigationInputRouter' has no member 'onGear'
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+ 16 |         router.onGear = { [unowned self] in gear += 1 }
+    |                `- error: value of type 'NavigationInputRouter' has no member 'onGear'
+ 17 |         router.onPrevious = { [unowned self] in previous += 1 }
+ 18 |         router.onNext = { [unowned self] in next += 1 }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:32:28: error: type 'HitTarget' has no member 'gear'
+ 30 | 
+ 31 |     @Test func gearSlotIsAHalfOpenRangeAtTheLeftEdge() {
+ 32 |         #expect(hit(0) == .gear && hit(14) == .gear && hit(27.9) == .gear)
+    |                            `- error: type 'HitTarget' has no member 'gear'
+ 33 |         #expect(hit(28) == .drag, "標籤")
+ 34 |         #expect(hit(0, 0) == .gear && hit(0, 41.9) == .gear, "整條高度")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:32:48: error: type 'HitTarget' has no member 'gear'
+ 30 | 
+ 31 |     @Test func gearSlotIsAHalfOpenRangeAtTheLeftEdge() {
+ 32 |         #expect(hit(0) == .gear && hit(14) == .gear && hit(27.9) == .gear)
+    |                                                `- error: type 'HitTarget' has no member 'gear'
+ 33 |         #expect(hit(28) == .drag, "標籤")
+ 34 |         #expect(hit(0, 0) == .gear && hit(0, 41.9) == .gear, "整條高度")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:32:70: error: type 'HitTarget' has no member 'gear'
+ 30 | 
+ 31 |     @Test func gearSlotIsAHalfOpenRangeAtTheLeftEdge() {
+ 32 |         #expect(hit(0) == .gear && hit(14) == .gear && hit(27.9) == .gear)
+    |                                                                      `- error: type 'HitTarget' has no member 'gear'
+ 33 |         #expect(hit(28) == .drag, "標籤")
+ 34 |         #expect(hit(0, 0) == .gear && hit(0, 41.9) == .gear, "整條高度")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:34:31: error: type 'HitTarget' has no member 'gear'
+ 32 |         #expect(hit(0) == .gear && hit(14) == .gear && hit(27.9) == .gear)
+ 33 |         #expect(hit(28) == .drag, "標籤")
+ 34 |         #expect(hit(0, 0) == .gear && hit(0, 41.9) == .gear, "整條高度")
+    |                               `- error: type 'HitTarget' has no member 'gear'
+ 35 |         #expect(hit(-0.1) == .drag, "面板外")
+ 36 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:34:56: error: type 'HitTarget' has no member 'gear'
+ 32 |         #expect(hit(0) == .gear && hit(14) == .gear && hit(27.9) == .gear)
+ 33 |         #expect(hit(28) == .drag, "標籤")
+ 34 |         #expect(hit(0, 0) == .gear && hit(0, 41.9) == .gear, "整條高度")
+    |                                                        `- error: type 'HitTarget' has no member 'gear'
+ 35 |         #expect(hit(-0.1) == .drag, "面板外")
+ 36 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:47:36: error: type 'HitTarget' has no member 'gear'
+ 45 |     @Test func hiddenLabelStillHasGearAtLeft() {
+ 46 |         let g = ShellConfig.provisional.makeHitGeometry(showLabel: false)
+ 47 |         #expect(hit(10, in: g) == .gear && hit(40, in: g) == .previousButton && hit(100, in: g) == .drag && hit(110, in: g) == .nextButton)
+    |                                    `- error: type 'HitTarget' has no member 'gear'
+ 48 |     }
+ 49 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:53:45: error: type 'HitTarget' has no member 'gear'
+ 51 |         // 連結欄位右緣 = 278 + visualLeft + width；讓區間 [右緣−30, 右緣+4) 蓋住齒輪槽
+ 52 |         let under = HitItem(seq: 3, visualLeft: -270, width: 10, hasLinkSlot: true)    // 右緣 18：區間 −12..<22
+ 53 |         #expect(hit(10, items: [under]) == .gear)
+    |                                             `- error: type 'HitTarget' has no member 'gear'
+ 54 |         #expect(hit(100, items: [under]) == .drag)
+ 55 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:66:17: error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    |     `- note: calls to initializer 'init(geometry:items:)' from outside of its actor context are implicitly asynchronous
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+    :
+ 63 |     }
+ 64 | 
+ 65 |     @Test func gearFiresOnMouseUpOnlyAndNeverDrags() {
+    |                `- note: add '@MainActor' to make instance method 'gearFiresOnMouseUpOnlyAndNeverDrags()' part of global actor 'MainActor'
+ 66 |         let p = GearProbe()
+    |                 `- error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 67 |         p.down(14)
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:67:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 63 |     }
+ 64 | 
+ 65 |     @Test func gearFiresOnMouseUpOnlyAndNeverDrags() {
+    |                `- note: add '@MainActor' to make instance method 'gearFiresOnMouseUpOnlyAndNeverDrags()' part of global actor 'MainActor'
+ 66 |         let p = GearProbe()
+ 67 |         p.down(14)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+ 69 |         p.up(14)
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:68:79: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 63 |     }
+ 64 | 
+ 65 |     @Test func gearFiresOnMouseUpOnlyAndNeverDrags() {
+    |                `- note: add '@MainActor' to make instance method 'gearFiresOnMouseUpOnlyAndNeverDrags()' part of global actor 'MainActor'
+ 66 |         let p = GearProbe()
+ 67 |         p.down(14)
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 0,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 0"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: ["按下時不觸發、不拖曳"],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 69 |         p.up(14)
+ 70 |         #expect(p.gear == 1 && p.drags == 0)
+
+macro expansion #expect:1:61: error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:68:79: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                                              `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 66 |         let p = GearProbe()
+ 67 |         p.down(14)
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 0,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 0"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: ["按下時不觸發、不拖曳"],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                             `- error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 69 |         p.up(14)
+ 70 |         #expect(p.gear == 1 && p.drags == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:69:11: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 63 |     }
+ 64 | 
+ 65 |     @Test func gearFiresOnMouseUpOnlyAndNeverDrags() {
+    |                `- note: add '@MainActor' to make instance method 'gearFiresOnMouseUpOnlyAndNeverDrags()' part of global actor 'MainActor'
+ 66 |         let p = GearProbe()
+ 67 |         p.down(14)
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+ 69 |         p.up(14)
+    |           `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 70 |         #expect(p.gear == 1 && p.drags == 0)
+ 71 |     }
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:70:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 63 |     }
+ 64 | 
+ 65 |     @Test func gearFiresOnMouseUpOnlyAndNeverDrags() {
+    |                `- note: add '@MainActor' to make instance method 'gearFiresOnMouseUpOnlyAndNeverDrags()' part of global actor 'MainActor'
+ 66 |         let p = GearProbe()
+ 67 |         p.down(14)
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+ 69 |         p.up(14)
+ 70 |         #expect(p.gear == 1 && p.drags == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 71 |     }
+ 72 | 
+
+macro expansion #expect:1:61: error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:70:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                                              `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 68 |         #expect(p.gear == 0 && p.drags == 0, "按下時不觸發、不拖曳")
+ 69 |         p.up(14)
+ 70 |         #expect(p.gear == 1 && p.drags == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                             `- error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 71 |     }
+ 72 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:74:17: error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    |     `- note: calls to initializer 'init(geometry:items:)' from outside of its actor context are implicitly asynchronous
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+    |                 `- error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:75:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:75:23: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+    |                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:76:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+ 78 |         #expect(p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:76:23: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+    |                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+ 78 |         #expect(p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:77:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 78 |         #expect(p.gear == 0)
+ 79 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:77:24: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+    |                        `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 78 |         #expect(p.gear == 0)
+ 79 |     }
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:78:29: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 71 |     }
+ 72 | 
+ 73 |     @Test func releasingOutsideTheGearDoesNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'releasingOutsideTheGearDoesNotFire()' part of global actor 'MainActor'
+ 74 |         let p = GearProbe()
+ 75 |         p.down(14); p.up(100)            // 移到標籤放開
+ 76 |         p.down(14); p.up(200)            // 移到控制列
+ 77 |         p.down(100); p.up(14)            // 在標籤按下、移到齒輪放開
+ 78 |         #expect(p.gear == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear,{ $0 == $1() },0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear"),"==",.__fromSyntaxNode("0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 79 |     }
+ 80 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:82:17: error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    |     `- note: calls to initializer 'init(geometry:items:)' from outside of its actor context are implicitly asynchronous
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+    |                 `- error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:83:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+ 85 |         #expect(p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:83:39: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    |                                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+ 85 |         #expect(p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:84:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 85 |         #expect(p.gear == 0)
+ 86 |         p.router.isEnabled = false
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:84:39: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+    |                                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 85 |         #expect(p.gear == 0)
+ 86 |         p.router.isEnabled = false
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:85:29: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+ 85 |         #expect(p.gear == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear,{ $0 == $1() },0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear"),"==",.__fromSyntaxNode("0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 86 |         p.router.isEnabled = false
+ 87 |         p.down(14); p.up(14)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:86:18: error: main actor-isolated property 'isEnabled' can not be mutated from a nonisolated context
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+ 84 |         p.down(14, button: .other); p.up(14, button: .other)
+ 85 |         #expect(p.gear == 0)
+ 86 |         p.router.isEnabled = false
+    |                  `- error: main actor-isolated property 'isEnabled' can not be mutated from a nonisolated context
+ 87 |         p.down(14); p.up(14)
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Sources/FastBullTickerApp/NavigationInput.swift:14:16: note: mutation of this property is only permitted within the actor
+12 |     public var geometry: HitGeometry
+13 |     public var hitItems: () -> [HitItem] = { [] }
+14 |     public var isEnabled = true
+   |                `- note: mutation of this property is only permitted within the actor
+15 |     public var onPrevious: () -> Void = {}
+16 |     public var onNext: () -> Void = {}
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:87:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 85 |         #expect(p.gear == 0)
+ 86 |         p.router.isEnabled = false
+ 87 |         p.down(14); p.up(14)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+ 89 |         p.router.isEnabled = true
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:87:23: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 85 |         #expect(p.gear == 0)
+ 86 |         p.router.isEnabled = false
+ 87 |         p.down(14); p.up(14)
+    |                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+ 89 |         p.router.isEnabled = true
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:88:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 86 |         p.router.isEnabled = false
+ 87 |         p.down(14); p.up(14)
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 0,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 0"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 89 |         p.router.isEnabled = true
+ 90 |         p.down(14); p.up(14)
+
+macro expansion #expect:1:61: error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:88:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                                              `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 86 |         p.router.isEnabled = false
+ 87 |         p.down(14); p.up(14)
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 0,{ $0 && $1() },p.drags == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 0"),"&&",.__fromSyntaxNode("p.drags == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                             `- error: main actor-isolated property 'drags' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 89 |         p.router.isEnabled = true
+ 90 |         p.down(14); p.up(14)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:89:18: error: main actor-isolated property 'isEnabled' can not be mutated from a nonisolated context
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 87 |         p.down(14); p.up(14)
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+ 89 |         p.router.isEnabled = true
+    |                  `- error: main actor-isolated property 'isEnabled' can not be mutated from a nonisolated context
+ 90 |         p.down(14); p.up(14)
+ 91 |         #expect(p.gear == 1)
+
+/Users/eason.hung/Documents/github/newsticker/Sources/FastBullTickerApp/NavigationInput.swift:14:16: note: mutation of this property is only permitted within the actor
+12 |     public var geometry: HitGeometry
+13 |     public var hitItems: () -> [HitItem] = { [] }
+14 |     public var isEnabled = true
+   |                `- note: mutation of this property is only permitted within the actor
+15 |     public var onPrevious: () -> Void = {}
+16 |     public var onNext: () -> Void = {}
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:90:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+ 89 |         p.router.isEnabled = true
+ 90 |         p.down(14); p.up(14)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 91 |         #expect(p.gear == 1)
+ 92 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:90:23: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 88 |         #expect(p.gear == 0 && p.drags == 0)
+ 89 |         p.router.isEnabled = true
+ 90 |         p.down(14); p.up(14)
+    |                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 91 |         #expect(p.gear == 1)
+ 92 |     }
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:91:29: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 79 |     }
+ 80 | 
+ 81 |     @Test func rightButtonAndClickThroughDoNotFire() {
+    |                `- note: add '@MainActor' to make instance method 'rightButtonAndClickThroughDoNotFire()' part of global actor 'MainActor'
+ 82 |         let p = GearProbe()
+ 83 |         p.down(14, button: .right); p.up(14, button: .right)
+    :
+ 89 |         p.router.isEnabled = true
+ 90 |         p.down(14); p.up(14)
+ 91 |         #expect(p.gear == 1)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear,{ $0 == $1() },1,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear"),"==",.__fromSyntaxNode("1")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 92 |     }
+ 93 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:95:17: error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    |     `- note: calls to initializer 'init(geometry:items:)' from outside of its actor context are implicitly asynchronous
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+    |                 `- error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:96:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+ 96 |         p.down(14); p.up(14)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:96:23: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+ 96 |         p.down(14); p.up(14)
+    |                       `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:97:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+ 99 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:97:24: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+    |                        `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+ 99 |     }
+
+macro expansion #expect:1:34: error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:98:82: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 92 |     }
+ 93 | 
+ 94 |     @Test func gearClickDoesNotTriggerOtherActions() {
+    |                `- note: add '@MainActor' to make instance method 'gearClickDoesNotTriggerOtherActions()' part of global actor 'MainActor'
+ 95 |         let p = GearProbe()
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1 && p.previous == 1 && p.next == 0,{ $0 && $1() },p.links.isEmpty,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1 && p.previous == 1 && p.next == 0"),"&&",.__fromSyntaxNode("p.links.isEmpty")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+ 99 |     }
+100 | 
+
+macro expansion #expect:1:49: error: main actor-isolated property 'previous' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:98:82: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                   `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1 && p.previous == 1 && p.next == 0,{ $0 && $1() },p.links.isEmpty,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1 && p.previous == 1 && p.next == 0"),"&&",.__fromSyntaxNode("p.links.isEmpty")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                 `- error: main actor-isolated property 'previous' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 99 |     }
+100 | 
+
+macro expansion #expect:1:68: error: main actor-isolated property 'next' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:98:82: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                 `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1 && p.previous == 1 && p.next == 0,{ $0 && $1() },p.links.isEmpty,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1 && p.previous == 1 && p.next == 0"),"&&",.__fromSyntaxNode("p.links.isEmpty")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                                    `- error: main actor-isolated property 'next' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 99 |     }
+100 | 
+
+macro expansion #expect:1:95: error: main actor-isolated property 'links' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:98:82: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                           `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 96 |         p.down(14); p.up(14)
+ 97 |         p.down(190); p.up(190)
+ 98 |         #expect(p.gear == 1 && p.previous == 1 && p.next == 0 && p.links.isEmpty)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.gear == 1 && p.previous == 1 && p.next == 0,{ $0 && $1() },p.links.isEmpty,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.gear == 1 && p.previous == 1 && p.next == 0"),"&&",.__fromSyntaxNode("p.links.isEmpty")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                                                               `- error: main actor-isolated property 'links' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+ 99 |     }
+100 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:102:17: error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    |     `- note: calls to initializer 'init(geometry:items:)' from outside of its actor context are implicitly asynchronous
+ 14 |         router = NavigationInputRouter(geometry: geometry)
+ 15 |         router.hitItems = { items }
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+    |                 `- error: call to main actor-isolated initializer 'init(geometry:items:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+103 |         p.down(100); p.up(100)
+104 |         p.down(400); p.up(400)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:103:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+103 |         p.down(100); p.up(100)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+104 |         p.down(400); p.up(400)
+105 |         #expect(p.drags == 2 && p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:103:24: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+103 |         p.down(100); p.up(100)
+    |                        `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+104 |         p.down(400); p.up(400)
+105 |         #expect(p.drags == 2 && p.gear == 0)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:104:11: error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 19 |         router.onLink = { [unowned self] in links.append($0) }
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+    |          `- note: calls to instance method 'down(_:button:)' from outside of its actor context are implicitly asynchronous
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+ 23 | }
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+103 |         p.down(100); p.up(100)
+104 |         p.down(400); p.up(400)
+    |           `- error: call to main actor-isolated instance method 'down(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         #expect(p.drags == 2 && p.gear == 0)
+106 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:104:24: error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 20 |     }
+ 21 |     func down(_ x: Double, button: PointerButton = .left) { router.mouseDown(at: CGPoint(x: x, y: 21), button: button, performDrag: { self.drags += 1 }) }
+ 22 |     func up(_ x: Double, button: PointerButton = .left) { router.mouseUp(at: CGPoint(x: x, y: 21), button: button) }
+    |          `- note: calls to instance method 'up(_:button:)' from outside of its actor context are implicitly asynchronous
+ 23 | }
+ 24 | 
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+103 |         p.down(100); p.up(100)
+104 |         p.down(400); p.up(400)
+    |                        `- error: call to main actor-isolated instance method 'up(_:button:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         #expect(p.drags == 2 && p.gear == 0)
+106 |     }
+
+macro expansion #expect:1:34: error: main actor-isolated property 'drags' can not be referenced from a nonisolated context
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:105:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |                                                              `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+ 99 |     }
+100 | 
+101 |     @Test func dragStillWorksOnLabelAndTape() {
+    |                `- note: add '@MainActor' to make instance method 'dragStillWorksOnLabelAndTape()' part of global actor 'MainActor'
+102 |         let p = GearProbe()
+103 |         p.down(100); p.up(100)
+104 |         p.down(400); p.up(400)
+105 |         #expect(p.drags == 2 && p.gear == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.drags == 2,{ $0 && $1() },p.gear == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.drags == 2"),"&&",.__fromSyntaxNode("p.gear == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                  `- error: main actor-isolated property 'drags' can not be referenced from a nonisolated context
+    +-------------------------------------------------------------------
+106 |     }
+107 | 
+
+macro expansion #expect:1:62: error: main actor-isolated property 'gear' can not be referenced from a nonisolated autoclosure
+`- /Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:105:45: note: expanded code originates here
+  9 | @MainActor
+ 10 | private final class GearProbe {
+ 11 |     var gear = 0, previous = 0, next = 0, links: [Int] = [], drags = 0
+    |         `- note: property declared here
+ 12 |     let router: NavigationInputRouter
+ 13 |     init(geometry: HitGeometry = ShellConfig.provisional.hitGeometry, items: [HitItem] = []) {
+    :
+103 |         p.down(100); p.up(100)
+104 |         p.down(400); p.up(400)
+105 |         #expect(p.drags == 2 && p.gear == 0)
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkBinaryOperation(p.drags == 2,{ $0 && $1() },p.gear == 0,expression: .__fromBinaryOperation(.__fromSyntaxNode("p.drags == 2"),"&&",.__fromSyntaxNode("p.gear == 0")),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    |  |                                                              `- error: main actor-isolated property 'gear' can not be referenced from a nonisolated autoclosure
+    +-------------------------------------------------------------------
+106 |     }
+107 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:112:19: error: value of type 'TickerView' has no member 'gearOpacity'
+110 |     @MainActor @Test func hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit() {
+111 |         let v = TickerView(config: .provisional)
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+    |                   `- error: value of type 'TickerView' has no member 'gearOpacity'
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:112:45: error: type 'TickerView' has no member 'gearIdleOpacity'
+110 |     @MainActor @Test func hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit() {
+111 |         let v = TickerView(config: .provisional)
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+    |                                             `- error: type 'TickerView' has no member 'gearIdleOpacity'
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:112:67: error: value of type 'TickerView' has no member 'isGearHovered'
+110 |     @MainActor @Test func hoverBrightensGearOnlyInsideTheSlotAndResetsOnExit() {
+111 |         let v = TickerView(config: .provisional)
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+    |                                                                   `- error: value of type 'TickerView' has no member 'isGearHovered'
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:113:11: error: value of type 'TickerView' has no member 'pointerMoved'
+111 |         let v = TickerView(config: .provisional)
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+    |           `- error: value of type 'TickerView' has no member 'pointerMoved'
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:114:19: error: value of type 'TickerView' has no member 'isGearHovered'
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+    |                   `- error: value of type 'TickerView' has no member 'isGearHovered'
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:114:38: error: value of type 'TickerView' has no member 'gearOpacity'
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+    |                                      `- error: value of type 'TickerView' has no member 'gearOpacity'
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:114:64: error: type 'TickerView' has no member 'gearHoverOpacity'
+112 |         #expect(v.gearOpacity == TickerView.gearIdleOpacity && !v.isGearHovered)
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+    |                                                                `- error: type 'TickerView' has no member 'gearHoverOpacity'
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:115:11: error: value of type 'TickerView' has no member 'pointerMoved'
+113 |         v.pointerMoved(to: CGPoint(x: 14, y: 21))
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+    |           `- error: value of type 'TickerView' has no member 'pointerMoved'
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:116:20: error: value of type 'TickerView' has no member 'isGearHovered'
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+    |                    `- error: value of type 'TickerView' has no member 'isGearHovered'
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+118 |         #expect(v.isGearHovered)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:116:39: error: value of type 'TickerView' has no member 'gearOpacity'
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+    |                                       `- error: value of type 'TickerView' has no member 'gearOpacity'
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+118 |         #expect(v.isGearHovered)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:116:65: error: type 'TickerView' has no member 'gearIdleOpacity'
+114 |         #expect(v.isGearHovered && v.gearOpacity == TickerView.gearHoverOpacity)
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+    |                                                                 `- error: type 'TickerView' has no member 'gearIdleOpacity'
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+118 |         #expect(v.isGearHovered)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:117:11: error: value of type 'TickerView' has no member 'pointerMoved'
+115 |         v.pointerMoved(to: CGPoint(x: 400, y: 21))
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+    |           `- error: value of type 'TickerView' has no member 'pointerMoved'
+118 |         #expect(v.isGearHovered)
+119 |         v.pointerChanged(false)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:118:19: error: value of type 'TickerView' has no member 'isGearHovered'
+116 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity)
+117 |         v.pointerMoved(to: CGPoint(x: 5, y: 5))
+118 |         #expect(v.isGearHovered)
+    |                   `- error: value of type 'TickerView' has no member 'isGearHovered'
+119 |         v.pointerChanged(false)
+120 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity, "離開面板復原")
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:120:20: error: value of type 'TickerView' has no member 'isGearHovered'
+118 |         #expect(v.isGearHovered)
+119 |         v.pointerChanged(false)
+120 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity, "離開面板復原")
+    |                    `- error: value of type 'TickerView' has no member 'isGearHovered'
+121 |     }
+122 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:120:39: error: value of type 'TickerView' has no member 'gearOpacity'
+118 |         #expect(v.isGearHovered)
+119 |         v.pointerChanged(false)
+120 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity, "離開面板復原")
+    |                                       `- error: value of type 'TickerView' has no member 'gearOpacity'
+121 |     }
+122 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:120:65: error: type 'TickerView' has no member 'gearIdleOpacity'
+118 |         #expect(v.isGearHovered)
+119 |         v.pointerChanged(false)
+120 |         #expect(!v.isGearHovered && v.gearOpacity == TickerView.gearIdleOpacity, "離開面板復原")
+    |                                                                 `- error: type 'TickerView' has no member 'gearIdleOpacity'
+121 |     }
+122 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:126:11: error: value of type 'TickerView' has no member 'pointerMoved'
+124 |         var s = TickerStyle.default; s.showLabel = false
+125 |         let v = TickerView(config: .provisional, style: s)
+126 |         v.pointerMoved(to: CGPoint(x: 40, y: 21))
+    |           `- error: value of type 'TickerView' has no member 'pointerMoved'
+127 |         #expect(!v.isGearHovered, "x=40 在控制列上，不在齒輪槽")
+128 |         v.pointerMoved(to: CGPoint(x: 10, y: 21))
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:127:20: error: value of type 'TickerView' has no member 'isGearHovered'
+125 |         let v = TickerView(config: .provisional, style: s)
+126 |         v.pointerMoved(to: CGPoint(x: 40, y: 21))
+127 |         #expect(!v.isGearHovered, "x=40 在控制列上，不在齒輪槽")
+    |                    `- error: value of type 'TickerView' has no member 'isGearHovered'
+128 |         v.pointerMoved(to: CGPoint(x: 10, y: 21))
+129 |         #expect(v.isGearHovered)
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:128:11: error: value of type 'TickerView' has no member 'pointerMoved'
+126 |         v.pointerMoved(to: CGPoint(x: 40, y: 21))
+127 |         #expect(!v.isGearHovered, "x=40 在控制列上，不在齒輪槽")
+128 |         v.pointerMoved(to: CGPoint(x: 10, y: 21))
+    |           `- error: value of type 'TickerView' has no member 'pointerMoved'
+129 |         #expect(v.isGearHovered)
+130 |     }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:129:19: error: value of type 'TickerView' has no member 'isGearHovered'
+127 |         #expect(!v.isGearHovered, "x=40 在控制列上，不在齒輪槽")
+128 |         v.pointerMoved(to: CGPoint(x: 10, y: 21))
+129 |         #expect(v.isGearHovered)
+    |                   `- error: value of type 'TickerView' has no member 'isGearHovered'
+130 |     }
+131 | 
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:133:28: error: type 'TickerView' has no member 'gearIdleOpacity'
+131 | 
+132 |     @MainActor @Test func idleAndHoverOpacitiesAreDistinctAndValid() {
+133 |         #expect(TickerView.gearIdleOpacity < TickerView.gearHoverOpacity && TickerView.gearHoverOpacity == 1 && TickerView.gearIdleOpacity > 0.5)
+    |                            `- error: type 'TickerView' has no member 'gearIdleOpacity'
+134 |     }
+135 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:133:57: error: type 'TickerView' has no member 'gearHoverOpacity'
+131 | 
+132 |     @MainActor @Test func idleAndHoverOpacitiesAreDistinctAndValid() {
+133 |         #expect(TickerView.gearIdleOpacity < TickerView.gearHoverOpacity && TickerView.gearHoverOpacity == 1 && TickerView.gearIdleOpacity > 0.5)
+    |                                                         `- error: type 'TickerView' has no member 'gearHoverOpacity'
+134 |     }
+135 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:133:88: error: type 'TickerView' has no member 'gearHoverOpacity'
+131 | 
+132 |     @MainActor @Test func idleAndHoverOpacitiesAreDistinctAndValid() {
+133 |         #expect(TickerView.gearIdleOpacity < TickerView.gearHoverOpacity && TickerView.gearHoverOpacity == 1 && TickerView.gearIdleOpacity > 0.5)
+    |                                                                                        `- error: type 'TickerView' has no member 'gearHoverOpacity'
+134 |     }
+135 | }
+
+/Users/eason.hung/Documents/github/newsticker/Tests/FastBullTickerAppTests/GearHitTests.swift:133:124: error: type 'TickerView' has no member 'gearIdleOpacity'
+131 | 
+132 |     @MainActor @Test func idleAndHoverOpacitiesAreDistinctAndValid() {
+133 |         #expect(TickerView.gearIdleOpacity < TickerView.gearHoverOpacity && TickerView.gearHoverOpacity == 1 && TickerView.gearIdleOpacity > 0.5)
+    |                                                                                                                            `- error: type 'TickerView' has no member 'gearIdleOpacity'
+134 |     }
+135 | }
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>

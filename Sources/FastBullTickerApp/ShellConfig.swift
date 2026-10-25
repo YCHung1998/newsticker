@@ -25,7 +25,7 @@ public struct ShellConfig: Sendable {
     public var maxFrameRate: Float
 
     // MARK: 不受 spike 影響的外觀與行為
-    /// 初始尺寸約 620×42【假設】。
+    /// 初始尺寸 648×42：寬度由 `panelWidth(...)` 推導（齒輪槽 + 標籤 + 控制列 + 帶子可視寬 370），不寫死（settings-gear 決定 1）。
     public var panelSize: CGSize
     /// 左側標籤寬度（pt）【假設，來自使用者提供的參考截圖】。
     public var labelWidth: CGFloat
@@ -47,6 +47,16 @@ public struct ShellConfig: Sendable {
     public var linkSlotWidth: Double = 26
     /// 迴紋針命中區每側外擴（pt）【假設：4】。
     public var hitSlop: Double = HitTesting.defaultHitSlop
+    /// 齒輪槽寬度（pt）【假設：28】，位於面板最左側，不受 `showLabel` 影響（settings-gear）。
+    public var gearSlotWidth: Double = 28
+
+    /// 帶子可視寬度的設計值（使用者於 nav-layout-tweaks 確認的 370pt）。
+    public static let designTapeViewport: Double = 370
+
+    /// 面板寬度 = 齒輪槽 + 標籤 + 控制列 + 帶子可視寬度（純函式）。
+    public static func panelWidth(gearSlotWidth: Double, labelWidth: Double, strip: ControlStripLayout, tapeViewport: Double) -> Double {
+        gearSlotWidth + labelWidth + strip.controlStripWidth + tapeViewport
+    }
 
     public static let provisional = ShellConfig(
         level: .statusBar,
@@ -55,7 +65,7 @@ public struct ShellConfig: Sendable {
         feedTimer: .commonModeTimer,
         textureLimitPx: 16_384,
         maxFrameRate: 60,
-        panelSize: CGSize(width: 620, height: 42),
+        panelSize: CGSize(width: panelWidth(gearSlotWidth: 28, labelWidth: 150, strip: ControlStripLayout(), tapeViewport: designTapeViewport), height: 42),
         labelWidth: 150,
         itemPadding: 10,
         alphaRange: 0.3...1.0,
@@ -68,16 +78,19 @@ public struct ShellConfig: Sendable {
 
     public var controlStripWidth: Double { strip.controlStripWidth }
 
-    /// 帶子可視寬度＝面板寬 − （`showLabel` 時的標籤寬）− 控制列寬（預設 620 − 150 − 100 = 370；由 `strip` 推導，不重複寫死）。
+    /// 控制列左側已被占用的寬度（單一偏移）＝ 齒輪槽 + （`showLabel` 時的標籤寬）。
+    public func leftInset(showLabel: Bool) -> Double { gearSlotWidth + (showLabel ? Double(labelWidth) : 0) }
+
+    /// 帶子可視寬度＝面板寬 − 齒輪槽 − （`showLabel` 時的標籤寬）− 控制列寬（預設 648 − 28 − 150 − 100 = 370；由 `strip` 推導，不重複寫死）。
     public func tapeViewport(showLabel: Bool) -> Double {
-        strip.tapeViewportWidth(panelWidth: Double(panelSize.width), labelWidth: showLabel ? Double(labelWidth) : 0)
+        strip.tapeViewportWidth(panelWidth: Double(panelSize.width), labelWidth: leftInset(showLabel: showLabel))
     }
     /// 標籤顯示時的可視寬度（預設樣式）。
     public var tapeViewportWidth: Double { tapeViewport(showLabel: true) }
 
     /// 命中測試用的幾何（與 `TickerView` 的圖層版面同源）；標籤隱藏時標籤寬為 0。
     public func makeHitGeometry(showLabel: Bool) -> HitGeometry {
-        HitGeometry(panelSize: panelSize, labelWidth: showLabel ? Double(labelWidth) : 0, strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
+        HitGeometry(panelSize: panelSize, labelWidth: showLabel ? Double(labelWidth) : 0, gearSlotWidth: gearSlotWidth, strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
     }
     public var hitGeometry: HitGeometry { makeHitGeometry(showLabel: true) }
 
@@ -90,6 +103,7 @@ public struct ShellConfig: Sendable {
         c.maxItemWidth = max(viewport, 600)
         c.replayCount = style.replayCount
         c.showTime = style.showTime
+        c.seekHoldSeconds = style.seekHoldSeconds
         c.linkSlotWidth = linkSlotWidth
         c.timeZone = timeZone
         return c

@@ -36,7 +36,9 @@ import FastBullTickerCore
         defer { client.shutdown() }
 
         #expect(await awaitCondition { coord.snapshots >= 1 })
-        #expect(driver.mode == .replay)
+        // 不斷言「此刻」是 replay：主執行緒被同 suite 的其他測試占住時，snapshot 與第一批 items 會一起被處理（時間敏感）。
+        // 真正的不變量是「snapshot 先於 items，所以第一個看到的模式是 replay」。
+        #expect(coord.modesSeen.first == .replay)
         #expect(driver.scheduler.latestItems.count == 10)          // 12 則 snapshot，重播取最新 10
         driver.step(); clock.t += 1; driver.step()
         #expect(driver.itemsPlaced >= 1)
@@ -110,7 +112,10 @@ import FastBullTickerCore
     }
 
     /// 帶子座標 0 的面板 x（標籤右側的控制列之後）。
-    private var tapeLeft: Double { cfg.strip.tapeLeft(leftInset: Double(cfg.labelWidth)) }
+    private var tapeLeft: Double { cfg.strip.tapeLeft(leftInset: cfg.gearSlotWidth + Double(cfg.labelWidth)) }
+    /// 控制列 `<`／`>` 按鈕中心附近的面板 x（齒輪槽 28 + 標籤 150 之後；settings-gear 之前為 160／240）。
+    private var prevX: Double { cfg.gearSlotWidth + 160 }
+    private var nextX: Double { cfg.gearSlotWidth + 240 }
 
     private func click(_ r: Rig, _ x: Double) {
         r.router.mouseDown(at: CGPoint(x: x, y: 21), button: .left, performDrag: {})
@@ -120,7 +125,7 @@ import FastBullTickerCore
     private func advanceUntilLinkVisible(_ r: inout Rig, minSeq: Int = 0) -> HitItem? {
         for _ in 0..<200 {
             r.clock.t += 0.25; r.driver.step()
-            if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && $0.seq >= minSeq && tapeLeft + $0.visualLeft + $0.width < 600 && $0.visualLeft >= 0 }) { return h }
+            if let h = r.driver.hitItems().first(where: { $0.hasLinkSlot && $0.seq >= minSeq && tapeLeft + $0.visualLeft + $0.width < Double(cfg.panelSize.width) - 20 && $0.visualLeft >= 0 }) { return h }
         }
         return nil
     }
@@ -149,7 +154,7 @@ import FastBullTickerCore
         for _ in 0..<80 { r.clock.t += 0.25; r.driver.step() }
         #expect(r.driver.hitItems().allSatisfy { !$0.hasLinkSlot })
         #expect(r.driver.scheduler.placed.allSatisfy { !$0.hasLinkSlot })
-        for x in stride(from: 250.0, to: 620.0, by: 7.0) { click(r, x) }
+        for x in stride(from: tapeLeft, to: Double(cfg.panelSize.width), by: 7.0) { click(r, x) }
         #expect(r.opener.opened.isEmpty)
     }
 
@@ -180,7 +185,7 @@ import FastBullTickerCore
         r.driver.step()
         while (r.driver.scheduler.readingPosition?.index ?? 0) < 4 { r.clock.t += 0.25; r.driver.step() }
         let before = try #require(r.driver.scheduler.readingPosition)
-        click(r, 160)                                           // <
+        click(r, prevX)                                         // <
         let afterPrev = try #require(r.driver.scheduler.readingPosition)
         #expect(afterPrev.index == before.index - 1 && afterPrev.total == 10)
         #expect(r.renderer.controlStates.last?.text == "(\(before.index - 1)/10)")
@@ -190,7 +195,7 @@ import FastBullTickerCore
         #expect(r.driver.scheduler.scrollOffset == off, "保持期間不捲動")
         r.clock.t += 1; r.driver.step()
         #expect(r.driver.scheduler.scrollOffset > off, "第 1 秒後恢復捲動")
-        click(r, 240)                                           // >
+        click(r, nextX)                                         // >
         #expect(r.driver.scheduler.readingPosition?.index == before.index)
         #expect(r.driver.scheduler.holdRemaining == 1, "再次切換重設為 1 秒")
     }
@@ -202,7 +207,7 @@ import FastBullTickerCore
         while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
         #expect(r.driver.scheduler.readingPosition?.index == 1)
         let off = r.driver.scheduler.scrollOffset
-        click(r, 160)
+        click(r, prevX)
         #expect(r.driver.scheduler.scrollOffset == off && r.driver.scheduler.holdRemaining == 0)
         #expect(r.actions.seekOutcomes.last == .atListStart)
     }
@@ -225,7 +230,7 @@ import FastBullTickerCore
         let r = makeRig()
         r.driver.receive(.snapshot(items(10) { _ in nil }))
         r.driver.step()
-        let frame = CGRect(x: 100, y: 800, width: 620, height: 42)
+        let frame = CGRect(x: 100, y: 800, width: 648, height: 42)
         // 追蹤區說「在內」，且實際指標也在內 → 維持暫停。
         r.driver.setPointerInside(true)
         r.driver.reconcilePointer(mouse: CGPoint(x: 300, y: 820), panelFrame: frame, panelVisible: true, clickThrough: false)
@@ -249,7 +254,7 @@ import FastBullTickerCore
         while r.driver.scheduler.readingPosition == nil { r.clock.t += 0.25; r.driver.step() }
         r.router.isEnabled = false
         let off = r.driver.scheduler.scrollOffset
-        click(r, 160); click(r, 240)
+        click(r, prevX); click(r, nextX)
         #expect(r.driver.scheduler.scrollOffset == off && r.opener.opened.isEmpty)
         _ = advanceUntilLinkVisible(&r)
     }
@@ -316,7 +321,7 @@ import FastBullTickerCore
         #expect(r.env.store.style.fontSize == 20)
         #expect(r.applier.current == r.env.store.style && r.applies.count == 1 && r.applies[0].contains("source=startup"))
         let l = r.view.layoutSnapshot
-        #expect(l.labelHidden && l.cornerRadius == 8 && Double(l.clipFrame.minX) == 100 && Double(l.clipFrame.maxX) == 620)
+        #expect(l.labelHidden && l.cornerRadius == 8 && Double(l.clipFrame.minX) == 128 && Double(l.clipFrame.maxX) == 648)
         #expect(r.driver.scheduler.config.speed == 150 && r.driver.scheduler.config.viewportWidth == 520)
         #expect(r.env.listing == ["style.json"], "啟動只讀不寫（沒有 .bak、沒有暫存檔）")
     }

@@ -217,6 +217,8 @@ App 沒有 Dock 圖示，只有選單列圖示。App 不會搶走你正在輸入
 | `liveText` | 色彩 | `#000000` | `#RRGGBB` | 即時訊息文字色 |
 | `replayBackground` | 色彩 | `#000000` | `#RRGGBB` | 重播訊息底色 |
 | `replayText` | 色彩 | `#FFFFFF` | `#RRGGBB` | 重播訊息文字色 |
+| `seekHoldSeconds` | 數字（秒） | `1` | `0.5`–`10` | 左右切換（`<` `>`）後停留秒數【假設】；越界夾到邊界；只影響之後的切換（`settings-gear`；**A 段完成，設定面板為 B 段**） |
+| `pollIntervalSeconds` | 整數（秒） | `10` | 僅 `10`／`30`／`60` | helper 輪詢間隔【假設；5 秒未實測不提供】；非檔位夾到最近檔位（平手取較大）；變更時重啟 helper（`settings-gear`） |
 
 ```json
 { "fontSize": 20, "scrollSpeed": 120, "cornerRadius": 10, "liveBackground": "#FFE45C", "liveText": "#000000", "replayCount": 20 }

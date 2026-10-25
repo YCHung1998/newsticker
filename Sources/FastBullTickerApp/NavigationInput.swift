@@ -5,13 +5,14 @@ public enum PointerButton: Equatable, Sendable { case left, right, other }
 
 /// 滑鼠事件分派（純邏輯，不依賴 `NSEvent`／視窗，可直接呼叫測試）。
 /// - mouse-down：算出命中目標並記錄；只有 `.drag` 才呼叫 `performDrag`；按鈕與迴紋針只記錄。
-/// - mouse-up：目標與按下時相同才觸發動作（按鈕→`onPrevious`／`onNext`、迴紋針→`onLink(seq)`）。
+/// - mouse-up：目標與按下時相同才觸發動作（齒輪→`onGear`、按鈕→`onPrevious`／`onNext`、迴紋針→`onLink(seq)`）。
 /// - 只處理左鍵；`isEnabled == false`（點穿模式）時全部忽略。
 @MainActor
 public final class NavigationInputRouter {
     public var geometry: HitGeometry
     public var hitItems: () -> [HitItem] = { [] }
     public var isEnabled = true
+    public var onGear: () -> Void = {}
     public var onPrevious: () -> Void = {}
     public var onNext: () -> Void = {}
     public var onLink: (Int) -> Void = { _ in }
@@ -37,6 +38,7 @@ public final class NavigationInputRouter {
         let target = HitTesting.target(at: point, in: geometry, items: hitItems())
         guard target == down else { return false }
         switch target {
+        case .gear: onGear()
         case .previousButton: onPrevious()
         case .nextButton: onNext()
         case .link(let seq): onLink(seq)
