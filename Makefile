@@ -29,8 +29,8 @@ app: stop
 	cp $(HELPER_SRC) $(HELPER_DST)
 	cp Resources/Info.plist $(APP)/Contents/Info.plist
 	plutil -lint $(APP)/Contents/Info.plist
-	/usr/libexec/PlistBuddy -c "Add :BuildRevision string $$(git describe --tags --always --dirty)" $(APP)/Contents/Info.plist
-	@echo "built revision: $$(git describe --tags --always --dirty)"
+	/usr/libexec/PlistBuddy -c "Add :BuildRevision string $$(git describe --tags --always --dirty 2>/dev/null || echo unknown)" $(APP)/Contents/Info.plist
+	@echo "built revision: $$(git describe --tags --always --dirty 2>/dev/null || echo unknown)"
 
 sign:
 	@test -d $(APP) || { echo "error: 找不到 $(APP)，請先 make app"; exit 1; }
