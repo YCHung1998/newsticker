@@ -1,15 +1,127 @@
 # FastBullTicker
 
-macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](https://www.fastbull.com/tw/express-news)（帶發布時間的即時訊息），顯示在永遠置頂的視窗上，可以拖曳位置、調整透明度。
+macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](https://www.fastbull.com/tw/express-news)，顯示在螢幕最上層的一條小帶子上。
 
-> **這份文件分兩部分**：前半（第 1–5 節）是「怎麼用」：目標、目前狀態、環境、啟動、操作；後半（第 6–9 節）是「怎麼確認它是真的」：驗證、架構、功能規則、預覽。
-> 最後更新：2026-10-25。文中標 **【規劃】** 的是還沒做出來的東西，沒有標的都已實際跑過。
+> 這是原型軟體。**能不能跑**：在 Apple Silicon Mac 上，照下面「3 分鐘看到資料」可以建置、啟動並抓到最新 20 則快訊（作者在 macOS 26.5.1 實測過指令與日誌）。畫面外觀（顏色、捲動手感、點擊互動）只有自動測試，沒有大量實機驗證。
 
----
+## 3 分鐘看到資料（快速開始）
 
-## 下載與安裝（macOS，Apple Silicon）
+「3 分鐘」是啟動後看到資料的時間；第一次建置另需數分鐘（見步驟 2）。
 
-最新版在 [Releases](../../releases)。需求：**macOS 14 以上、Apple Silicon（arm64）**；不支援 Intel。
+### 0. 前置需求
+
+| 項目 | 要求 | 怎麼裝／確認 |
+|---|---|---|
+| 電腦 | **Apple Silicon（M1 以上）**、macOS 14 以上；不支援 Intel | `uname -m` 要印出 `arm64`。macOS 14 是專案設定的最低版本；作者只在 macOS 26.5.1 測過，其他版本【假設】可用 |
+| Xcode 或 Command Line Tools | 要有 Swift 6 以上（Xcode 16+）與 `make` | 終端機執行 `xcode-select --install`（裝 Command Line Tools）；或從 App Store 裝 Xcode。作者用的是完整 Xcode；只裝 Command Line Tools 是否足以建置【假設】可以，未驗證 |
+| Rust | 1.85 以上（專案用 edition 2024；作者用 1.98） | 到 <https://rustup.rs> 照指示安裝，裝完**重開終端機**，用 `cargo --version` 確認 |
+| 網路 | 必須 | 第一次建置 `cargo` 會下載依賴；執行時要連 FastBull 網站 |
+
+不需要 `sudo`，也不需要在「系統設定」授予任何權限。
+
+### 1. 進入專案資料夾
+
+**下面所有指令，都在「這份 README.md 所在的資料夾」裡執行**（資料夾叫什麼名字都可以）：
+
+```sh
+cd 你放這個專案的路徑
+ls README.md Makefile      # 兩個檔案都印得出來，就是對的資料夾
+```
+
+### 2. 建置（只有第一次慢）
+
+```sh
+make helper app sign
+```
+
+- 做三件事：編譯 Rust 抓取程式（`helper`）、編譯 Swift App 並組成 `build/FastBullTicker.app`（`app`）、做 ad-hoc 簽名並驗證（`sign`）。
+- 耗時：**約 2–3 分鐘，第一次（要下載並編譯 Rust 依賴）較久**。作者的機器上，乾淨環境 `make helper` 約 1 分 26 秒、`make app sign` 約 20 秒。
+- 成功的結尾是兩行 `... valid on disk`、`... satisfies its Designated Requirement`（各出現兩組，對應 helper 與 App）。
+- **不需要**先跑 `make test`（那是開發者的自動測試，很久）。
+- 這個 App 是你自己在本機 build 出來的，**不會被 macOS 的 Gatekeeper 擋**，不需要 `xattr` 或右鍵「打開」。（只有「下載別人預先編好的 App」才要處理，見下方疑難排解。）
+
+### 3. 啟動
+
+```sh
+build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
+```
+
+為什麼不用 `open build/FastBullTicker.app`？`open` 也能啟動，但看不到任何輸出，出問題時難以判斷；直接執行比較容易確認。
+
+**如果你已經有另一個 FastBullTicker 在執行**（例如上一次忘了關）：新啟動的會跳出對話框「FastBullTicker 已在執行／要關閉先前開啟的那個，改用這個嗎？」，按「關閉舊的並繼續」會**把舊的那個關掉**，按「取消」則新的退出。（對話框文字與按鈕來自原始碼；作者沒有在畫面上親眼看過對話框，只在日誌看到舊實例被關閉。）
+
+### 4. 你應該看到什麼
+
+- **看螢幕上方中間**：會出現一條約 648×42 的浮動小帶子，左邊是灰色齒輪、紅色斜切標籤「即時財經快訊」，右邊是由右向左捲動的快訊，每則前面有時間。整體很小，別找成整個視窗。
+- **沒有 Dock 圖示**，這是正常的。App 的控制入口只有**選單列（螢幕最上方右側）的報紙圖示**。
+- 剛啟動是「重播」：黑底白字循環最新幾則；之後有新快訊會以白底黑字插進來。（以上外觀描述為設計意圖，作者沒有目視確認，見下方「預期畫面」的限制。）
+
+### 5. 怎麼確認資料真的有抓到
+
+看日誌（路徑含空格，**一定要加引號**）：
+
+```sh
+grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -5
+```
+
+看到這一行就代表資料抓到了：
+
+```
+2026-10-25T12:59:55Z feed: snapshot items=20 withUrl=20
+```
+
+意思是：第一次抓到 20 則，其中 20 則帶連結。**日誌檔是歷次啟動共用的（會累積很多行）**：請確認那行時間戳（UTC）晚於你剛啟動的時間，不要把舊的 snapshot 誤認成這次的；可用 `date -u` 對照。想直接看內容而不是筆數，請看下一節「只想看抓取程式的資料」。之後會看到 `feed: status ok`（心跳）。注意日誌時間是 UTC（結尾 `Z`），不是本機時間。看不到 `snapshot`、或只看到錯誤：見疑難排解。
+
+想即時追蹤：`tail -f "$HOME/Library/Application Support/FastBullTicker/app.log"`（`Ctrl-C` 停止追蹤，不會關掉 App）。
+
+### 6. 怎麼結束
+
+任選一種：
+
+- 選單列報紙圖示 →「**結束**」（選單項目名稱來自原始碼；作者沒有實際點過）。
+- 或終端機：`pkill -x FastBullTicker`（作者驗證過：App 與背景的 `ticker-connect` 抓取程式都會結束，抓取程式實測最多約 13 秒才消失，這段時間 `pgrep` 還看到它是正常的）。
+- 確認都關了：`pgrep -fl 'FastBullTicker|ticker-connect'` 沒有任何輸出。
+
+> **快速開始到此為止。** 下面的疑難排解之後，是給開發者看的設計與驗證細節，只想看快訊的話不必讀。週末或休市時最新一則可能停在上個交易日，那不代表壞掉。
+
+## 只想看抓取程式的資料（不開 App）
+
+這是除錯用：不需要 Swift，只需要 Rust。
+
+```sh
+cd ticker-connect && cargo build --release && cd ..
+(sleep 15) | ./ticker-connect/target/release/ticker-connect | head -c 800
+```
+
+- `(sleep 15) |` 讓程式的輸入維持開著 15 秒，之後關閉，抓取程式就自己結束（macOS 沒有 `timeout` 指令，也不用按 Ctrl-D）。日誌走 stderr，會顯示在終端機，不會混進資料。
+- **實際輸出是一行很長的 JSON**（一行約 4 KB，所以 `head -c 800` 會在中途截斷）：第一行 `{"type":"snapshot","v":1,"items":[...]}` 是目前頁面上的 **20 則**（新到舊），每則有 `source`、`id`、`published_at_ms`、`text`、`url`。之後有新訊息才會多出 `items` 行，並至少每 30 秒一行 `status`。
+- 看不懂 `published_at_ms`？它是**毫秒**時間戳。去掉最後三位（除以 1000）再丟給 `date -r`：
+
+```sh
+date -r 1792919416                       # 手動去掉三位數
+date -r $((1792919416428 / 1000))        # 讓 shell 算；印出 Sun Oct 25 17:10:16 CST 2026（本機時區）
+```
+
+- 它會連到正式的 FastBull 網站，每 10 秒輪詢一次，請不要自行調得更短。
+
+## 疑難排解
+
+| 狀況 | 怎麼辦 |
+|---|---|
+| `make: command not found`、`swift: command not found` | 還沒裝 Command Line Tools：`xcode-select --install`。 |
+| `cargo: command not found` | 還沒裝 Rust（<https://rustup.rs>），或裝完沒重開終端機。 |
+| `make app` 說「找不到 ticker-connect」 | 先跑 `make helper`；或直接 `make helper app sign`。 |
+| 螢幕上找不到帶子 | 看螢幕**上方正中間**；再用 `pgrep -fl FastBullTicker` 確認有在跑；若有多螢幕，看日誌 `panel effective: ... frame=` 的位置。看過日誌仍沒有，才是 bug。 |
+| 沒有 Dock 圖示 | 正常。App 只有選單列圖示。 |
+| 日誌沒有 `feed: snapshot` | 檢查網路能否打開 <https://www.fastbull.com/tw/express-news>；先用上面「只想看抓取程式的資料」確認抓取程式本身有輸出。 |
+| 啟動時跳出「FastBullTicker 已在執行」 | 已有另一個實例。按「關閉舊的並繼續」會**關掉舊的**；按「取消」則保留舊的、新的退出。想直接清掉所有：`pkill -x FastBullTicker`。 |
+| 想完全不連網先看看畫面 | 用離線示範 helper（不連網，輸出 12 則示意中文快訊，約每 8 秒一則新訊息）：<br>`FASTBULL_TICKER_HELPER="$PWD/scripts/demo-helper.sh" build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`<br>日誌會出現 `feed: snapshot items=12`。必須用「直接執行」；`open` 不會把環境變數傳給 App。 |
+| **自己 build 的 App** 被 macOS 擋？ | **不會。** 本機編譯、簽名的 App 沒有「隔離（quarantine）」標記，Gatekeeper 不會檢查。 |
+| **下載 Releases 的預編譯 App** 被擋？ | 會。它沒有 Apple 開發者簽名與公證，見下一節「下載版安裝」。這個步驟**只針對下載版**。 |
+
+## 下載版安裝（不想自己 build 時；macOS 14+、Apple Silicon）
+
+最新版在 [Releases](../../releases)。
 
 1. 下載 `FastBullTicker-<版本>-arm64.zip`，解壓得到 `FastBullTicker.app`，拖到「應用程式」。
 2. **這個 App 沒有 Apple 開發者簽名與公證（只有 ad-hoc 簽名）**，第一次開啟 macOS 會擋。擇一處理：
@@ -18,7 +130,26 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 3. 啟動後沒有 Dock 圖示，畫面上方會出現浮動跑馬燈，選單列有報紙圖示。
 4. 驗證下載完整：`shasum -a 256 FastBullTicker-<版本>-arm64.zip` 與 Release 頁面列出的雜湊相同。
 
-> 這是原型階段的軟體：許多視覺與互動行為只通過自動測試與離屏渲染，**未經大量實機驗證**（見第 6.3 節）。與 FastBull、Jin10 等資料來源網站**無任何關係**；資料來源的使用條款請自行確認。`docs/fixtures/` 內的 FastBull 頁面快照僅作解析測試資料，其內容版權屬原網站，若有疑慮請聯絡作者移除。授權：MIT（見 `LICENSE`）。
+下載版同樣用上面第 5 節的日誌指令確認資料（`feed: snapshot items=20`）。
+
+> 這是原型階段的軟體：許多視覺與互動行為只通過自動測試與離屏渲染，**未經大量實機驗證**（見第 6.3 節）。
+
+> 與 FastBull、Jin10 等資料來源網站**無任何關係**；資料來源的使用條款請自行確認，我們**沒有逐條閱讀**，自用低頻輪詢是否可接受請你自己確認。`docs/fixtures/` 內的 FastBull 頁面快照僅作解析測試資料，其內容版權屬原網站，若有疑慮請聯絡作者移除。授權：MIT（見 `LICENSE`）。
+
+---
+
+## 開發者／進階
+
+**以下是開發者文件（原 README 內容，保留供查）。只想看到資料的人，上面讀完即可。** 內部用語（`change/…`、task 編號、OpenSpec）是開發流程的代號，不影響使用。已知的矛盾處以「**【註】**」標出：
+
+- 文中「專案根目錄 `newsticker/`」指「README.md 所在的資料夾」，名稱不固定。
+- 自動測試的數量（309／410／471／658）是**不同分支、不同時間點**的數字，不是矛盾也不是最新定論；以你自己跑 `swift test` 的結果為準。
+- 第 4.1 節的 JSON 範例是**協定測試樣本**，不是真實輸出；真實輸出見上方「只想看抓取程式的資料」。
+- 第 4.2 節 `spikes/` 是開發者的人工實驗，一般使用者不需要。
+- 第 2 節狀態表中，已實作但「未目視驗證」的功能，指的是「作者沒有在螢幕前親眼確認」，不代表不能用。
+
+> **這份文件分兩部分**：前半（第 1–5 節）是「怎麼用」：目標、目前狀態、環境、啟動、操作；後半（第 6–9 節）是「怎麼確認它是真的」：驗證、架構、功能規則、預覽。
+> 最後更新：2026-10-25。文中標 **【規劃】** 的是還沒做出來的東西，沒有標的都已實際跑過。
 
 ## 1. 目標
 
@@ -60,19 +191,19 @@ macOS 桌面上的浮動財經快訊跑馬燈：自動抓取 [FastBull 快訊](h
 
 ## 4. 啟動
 
-所有指令都在專案根目錄 `newsticker/` 開始。
+所有指令都在「README.md 所在的資料夾」開始（**【註】** 資料夾名稱不固定，不一定叫 `newsticker/`）。
 
 ### 4.1 現在就能跑：抓取程式（Rust helper）
 
 ```sh
 cd ticker-connect
 cargo build --release
-./target/release/ticker-connect     # 結束：按 Ctrl-D（關閉 stdin）或 Ctrl-C
+./target/release/ticker-connect     # 結束：互動時可按 Ctrl-D（關閉 stdin）或 Ctrl-C；非互動看資料的指令見上方「只想看抓取程式的資料」
 ```
 
 - 它會**連到正式的 FastBull 網站**，每 10 秒輪詢一次。請不要把間隔調得更短。
 - 預期輸出（每行一個 JSON）：第一行是 `snapshot`（目前頁面上的 20 則，新到舊），之後每次有新訊息會出現 `items`，並且至少每 30 秒有一行 `status`（心跳）。日誌走 stderr，不會混進 stdout。
-- 輸出格式範例（來自 `protocol/fixtures/valid/items-single.jsonl`）：
+- 下列僅是**格式範例**（來自 `protocol/fixtures/valid/items-single.jsonl` 協定測試樣本，**不是真實輸出**：真實輸出第一行是 `snapshot`、含 20 則、每則有 `url`、欄位順序為 `type`,`v`,`items`，且整行很長）：
 
 ```json
 {"v":1,"type":"items","items":[{"source":"fastbull","id":"2001","published_at_ms":1761292800000,"text":"日經指數收盤上漲，「半導體」類股領漲。日本銀行維持利率不變 😀"}]}
@@ -108,7 +239,7 @@ cd spikes && swift build
 
 ```sh
 make helper app sign                     # 產生 build/FastBullTicker.app（ad-hoc 簽名）
-make test                                # 全部自動測試（等同 swift test；`change/settings-gear` B 段後為 658 個、83 個 suite；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段後為 410 個、S2 段後為 471 個，`main` 較少）
+make test                                # 全部自動測試（等同 swift test；**【註】** 以下測試數字依分支與時間點而異，僅供參考；`change/settings-gear` B 段後為 658 個、83 個 suite；分支 `change/ticker-navigation-link` 的 N3 段後為 309 個，`change/ticker-style-settings` 的 S1 段後為 410 個、S2 段後為 471 個，`main` 較少）
 ```
 
 **A. 用真 helper 啟動（會連正式 FastBull 網站，每 10 秒輪詢；需要網路）**
