@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Parallel work must use separate worktrees (`git worktree add ../newsticker-<change> change/<change>`), one agent per worktree. Two agents must never edit the same working tree at once. This repo's own rule so far: changes are applied sequentially.
 - Generated artifacts (`ticker-connect/target/`, `.build/`, `build/`, `*.app`) are ignored. `spikes/RESULTS.md` and spike scripts are versioned; raw logs and CSVs are not.
 
+新增資料來源：先讀 `docs/ADDING_A_SOURCE.md`（範本在 `docs/templates/`，登錄表在 `ticker-connect/src/sources.rs`）。
+
 ## What this is
 
 FastBullTicker: a macOS floating news ticker that streams financial headlines from `https://www.fastbull.com/tw/express-news`. A Swift/SwiftUI frontend reads data produced by a Rust backend through a shared SQLite file.

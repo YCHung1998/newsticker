@@ -385,6 +385,13 @@ flowchart LR
 
 ---
 
+### 新增資料來源
+
+helper 與 App 以版本化的 stdout JSON-lines 協定（`protocol/`）切開，換資料來源只需要新增一個 Rust 連接器 + fixture + 測試，Swift 顯示端與協定零改動。**完整步驟、範本、陷阱與驗收表見 [`docs/ADDING_A_SOURCE.md`](docs/ADDING_A_SOURCE.md)**（寫給沒有背景的 agent，範本在 `docs/templates/`）。
+
+- helper：`ticker-connect --list-sources` 列出已登錄來源；`--source <id>` 選擇（預設 `fastbull`，行為不變）；未知 id 退出碼 2 並在 stderr 列出可用 id。登錄表在 `ticker-connect/src/sources.rs`。
+- App：以環境變數 `NEWSTICKER_SOURCE=<id>`【假設名稱】在啟動時傳給 helper 的 `--source`（未設定 = 與以前相同）；例：`NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`（`open` 不傳環境變數）。左側標籤文字不隨來源自動改變，請改 `style.json` 的 `labelText`。
+
 ## 8. 功能規則
 
 ### 8.1 兩種模式

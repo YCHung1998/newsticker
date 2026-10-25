@@ -1,0 +1,92 @@
+//! {{id}} 連接器（由 docs/templates/source.rs.tmpl 產生）。
+//! 完成條件：檔內所有 `TODO(source)` 都已處理並刪除（`grep -rn "TODO(source)" src tests` 無輸出）。
+//! 目前內容是「玩具 JSON 形狀」的可運作實作，讓範本能直接編譯、測試；請換成目標網站的真實形狀：
+//!   {"data":[{"id":"1","time_ms":1792902645000,"text":"..."}, ...]}   （新到舊）
+use crate::connector::{Connector, RawPayload};
+use crate::http::HttpFetcher;
+use crate::model::{ConnectError, Item};
+use std::time::Duration;
+
+/// 來源 id：小寫字母開頭，小寫英數與底線，2–32 字元；必須與 src/sources.rs 的登錄表一致。
+pub const SOURCE_ID: &str = "{{id}}";
+/// TODO(source): 正式抓取位址。只准出現在這個常數（測試一律改用本機假伺服器）。
+pub const DEFAULT_URL: &str = "https://example.invalid/TODO";
+/// 預設輪詢間隔，不得小於 10 秒（有測試守著）。
+pub const DEFAULT_INTERVAL: Duration = Duration::from_secs(10);
+pub const USER_AGENT: &str = "ticker-connect/0.1 (NewsTicker personal desktop ticker)";
+/// TODO(source): 目標 API 若要求額外標頭（Referer、Accept…）在這裡加；沒有就保持空陣列。不要放 cookie／token（需要登入的來源 v1 不支援）。
+pub const EXTRA_HEADERS: &[(&str, &str)] = &[];
+/// 來源時間若是民用時間字串（不是毫秒 epoch），在這裡寫死時區位移並註明依據，配合 `crate::timeutil::parse_datetime` 使用。
+/// const TZ_OFFSET_SECS: i32 = 8 * 3600; // TODO(source): 例如 UTC+8
+
+pub struct {{Type}}Connector {
+    fetcher: HttpFetcher,
+    interval: Duration,
+}
+
+impl {{Type}}Connector {
+    pub fn new(url: &str, interval: Duration) -> Result<Self, ConnectError> {
+        Ok(Self { fetcher: HttpFetcher::new(url, USER_AGENT, EXTRA_HEADERS)?, interval })
+    }
+    pub fn url(&self) -> &str {
+        self.fetcher.url()
+    }
+}
+
+/// 純解析：回傳 (items 依來源順序＝新到舊, 被跳過元素的原因)。壞元素跳過並記原因；整頁壞掉由 `convert` 轉成錯誤。
+pub fn parse_payload(raw: &str, source: &str) -> (Vec<Item>, Vec<String>) {
+    let mut items = Vec::new();
+    let mut skipped = Vec::new();
+    let Ok(root) = serde_json::from_str::<serde_json::Value>(raw) else {
+        return (items, vec!["payload is not JSON".to_string()]);
+    };
+    // TODO(source): 換成真實的清單位置與欄位名稱。
+    let Some(list) = root["data"].as_array() else {
+        return (items, vec!["no `data` array".to_string()]);
+    };
+    for (i, el) in list.iter().enumerate() {
+        let id = el["id"].as_str().map(str::trim).unwrap_or("");
+        if id.is_empty() {
+            skipped.push(format!("#{i}: empty id"));
+            continue;
+        }
+        let Some(ms) = el["time_ms"].as_u64() else {
+            skipped.push(format!("{id}: time_ms is not an unsigned integer"));
+            continue;
+        };
+        let text = el["text"].as_str().map(str::trim).unwrap_or("");
+        if text.is_empty() {
+            skipped.push(format!("{id}: empty text"));
+            continue;
+        }
+        // TODO(source): 有原文連結時填 Some(絕對 https URL)；壞連結要降級成 None，不要讓整則被丟掉（見手冊的 url 規則）。
+        items.push(Item { source: source.to_string(), id: id.to_string(), published_at_ms: ms, text: text.to_string(), url: None });
+    }
+    (items, skipped)
+}
+
+impl Connector for {{Type}}Connector {
+    fn source_id(&self) -> &str {
+        SOURCE_ID
+    }
+
+    fn interval(&self) -> Duration {
+        self.interval
+    }
+
+    async fn fetch(&self) -> Result<RawPayload, ConnectError> {
+        self.fetcher.get_text().await
+    }
+
+    fn convert(&self, raw: RawPayload) -> Result<Vec<Item>, ConnectError> {
+        let (items, skipped) = parse_payload(&raw, SOURCE_ID);
+        for s in &skipped {
+            eprintln!("[ticker-connect] {SOURCE_ID}: skipped element ({s})");
+        }
+        if items.is_empty() {
+            // 解析 0 則一律是錯誤，不是「沒有新訊息」。
+            return Err(ConnectError::Parse("no item parsed from payload".to_string()));
+        }
+        Ok(items)
+    }
+}

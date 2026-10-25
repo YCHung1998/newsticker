@@ -12,7 +12,7 @@ cargo test               # 全套（全部只連 127.0.0.1，不連正式網站�
 ./target/debug/ticker-connect          # 正式執行（連 https://www.fastbull.com/tw/express-news，間隔 10 秒）
 ```
 
-測試用選項（預設值即正式值）：`--url URL`、`--interval-ms N`、`--heartbeat-ms N`。
+選項：`--source ID`（預設 `fastbull`）、`--list-sources`（印出已登錄來源 id 後結束）；未知來源退出碼 2。測試用選項（預設值即正式值，對所有來源通用）：`--url URL`、`--interval-ms N`、`--heartbeat-ms N`。新增來源見 `../docs/ADDING_A_SOURCE.md`。
 
 ## 架構（src/）
 
@@ -24,7 +24,9 @@ cargo test               # 全套（全部只連 127.0.0.1，不連正式網站�
 | `protocol.rs` | 編入 `protocol/schema/*.json`（JSON Schema 2020-12）＋額外檢查，判定順序同 `protocol/refcheck.py` |
 | `scheduler.rs` | 輪詢、退避（interval x [1,3,6] = 10→30→60 秒）、心跳（含退避期間與 fetch 進行中） |
 | `fastbull.rs` | FastBull 抓取（reqwest + rustls）與解析（scraper） |
-| `main.rs` | 參數、stdin 監看執行緒、啟動 |
+| `sources.rs` | 來源登錄表（`REGISTRY`）與 `dispatch`（`match` + 泛型 visitor；`Connector` 非 dyn-safe） |
+| `http.rs`／`timeutil.rs` | 新來源共用：HTTP GET 抓取器；民用時間 + 固定位移 → UTC 毫秒 |
+| `main.rs` | 參數（`--source`／`--list-sources`）、stdin 監看執行緒、啟動 |
 
 假時鐘：使用 tokio 的虛擬時間（`#[tokio::test(start_paused = true)]`），不真的等待；等同規格所說「可注入時鐘」，未另外抽象 `Clock` trait。
 

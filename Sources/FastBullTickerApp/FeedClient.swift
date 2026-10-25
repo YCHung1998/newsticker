@@ -65,8 +65,18 @@ public struct FeedClientConfig: Sendable {
     public static let helperExecutableName = "ticker-connect"
 
     /// helper 輪詢間隔參數（settings-gear）：預設的 10 秒不帶參數（命令列與加入本設定之前完全相同），其他值為 `--interval-ms N`。
-    public static func helperArguments(pollIntervalSeconds: Int) -> [String] {
-        pollIntervalSeconds == TickerStyle.default.pollIntervalSeconds ? [] : ["--interval-ms", String(pollIntervalSeconds * 1000)]
+    /// `source` 非 nil 時以 `--source <id>` 開頭（pluggable-sources）；nil 時命令列與加入本參數之前完全相同。
+    public static func helperArguments(pollIntervalSeconds: Int, source: String? = nil) -> [String] {
+        let sourceArgs = source.map { ["--source", $0] } ?? []
+        return sourceArgs + (pollIntervalSeconds == TickerStyle.default.pollIntervalSeconds ? [] : ["--interval-ms", String(pollIntervalSeconds * 1000)])
+    }
+
+    /// 選擇 helper 資料來源的環境變數（pluggable-sources【假設名稱】）。未設定或空白 = 不帶 `--source`（helper 預設 fastbull）。
+    public static let sourceEnvironmentVariable = "NEWSTICKER_SOURCE"
+
+    public static func sourceID(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        let v = (environment[sourceEnvironmentVariable] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return v.isEmpty ? nil : v
     }
 
     /// 先看環境變數覆寫，再找 bundle 內 `Contents/MacOS/ticker-connect`。

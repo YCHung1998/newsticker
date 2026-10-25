@@ -1,0 +1,68 @@
+//! {{id}} 解析測試（由 docs/templates/source_parse_test.rs.tmpl 產生）。fixture：tests/fixtures/{{id}}/sample.json。
+mod common;
+use common::fixture;
+use std::collections::HashSet;
+use std::time::Duration;
+use ticker_connect::connector::Connector;
+use ticker_connect::model::{ConnectError, Message};
+use ticker_connect::protocol::Protocol;
+use ticker_connect::{{id}}::{parse_payload, {{Type}}Connector, DEFAULT_INTERVAL, SOURCE_ID};
+
+fn conn() -> {{Type}}Connector {
+    {{Type}}Connector::new("http://127.0.0.1:1/x", Duration::from_secs(10)).unwrap()
+}
+
+#[test]
+fn {{id}}_parse_fixture_items_are_unique_and_newest_first() {
+    let items = conn().convert(fixture("{{id}}", "sample.json")).unwrap();
+    assert_eq!(items.len(), 3); // TODO(source): 改成真實 fixture 的數量
+    let ids: HashSet<_> = items.iter().map(|i| i.id.clone()).collect();
+    assert_eq!(ids.len(), items.len(), "ids must be unique");
+    assert!(items.windows(2).all(|w| w[0].published_at_ms >= w[1].published_at_ms), "newest first");
+}
+
+#[test]
+fn {{id}}_parse_first_item_matches_exactly() {
+    let f = &conn().convert(fixture("{{id}}", "sample.json")).unwrap()[0];
+    // TODO(source): 換成真實 fixture 第一則的精確值（每個欄位都比對，包含 url）。
+    assert_eq!(f.source, SOURCE_ID);
+    assert_eq!(f.id, "103");
+    assert_eq!(f.published_at_ms, 1792902645000);
+    assert_eq!(f.text, "第三則快訊");
+    assert_eq!(f.url, None);
+}
+
+#[test]
+fn {{id}}_parse_output_passes_protocol_as_snapshot() {
+    let items = conn().convert(fixture("{{id}}", "sample.json")).unwrap();
+    let p = Protocol::new();
+    for it in &items {
+        assert_eq!(p.check_item(it), Ok(()), "{}", it.id);
+    }
+    let line = serde_json::to_vec(&Message::snapshot(items)).unwrap();
+    assert_eq!(p.check_line(&line), Ok(()));
+}
+
+#[test]
+fn {{id}}_parse_zero_items_is_error_not_no_news() {
+    let c = conn();
+    for bad in ["", "not json", "{}", "{\"data\":[]}", "<html>captcha</html>"] {
+        assert!(matches!(c.convert(bad.into()), Err(ConnectError::Parse(_))), "{bad:?}");
+    }
+}
+
+#[test]
+fn {{id}}_parse_one_bad_element_is_skipped_not_whole_page() {
+    let raw = fixture("{{id}}", "sample.json").replacen("\"time_ms\": 1792902645000", "\"time_ms\": \"oops\"", 1);
+    let (items, skipped) = parse_payload(&raw, SOURCE_ID);
+    assert_eq!(items.len(), 2);
+    assert_eq!(skipped.len(), 1);
+}
+
+#[test]
+fn {{id}}_parse_convert_is_pure_and_identity_is_registered_shape() {
+    let c = conn();
+    assert_eq!(c.convert(fixture("{{id}}", "sample.json")), c.convert(fixture("{{id}}", "sample.json")));
+    assert_eq!(c.source_id(), SOURCE_ID);
+    assert!(DEFAULT_INTERVAL >= Duration::from_secs(10));
+}
