@@ -10,6 +10,35 @@ use ticker_connect::model::{ConnectError, Item};
 
 pub const ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
+/// 讀 `tests/fixtures/<source>/<name>`（新來源的 fixture 放這裡；FastBull 的歷史位置是 `docs/fixtures/`）。
+pub fn fixture(source: &str, name: &str) -> String {
+    std::fs::read_to_string(format!("{ROOT}/tests/fixtures/{source}/{name}")).unwrap_or_else(|e| panic!("fixture {source}/{name}: {e}"))
+}
+
+/// 從網址取出「最後兩段網域」（去掉 scheme、路徑、埠與 `www.`），守衛用它判斷測試原始碼有沒有寫死正式網域。
+pub fn base_domain(url: &str) -> String {
+    let rest = url.split_once("://").map_or(url, |(_, r)| r);
+    let host = rest.split(['/', '?', '#']).next().unwrap_or("");
+    let host = host.rsplit_once('@').map_or(host, |(_, h)| h);
+    let host = host.split(':').next().unwrap_or("");
+    let labels: Vec<&str> = host.split('.').filter(|l| !l.is_empty()).collect();
+    let n = labels.len();
+    if n >= 2 { labels[n - 2..].join(".") } else { host.to_string() }
+}
+
+/// `dir` 底下（不遞迴）內容含 `needle` 的 `.rs` 檔。
+pub fn files_mentioning(dir: &std::path::Path, needle: &str) -> Vec<std::path::PathBuf> {
+    let mut hits = Vec::new();
+    for e in std::fs::read_dir(dir).unwrap() {
+        let p = e.unwrap().path();
+        if p.extension().map_or(false, |x| x == "rs") && std::fs::read_to_string(&p).unwrap().contains(needle) {
+            hits.push(p);
+        }
+    }
+    hits.sort();
+    hits
+}
+
 pub fn fixture_html() -> String {
     std::fs::read_to_string(format!("{ROOT}/../docs/fixtures/express-news-2026-10-24.html")).expect("snapshot fixture")
 }
@@ -167,6 +196,11 @@ impl FakeServer {
         assert_local(&url);
         FakeServer { url, mode, requests }
     }
+    /// 同一個假伺服器的另一個路徑（例如 `/api/flash?max=20`）；來源的真實路徑結構在測試中用它重現。
+    pub fn url_for(&self, path_and_query: &str) -> String {
+        let base = self.url.split("/tw/express-news").next().unwrap();
+        format!("{base}{path_and_query}")
+    }
     pub fn set(&self, m: Mode) {
         *self.mode.lock().unwrap() = m;
     }
@@ -184,8 +218,14 @@ pub struct Helper {
 }
 
 pub fn spawn_helper(url: &str, interval_ms: u64, heartbeat_ms: u64) -> Helper {
+    spawn_helper_with(&[], url, interval_ms, heartbeat_ms)
+}
+
+/// 同 `spawn_helper`，並在最前面附加額外參數（例如 `&["--source", "fastbull"]`）。
+pub fn spawn_helper_with(extra: &[&str], url: &str, interval_ms: u64, heartbeat_ms: u64) -> Helper {
     assert_local(url);
     let mut child = Command::new(env!("CARGO_BIN_EXE_ticker-connect"))
+        .args(extra)
         .args(["--url", url, "--interval-ms", &interval_ms.to_string(), "--heartbeat-ms", &heartbeat_ms.to_string()])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
