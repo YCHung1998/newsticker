@@ -108,17 +108,52 @@ date -r $((1792919416428 / 1000))        # 讓 shell 算；印出 Sun Oct 25 17:
 
 ## 改看金十數據（Jin10）
 
-預設看的是 FastBull。要改看 [金十數據](https://www.jin10.com/) 的即時快訊：
+預設看的是 FastBull。[金十數據](https://www.jin10.com/) 是第二個資料來源，**24 小時都有快訊（含週末）**，所以想確認「資料真的在更新」時，用它比 FastBull 更容易看到新訊息。
+
+**狀態**：自動測試全過；已對真站實測一次（時間、標題、重要旗標、廣告略過都和網站畫面對得上），也有離屏渲染圖；**作者沒有在實機上長時間觀察過畫面**，請你看到後回報觀感。
+
+### 步驟
+
+先做完上面「3 分鐘看到資料」的前置需求與第 2 步建置（`make helper app sign`），然後：
 
 ```sh
+# 1. 確認舊的沒在跑（make app 也會自動做這件事；只想啟動時可以手動跑）
+sh scripts/stop-old.sh
+
+# 2. 用金十來源啟動（一定要直接執行；`open` 不會把環境變數傳給 App）
 NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
+
+# 3. 約 2 秒內確認資料有進來（日誌時間是 UTC，要比你剛啟動的時間晚）
+grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -3
+#    看到 `feed: snapshot items=…` 就成功。金十一次約 15 則（廣告與鎖定快訊已被略過）。
 ```
 
-- 金十的快訊會顯示：時間（粗體）→ 標題（粗體）→ 本文；來源標示為「重要」的訊息，標題是**紅色**。廣告（VIP 橫幅等）與鎖定的 PLUS 快訊會被自動略過。
-- 內容是簡體中文原文，不轉繁體。左側標籤文字不會自動變，可在 `style.json` 把 `labelText` 改成「金十數據」（見進階章節的樣式設定）。
-- 這是網站前端使用的非官方端點，網站改版就可能失效；本專案與金十無關，條款請自行確認。已用低頻（10 秒）輪詢。
-- `open build/FastBullTicker.app` 不會把環境變數傳給 App，所以要用上面的直接執行。
+### 你會看到什麼
+
+- 螢幕上方中間的跑馬燈，每則是：**`HH:mm:ss`（粗體）→ 標題（粗體）→ 本文**。沒有標題的快訊只有時間與本文。
+- 來源標示為「重要」的快訊：**標題是紅色**，本文維持一般顏色。
+- 有原文連結的快訊最右側有迴紋針，點它會用預設瀏覽器開啟原文（連到第三方來源網站）。
+- 內容是**簡體中文原文**，不轉繁體。
+
+### 想把左側標籤改成「金十數據」
+
+標籤文字不會隨來源自動改變。選單列報紙圖示 →「樣式」→「開啟樣式設定檔…」，在打開的 `style.json` 加上（只寫要改的欄位即可，存檔約 0.3 秒內生效）：
+
+```json
+{ "labelText": "金十數據" }
+```
+
+### 換回 FastBull、結束
+
+- 換回 FastBull：先 `sh scripts/stop-old.sh`，再用不帶環境變數的方式啟動（`build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`）。
+- 結束：選單列報紙圖示 →「結束」，或 `sh scripts/stop-old.sh`。
 - 只想看資料不開視窗：`(sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | head -c 800`。
+
+### 注意
+
+- 這是金十網站前端使用的**非官方端點**，網站改版或擋用戶端就可能失效；日誌出現 `feed: status error` 持續不退，通常就是這個原因。
+- 本專案與金十無關。**使用條款沒有逐條閱讀**，請自行確認自用低頻輪詢（10 秒一次）是否可接受；只顯示文字並連回原文。
+- 想自己接別的網站：見 `docs/ADDING_A_SOURCE.md`。
 
 ## 疑難排解
 
