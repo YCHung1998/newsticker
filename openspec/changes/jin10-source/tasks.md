@@ -20,6 +20,6 @@
 
 ## 4. 整合與文件
 
-- [ ] 4.1 以 `FASTBULL_TICKER_SOURCE=jin10` 啟動 App，看日誌 `feed: snapshot`、離屏截圖
+- [ ] 4.1 以 `NEWSTICKER_SOURCE=jin10` 啟動 App，看日誌 `feed: snapshot`、離屏截圖
 - [ ] 4.2 更新 README 快速開始（如何切到金十）與 `docs/ADDING_A_SOURCE.md` 的 item 欄位表
 - [ ] 4.3 `openspec validate --all --strict` 通過

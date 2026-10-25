@@ -42,7 +42,7 @@
 - **THEN** 不輸出該元素，其他元素不受影響
 
 ### Requirement: 登錄與選用
-`jin10` SHALL 登錄於來源登錄表，`ticker-connect --list-sources` MUST 列出 `fastbull` 與 `jin10`；以 `--source jin10`（App 以環境變數 `FASTBULL_TICKER_SOURCE`【假設名稱，實作時以程式為準】）選用。未指定時預設仍為 `fastbull`。自動測試 MUST 只連本機 `127.0.0.1`。
+`jin10` SHALL 登錄於來源登錄表，`ticker-connect --list-sources` MUST 列出 `fastbull` 與 `jin10`；以 `--source jin10`（App 以環境變數 `NEWSTICKER_SOURCE`（`FeedClient` 既有））選用。未指定時預設仍為 `fastbull`。自動測試 MUST 只連本機 `127.0.0.1`。
 
 #### Scenario: 列出來源
 - **WHEN** 執行 `ticker-connect --list-sources`
