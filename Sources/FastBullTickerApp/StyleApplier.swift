@@ -59,7 +59,7 @@ public final class StyleApplier {
         let tunables = SchedulerTunables(speed: style.scrollSpeed, viewportWidth: viewport, maxItemWidth: max(viewport, 600),
                                          replayCount: style.replayCount, showTime: style.showTime, timeZone: timeZone,
                                          seekHoldSeconds: style.seekHoldSeconds)
-        driver.reconfigure(tunables, measurer: view.itemMeasurer)
+        driver.reconfigure(tunables, measurer: view.itemMeasurer, boldMeasurer: view.itemBoldMeasurer)
         current = style
         if pollChanged && source != "startup" { onPollIntervalChange?(style.pollIntervalSeconds) }
         applyCount += 1

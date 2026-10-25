@@ -25,6 +25,9 @@ REQUIRED_COVERAGE = {
     "url_items", "url_snapshot", "url_mixed", "url_max_length",
     "url_js_scheme", "url_ftp_scheme", "url_empty", "url_too_long", "url_null",
     "url_number", "url_relative", "url_has_space", "url_trailing_newline",
+    # title / important（jin10-source）
+    "title_items", "important_true", "important_false", "title_empty", "title_null",
+    "important_null", "important_number", "important_string",
 }
 
 

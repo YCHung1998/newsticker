@@ -127,7 +127,7 @@ pub fn parse_html(html: &str, source: &str) -> (Vec<Item>, Vec<String>) {
                 }
             }
         });
-        items.push(Item { source: source.to_string(), id: id.to_string(), published_at_ms: ms, text, url });
+        items.push(Item { source: source.to_string(), id: id.to_string(), published_at_ms: ms, text, url, title: None, important: None });
     }
     (items, skipped)
 }

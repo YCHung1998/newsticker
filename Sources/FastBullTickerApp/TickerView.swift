@@ -98,6 +98,7 @@ public final class TickerView: NSView, TickerRenderer {
     @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
 
     public var itemMeasurer: TextMeasurer { bitmap.measurer }
+    public var itemBoldMeasurer: BoldAwareMeasurer { bitmap.boldMeasurer }
     public var layerCount: Int { layers.count }
     public var isLinkPaused: Bool { link?.isPaused ?? true }
 

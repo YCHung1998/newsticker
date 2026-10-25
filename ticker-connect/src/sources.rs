@@ -2,6 +2,7 @@
 //! `Connector` 是 `async fn in trait`（非 dyn-safe），所以用 `match` + 泛型 visitor 分派，不用 `Box<dyn Connector>`。
 use crate::connector::Connector;
 use crate::fastbull::{self, FastBullConnector};
+use crate::jin10::{self, Jin10Connector};
 use crate::model::ConnectError;
 use std::time::Duration;
 
@@ -15,6 +16,7 @@ pub struct SourceEntry {
 /// [1] 登錄表：每個來源一行。
 pub const REGISTRY: &[SourceEntry] = &[
     SourceEntry { id: fastbull::SOURCE_ID, default_url: fastbull::DEFAULT_URL },
+    SourceEntry { id: jin10::SOURCE_ID, default_url: jin10::DEFAULT_URL },
 ];
 
 /// 命令列覆寫（`--url`／`--interval-ms`）。`None` = 用該來源的預設值。
@@ -61,6 +63,7 @@ pub fn dispatch<V: WithConnector>(id: &str, opts: &SourceOptions, visitor: V) ->
             let interval = opts.interval.unwrap_or(fastbull::DEFAULT_INTERVAL);
             Ok(visitor.call(FastBullConnector::new(url, interval).map_err(DispatchError::Build)?))
         }
+        jin10::SOURCE_ID => Ok(visitor.call(Jin10Connector::new(url, opts.interval.unwrap_or(jin10::DEFAULT_INTERVAL)).map_err(DispatchError::Build)?)),
         // 新來源：照上面的格式加一個分支，例如
         // my_source::SOURCE_ID => Ok(visitor.call(MySourceConnector::new(url, opts.interval.unwrap_or(my_source::DEFAULT_INTERVAL)).map_err(DispatchError::Build)?)),
         _ => Err(DispatchError::Unknown(id.to_string())),

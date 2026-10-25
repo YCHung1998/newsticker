@@ -67,7 +67,7 @@ curl --version
 {"v":1,"type":"status","source":"<id>","state":"ok","message":""}
 ```
 
-`item` 欄位（`additionalProperties: false`，不得有其他欄位）：
+`item` 欄位（`additionalProperties: false`，不得有其他欄位；`title`、`important` 為 jin10 加入的選填欄位）：
 
 | 欄位 | 必填 | 規則 |
 |---|---|---|
@@ -76,6 +76,8 @@ curl --version
 | `published_at_ms` | 是 | 整數 >= 0，**UTC epoch 毫秒**（不是秒、不是字串、不是浮點） |
 | `text` | 是 | 非空字串；協定**沒有長度上限**（只受單行 1 MiB 限制）；請去掉 HTML 標籤、把連續空白與換行收斂成單一空格 |
 | `url` | 否 | 缺少 = 無連結；**絕不輸出 `null`**。存在時：1–2048 位元組、只含可見 ASCII（`0x21`–`0x7E`，非 ASCII 要 percent-encode）、scheme 為小寫 `http`／`https`、`://` 後第一個字元為英數或 `[`、不得含空白或結尾換行。違規會讓**整則 item 被丟棄** |
+| `title` | 否 | 缺少 = 無標題；**絕不輸出 `null` 或空字串**。顯示時粗體，位於時間與 `text` 之間；不要把同一段標題再放進 `text`（change `jin10-source` 新增） |
+| `important` | 否 | 布林；只在來源標示為重要時輸出 `true`，其餘不要輸出（App 以紅色顯示該則的標題；`null`、非布林會讓整則被丟棄） |
 
 其他規則：
 

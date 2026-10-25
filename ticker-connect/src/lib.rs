@@ -4,6 +4,7 @@ pub mod emitter;
 pub mod engine;
 pub mod fastbull;
 pub mod http;
+pub mod jin10;
 pub mod model;
 pub mod protocol;
 pub mod scheduler;
