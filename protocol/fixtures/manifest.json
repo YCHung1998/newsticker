@@ -522,6 +522,75 @@
       "covers": [
         "oversize"
       ]
+    },
+    {
+      "name": "items-with-title",
+      "file": "valid/items-with-title.jsonl",
+      "expect": "accept",
+      "covers": [
+        "title_items"
+      ]
+    },
+    {
+      "name": "items-important",
+      "file": "valid/items-important.jsonl",
+      "expect": "accept",
+      "covers": [
+        "important_true"
+      ]
+    },
+    {
+      "name": "items-important-false",
+      "file": "valid/items-important-false.jsonl",
+      "expect": "accept",
+      "covers": [
+        "important_false"
+      ]
+    },
+    {
+      "name": "item-title-empty",
+      "file": "invalid/item-title-empty.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "title_empty"
+      ]
+    },
+    {
+      "name": "item-title-null",
+      "file": "invalid/item-title-null.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "title_null"
+      ]
+    },
+    {
+      "name": "item-important-null",
+      "file": "invalid/item-important-null.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "important_null"
+      ]
+    },
+    {
+      "name": "item-important-number",
+      "file": "invalid/item-important-number.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "important_number"
+      ]
+    },
+    {
+      "name": "item-important-string",
+      "file": "invalid/item-important-string.jsonl",
+      "expect": "reject",
+      "reason": "schema",
+      "covers": [
+        "important_string"
+      ]
     }
   ]
 }

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://fastbull-ticker.local/protocol/v1/item.schema.json",
   "title": "item",
-  "description": "單則訊息。v1 不含「重要」旗標；不允許額外欄位（2026-10-24 已決定）。url 為選填（ticker-navigation-link）：可見 ASCII、小寫 http(s)、<=2048 位元組、null 非法；not 子句擋結尾換行（Python $ 會匹配結尾換行前）。",
+  "description": "單則訊息。選填 title（非空字串）與 important（布林）見 change jin10-source，推翻 2026-10-24「v1 不含重要旗標」；其餘不允許額外欄位。url 為選填（ticker-navigation-link）：可見 ASCII、小寫 http(s)、<=2048 位元組、null 非法；not 子句擋結尾換行（Python $ 會匹配結尾換行前）。",
   "type": "object",
   "properties": {
     "source": { "type": "string", "minLength": 1 },
@@ -15,7 +15,9 @@
       "maxLength": 2048,
       "pattern": "^https?://[A-Za-z0-9\\[][!-~]*$",
       "not": { "pattern": "[^!-~]" }
-    }
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "important": { "type": "boolean" }
   },
   "required": ["source", "id", "published_at_ms", "text"],
   "additionalProperties": false

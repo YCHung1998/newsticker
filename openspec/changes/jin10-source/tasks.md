@@ -1,7 +1,7 @@
 ## 1. 協定（先 fail 後 pass）
 
-- [ ] 1.1 `protocol/schema/item.schema.json` 加選填 `title`（非空字串）、`important`（布林）；新增合法／非法 fixtures 與 manifest（含 `title:""`、`important:null`），把 `item-extra-field` 改用 `priority` 之類未定義欄位
-- [ ] 1.2 參考驗證器 `python3 -m unittest discover -s protocol/tests` 先紅後綠，附輸出
+- [x] 1.1 `protocol/schema/item.schema.json` 加選填 `title`（非空字串）、`important`（布林）；新增合法／非法 fixtures 與 manifest（含 `title:""`、`important:null`），把 `item-extra-field` 改用 `priority` 之類未定義欄位
+- [x] 1.2 參考驗證器 `python3 -m unittest discover -s protocol/tests` 先紅後綠，附輸出
 
 ## 2. Rust helper
 
