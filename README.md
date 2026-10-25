@@ -74,6 +74,8 @@ grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -
 
 想即時追蹤：`tail -f "$HOME/Library/Application Support/FastBullTicker/app.log"`（`Ctrl-C` 停止追蹤，不會關掉 App）。
 
+> `make app` 時若印出 `fatal: not a git repository`，是因為資料夾不是用 git clone 下來的（例如解壓縮的 zip），不影響結果，版本資訊會顯示 `unknown`。
+>
 > **重新 build 前**：`make app`（和 `make all`）會自動先停掉所有舊的 FastBullTicker 並清掉殘留的抓取程式，不用自己處理。要發新版本就用 `make release TAG=v0.3.0`（需要工作樹乾淨，會建立 git tag）。App 內的版本資訊在 `Info.plist` 的 `BuildRevision`。
 
 ### 6. 怎麼結束
@@ -108,17 +110,71 @@ date -r $((1792919416428 / 1000))        # 讓 shell 算；印出 Sun Oct 25 17:
 
 ## 改看金十數據（Jin10）
 
-預設看的是 FastBull。要改看 [金十數據](https://www.jin10.com/) 的即時快訊：
+預設看的是 FastBull。[金十數據](https://www.jin10.com/) 是第二個資料來源，**24 小時都有快訊（含週末）**，所以想確認「資料真的在更新」時，用它比 FastBull 更容易看到新訊息。
+
+**狀態**：自動測試全過；已對真站實測一次（時間、標題、重要旗標、廣告略過都和網站畫面對得上），也有離屏渲染圖；**作者沒有在實機上長時間觀察過畫面**，請你看到後回報觀感。
+
+### 步驟
+
+先做完上面「3 分鐘看到資料」的前置需求與第 2 步建置（`make helper app sign`），然後：
 
 ```sh
+# 1. 先看有沒有舊的在跑；沒有輸出就跳過這步。有的話才關：
+pgrep -x FastBullTicker
+sh scripts/stop-old.sh     # 注意：這會停掉本機「所有」FastBullTicker（包含別的資料夾 build 的）
+
+# 2. 用金十來源啟動（一定要直接執行；`open` 不會把環境變數傳給 App）
 NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
+
+# 3. 約 2 秒內確認資料有進來（日誌時間是 UTC，要比你剛啟動的時間晚）
+grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -3
+#    看到 `feed: snapshot items=…` 就成功。金十一次約 15–20 則（廣告與鎖定快訊已被略過）。
+#    `withUrl=0` 或很小的數字是正常的：金十多數快訊沒有原文連結，那就不會有迴紋針。
 ```
 
-- 金十的快訊會顯示：時間（粗體）→ 標題（粗體）→ 本文；來源標示為「重要」的訊息，標題是**紅色**。廣告（VIP 橫幅等）與鎖定的 PLUS 快訊會被自動略過。
-- 內容是簡體中文原文，不轉繁體。左側標籤文字不會自動變，可在 `style.json` 把 `labelText` 改成「金十數據」（見進階章節的樣式設定）。
-- 這是網站前端使用的非官方端點，網站改版就可能失效；本專案與金十無關，條款請自行確認。已用低頻（10 秒）輪詢。
-- `open build/FastBullTicker.app` 不會把環境變數傳給 App，所以要用上面的直接執行。
+**時間**：日誌是 UTC（結尾 `Z`），畫面上的時間是你的本機時區；兩者差一個時區，不是壞掉。
+
+### 你會看到什麼
+
+- 螢幕上方中間的跑馬燈，每則是：**`HH:mm:ss`（粗體）→ 標題（粗體）→ 本文**。沒有標題的快訊只有時間與本文。
+- 來源標示為「重要」的快訊：**標題是紅色**，本文維持一般顏色。
+- 有原文連結的快訊最右側有迴紋針，點它會用預設瀏覽器開啟原文（連到第三方來源網站）。
+- **標題和重要訊息是少數**：一次約 15–20 則裡通常只有 1–3 則有標題、0–2 則是重要訊息，所以畫面上有時整段都看不到粗體標題或紅字。想確認功能有沒有在運作，可以直接看原始資料：
+
+  ```sh
+  (sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | grep -o '"title":"[^"]*"\|"important":true'
+  ```
+
+  印得出 `"title":…` 就代表有標題；`"important":true` 代表有重要訊息（那則的標題在畫面上會是紅色）。
+- 內容是**簡體中文原文**，不轉繁體。
+
+### 想把左側標籤改成「金十數據」
+
+標籤文字不會隨來源自動改變。選單列報紙圖示 →「樣式」→「開啟樣式設定檔…」，在打開的 `style.json` 加上（只寫要改的欄位即可，存檔約 0.3 秒內生效）：
+
+```json
+{ "labelText": "金十數據" }
+```
+
+- 第一次打開時 `style.json` 若是新建的，內容可能已經是一整份設定（一個 `{ … }`）。**不要貼第二個 `{ }` 在後面**，那會變成不合法的 JSON；請把 `"labelText": "金十數據"` 這一行加進**已有的那個大括號裡面**（記得前一行末尾要有逗號），或直接把已有的 `labelText` 那一行的值改掉。
+- 存成不合法的 JSON 時，App 會保留舊樣式、在選單出現提示、日誌寫 `style: error …`，改回合法內容後自動恢復；不會壞掉。
+- 想先試而不動真正的設定：啟動時加環境變數 `FASTBULL_TICKER_STYLE=/tmp/my-style.json`，App 就會改用那個檔案（見進階章節的環境變數說明）。
+
+### 想安全地試、不影響正在跑的 App
+
+多開一個實例要加 `FASTBULL_TICKER_ALLOW_MULTIPLE=1`（否則會跳「已在執行」並關掉舊的）；另外 `FASTBULL_TICKER_LOG=/tmp/x.log` 改日誌位置、`FASTBULL_TICKER_AUTOQUIT_SECONDS=40` 讓它 40 秒後自己結束。注意兩個實例會共用 `helper.pid`，彼此可能把對方的抓取程式當成殘留而結束，所以這只適合短時間試用，不適合長時間並行。
+
+### 換回 FastBull、結束
+
+- 換回 FastBull：先 `sh scripts/stop-old.sh`，再用不帶環境變數的方式啟動（`build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`）。
+- 結束：選單列報紙圖示 →「結束」，或 `sh scripts/stop-old.sh`。
 - 只想看資料不開視窗：`(sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | head -c 800`。
+
+### 注意
+
+- 這是金十網站前端使用的**非官方端點**，網站改版或擋用戶端就可能失效；日誌出現 `feed: status error` 持續不退，通常就是這個原因。
+- 本專案與金十無關。**使用條款沒有逐條閱讀**，請自行確認自用低頻輪詢（10 秒一次）是否可接受；只顯示文字並連回原文。
+- 想自己接別的網站：見 `docs/ADDING_A_SOURCE.md`。
 
 ## 疑難排解
 
