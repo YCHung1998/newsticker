@@ -104,6 +104,20 @@ date -r $((1792919416428 / 1000))        # 讓 shell 算；印出 Sun Oct 25 17:
 
 - 它會連到正式的 FastBull 網站，每 10 秒輪詢一次，請不要自行調得更短。
 
+## 改看金十數據（Jin10）
+
+預設看的是 FastBull。要改看 [金十數據](https://www.jin10.com/) 的即時快訊：
+
+```sh
+NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
+```
+
+- 金十的快訊會顯示：時間（粗體）→ 標題（粗體）→ 本文；來源標示為「重要」的訊息，標題是**紅色**。廣告（VIP 橫幅等）與鎖定的 PLUS 快訊會被自動略過。
+- 內容是簡體中文原文，不轉繁體。左側標籤文字不會自動變，可在 `style.json` 把 `labelText` 改成「金十數據」（見進階章節的樣式設定）。
+- 這是網站前端使用的非官方端點，網站改版就可能失效；本專案與金十無關，條款請自行確認。已用低頻（10 秒）輪詢。
+- `open build/FastBullTicker.app` 不會把環境變數傳給 App，所以要用上面的直接執行。
+- 只想看資料不開視窗：`(sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | head -c 800`。
+
 ## 疑難排解
 
 | 狀況 | 怎麼辦 |

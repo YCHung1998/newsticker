@@ -13,13 +13,13 @@
 
 ## 3. Swift
 
-- [ ] 3.1 Core 解碼 `title`／`important`（含非法值），共用 fixtures 契約測試
-- [ ] 3.2 佈局加標題粗體區段與重要色區段，無 `title` 時字串逐字不變
-- [ ] 3.3 `ItemBitmap` 繪製與量測一致、離屏 PNG 證據
-- [ ] 3.4 `swift test` 全綠（已知偶發失敗如實記錄）
+- [x] 3.1 Core 解碼 `title`／`important`（含非法值），共用 fixtures 契約測試
+- [x] 3.2 佈局加標題粗體區段與重要色區段，無 `title` 時字串逐字不變
+- [x] 3.3 `ItemBitmap` 繪製與量測一致、離屏 PNG 證據
+- [x] 3.4 `swift test` 全綠（已知偶發失敗如實記錄）
 
 ## 4. 整合與文件
 
-- [ ] 4.1 以 `NEWSTICKER_SOURCE=jin10` 啟動 App，看日誌 `feed: snapshot`、離屏截圖
-- [ ] 4.2 更新 README 快速開始（如何切到金十）與 `docs/ADDING_A_SOURCE.md` 的 item 欄位表
-- [ ] 4.3 `openspec validate --all --strict` 通過
+- [x] 4.1 以 `NEWSTICKER_SOURCE=jin10` 啟動 App，看日誌 `feed: snapshot`、離屏截圖
+- [x] 4.2 更新 README 快速開始（如何切到金十）與 `docs/ADDING_A_SOURCE.md` 的 item 欄位表
+- [x] 4.3 `openspec validate --all --strict` 通過

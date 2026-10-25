@@ -59,6 +59,9 @@ public struct PlacedItem: Equatable, Sendable {
     public var style: TickerStyle
     public var timeString: String
     public var text: String
+    /// 標題與重要旗標，原樣取自 `ItemLayout`；沒有標題為空字串。
+    public var title: String = ""
+    public var important: Bool = false
     public var truncated: Bool
     public var tapeX: Double
     public var width: Double
@@ -74,7 +77,8 @@ public struct PlacedItem: Equatable, Sendable {
 
     public init(source: String, id: String, style: TickerStyle, timeString: String, text: String, truncated: Bool,
                 tapeX: Double, width: Double, url: String? = nil, seq: Int = 0, listID: Int = 0, listIndex: Int = 0,
-                hasLinkSlot: Bool = false) {
+                hasLinkSlot: Bool = false, title: String = "", important: Bool = false) {
+        self.title = title; self.important = important
         self.source = source; self.id = id; self.style = style; self.timeString = timeString; self.text = text
         self.truncated = truncated; self.tapeX = tapeX; self.width = width; self.url = url; self.seq = seq
         self.listID = listID; self.listIndex = listIndex; self.hasLinkSlot = hasLinkSlot
@@ -113,6 +117,7 @@ public struct TickerScheduler {
     public private(set) var config: SchedulerConfig
     private let clock: () -> Double
     private var measurer: TextMeasurer
+    private var boldMeasurer: BoldAwareMeasurer?
 
     public private(set) var mode: TickerMode = .replay
     public private(set) var tapeTime: Double = 0
@@ -142,7 +147,8 @@ public struct TickerScheduler {
     /// 單次 tick 最多補幾則（防止 width + gap 為 0 的退化設定造成無窮迴圈）。
     private static let maxPlacementsPerTick = 10_000
 
-    public init(config: SchedulerConfig, clock: @escaping () -> Double, measurer: @escaping TextMeasurer) {
+    public init(config: SchedulerConfig, clock: @escaping () -> Double, measurer: @escaping TextMeasurer, boldMeasurer: BoldAwareMeasurer? = nil) {
+        self.boldMeasurer = boldMeasurer
         precondition(config.speed >= 0 && config.gap >= 0 && config.viewportWidth > 0)
         precondition(config.replayCount > 0 && config.liveQueueLimit > 0 && config.historyLimit >= config.replayCount)
         self.config = config
@@ -199,7 +205,8 @@ public struct TickerScheduler {
     /// - 已排入訊息的 `tapeX`／`width`／`seq`／文字完全不動；`viewportWidth`／`maxItemWidth`／`showTime`／`timeZone`／measurer
     ///   只影響之後排入者；`replayCount` 只影響之後的重播取料（游標取模，進行中的一輪不重排）。
     /// - 隱藏、保持、指標停留、即時佇列、歷史、模式不受影響；隱藏中呼叫合法且不解除凍結。
-    public mutating func reconfigure(_ t: SchedulerTunables, measurer newMeasurer: @escaping TextMeasurer) {
+    public mutating func reconfigure(_ t: SchedulerTunables, measurer newMeasurer: @escaping TextMeasurer, boldMeasurer newBold: BoldAwareMeasurer? = nil) {
+        boldMeasurer = newBold
         precondition(t.speed >= 0 && t.viewportWidth > 0 && t.seekHoldSeconds >= 0)
         precondition(t.replayCount > 0 && t.replayCount <= config.historyLimit)
         advance()                                             // 呼叫之前流逝的時間屬於舊速度（隱藏／停留時不推進）
@@ -318,11 +325,11 @@ public struct TickerScheduler {
     private mutating func place(_ pulled: Pulled, startX: Double) -> PlacedItem {
         let item = pulled.item
         let layout = layoutItem(item, timeZone: config.timeZone, maxWidth: config.maxItemWidth,
-                                linkSlotWidth: config.linkSlotWidth, showTime: config.showTime, measurer: measurer)
+                                linkSlotWidth: config.linkSlotWidth, showTime: config.showTime, measurer: measurer, boldMeasurer: boldMeasurer)
         let p = PlacedItem(source: item.source, id: item.id, style: pulled.style, timeString: layout.timeString,
                            text: layout.text, truncated: layout.truncated, tapeX: startX, width: layout.width,
                            url: item.url, seq: nextSeq, listID: pulled.listID, listIndex: pulled.listIndex,
-                           hasLinkSlot: layout.hasLinkSlot)
+                           hasLinkSlot: layout.hasLinkSlot, title: layout.title, important: layout.important)
         nextSeq += 1
         placed.append(p)
         tailEnd = startX + layout.width

@@ -72,7 +72,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         // Core 排程與驅動
         let scheduler = TickerScheduler(config: config.schedulerConfig(),
                                         clock: { Double(DispatchTime.now().uptimeNanoseconds) / 1e9 },
-                                        measurer: view.itemMeasurer)
+                                        measurer: view.itemMeasurer, boldMeasurer: view.itemBoldMeasurer)
         let driver = TickerDriver(scheduler: scheduler, renderer: view)
         let coordinator = AppCoordinator(driver: driver, log: log)
         self.driver = driver; self.coordinator = coordinator

@@ -31,7 +31,7 @@ public enum ProtocolRules {
     }
 }
 
-/// 單則訊息。v1 不含「重要」旗標。
+/// 單則訊息。選填 `title`／`important` 見 change jin10-source（推翻原「v1 不含重要旗標」）。
 public struct Item: Equatable, Sendable, Codable {
     public var source: String
     public var id: String
@@ -39,13 +39,19 @@ public struct Item: Equatable, Sendable, Codable {
     public var text: String
     /// 選填原文連結；`nil` = 無連結（協定中缺少該鍵）。`null` 在解碼時被拒絕。
     public var url: String?
+    /// 選填標題（顯示時粗體）；`nil` = 無標題。空字串與 `null` 在解碼時被拒絕。
+    public var title: String?
+    /// 選填「重要」旗標；`nil` 視為非重要。必須是布林，`null` 在解碼時被拒絕。
+    public var important: Bool?
 
-    public init(source: String, id: String, publishedAtMs: Int64, text: String, url: String? = nil) {
+    public init(source: String, id: String, publishedAtMs: Int64, text: String, url: String? = nil,
+                title: String? = nil, important: Bool? = nil) {
         self.source = source; self.id = id; self.publishedAtMs = publishedAtMs; self.text = text; self.url = url
+        self.title = title; self.important = important
     }
 
     enum CodingKeys: String, CodingKey, CaseIterable {
-        case source, id, text, url
+        case source, id, text, url, title, important
         case publishedAtMs = "published_at_ms"
     }
 
@@ -65,6 +71,22 @@ public struct Item: Equatable, Sendable, Codable {
         } else {
             url = nil
         }
+        if c.contains(.title) {
+            if try c.decodeNil(forKey: .title) {
+                throw DecodingError.dataCorruptedError(forKey: .title, in: c, debugDescription: "title 不得為 null（缺少才代表無標題）")
+            }
+            title = try c.decode(String.self, forKey: .title)
+        } else {
+            title = nil
+        }
+        if c.contains(.important) {
+            if try c.decodeNil(forKey: .important) {
+                throw DecodingError.dataCorruptedError(forKey: .important, in: c, debugDescription: "important 不得為 null")
+            }
+            important = try c.decode(Bool.self, forKey: .important)
+        } else {
+            important = nil
+        }
         func bad(_ k: CodingKeys, _ why: String) -> DecodingError {
             .dataCorruptedError(forKey: k, in: c, debugDescription: why)
         }
@@ -72,6 +94,7 @@ public struct Item: Equatable, Sendable, Codable {
         if id.isEmpty { throw bad(.id, "id 不得為空") }
         if publishedAtMs < 0 { throw bad(.publishedAtMs, "published_at_ms 不得為負") }
         if text.isEmpty && !ProtocolRules.allowEmptyText { throw bad(.text, "text 不得為空") }
+        if let t = title, t.isEmpty { throw bad(.title, "title 不得為空字串") }
         if let u = url, !ProtocolRules.isValidURL(u) { throw bad(.url, "url 不合法（需可見 ASCII、小寫 http(s)、<= 2048 位元組）") }
     }
 }

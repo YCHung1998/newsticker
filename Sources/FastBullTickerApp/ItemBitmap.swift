@@ -24,6 +24,8 @@ public struct ItemColors: Equatable, Sendable {
     public var liveText: RGBColor
     public var replayBackground: RGBColor
     public var replayText: RGBColor
+    /// 重要訊息的標題顏色（紅，與標籤紅同色系；【假設】對照使用者提供的金十截圖，需人工目視）。
+    public var importantTitle: RGBColor = RGBColor(r: 0.85, g: 0.10, b: 0.13)
     public init(liveBackground: RGBColor, liveText: RGBColor, replayBackground: RGBColor, replayText: RGBColor) {
         self.liveBackground = liveBackground; self.liveText = liveText
         self.replayBackground = replayBackground; self.replayText = replayText
@@ -77,18 +79,29 @@ public struct ItemBitmapRenderer: Sendable {
     func boldFont() -> CTFont { CTFontCreateWithName(Self.boldFontName as CFString, fontSize, nil) }
 
     /// 量測與繪製共用的屬性字串：前 `boldLength` 個字元（時間，ASCII，UTF-16 長度即字元數）粗體，其餘一般。
-    func attributedString(_ text: String, boldLength n: Int) -> NSAttributedString {
+    func attributedString(_ text: String, boldLength n: Int, accent: (range: NSRange, color: RGBColor, base: RGBColor)? = nil) -> NSAttributedString {
         let fontKey = NSAttributedString.Key(kCTFontAttributeName as String)
         let colorKey = NSAttributedString.Key(kCTForegroundColorFromContextAttributeName as String)
         let out = NSMutableAttributedString(string: text, attributes: [fontKey: font(), colorKey: true])
         if n > 0 { out.addAttribute(fontKey, value: boldFont(), range: NSRange(location: 0, length: n)) }
+        if let a = accent, a.range.location + a.range.length <= out.length {
+            // CoreText 畫完有明確色的區段後會改掉 context 填色，之後「沿用 context 色」的區段會吃到強調色；
+            // 所以有強調色時整串都用明確前景色（標題＝強調色，其餘＝base）。
+            let fgKey = NSAttributedString.Key(kCTForegroundColorAttributeName as String)
+            let all = NSRange(location: 0, length: out.length)
+            out.addAttribute(colorKey, value: false, range: all)
+            out.addAttribute(fgKey, value: a.base.cgColor, range: all)
+            out.addAttribute(fgKey, value: a.color.cgColor, range: a.range)
+        }
         return out
     }
 
     /// 量測用（`showTime` 決定是否偵測開頭時間）。
     func attributedString(_ text: String) -> NSAttributedString { attributedString(text, boldLength: measuredBoldLength(of: text)) }
 
-    func line(_ text: String, boldLength n: Int) -> CTLine { CTLineCreateWithAttributedString(attributedString(text, boldLength: n)) }
+    func line(_ text: String, boldLength n: Int, accent: (range: NSRange, color: RGBColor, base: RGBColor)? = nil) -> CTLine {
+        CTLineCreateWithAttributedString(attributedString(text, boldLength: n, accent: accent))
+    }
 
     /// 量測端的粗體長度：`showTime` 為 true 才偵測開頭的 `HH:mm:ss`；false 時一律 0。
     func measuredBoldLength(of s: String) -> Int { showTime ? ItemText.boldPrefixLength(of: s) : 0 }
@@ -99,6 +112,12 @@ public struct ItemBitmapRenderer: Sendable {
         return { s in Double(CGFloat(CTLineGetTypographicBounds(r.line(s, boldLength: r.measuredBoldLength(of: s)), nil, nil, nil)).rounded(.up) + 2 * r.padding) }
     }
 
+    /// 含標題訊息的量測：開頭 `boldPrefixUTF16` 個 UTF-16 單位（時間＋標題）粗體，與繪製使用同一個屬性字串建構函式。
+    public var boldMeasurer: BoldAwareMeasurer {
+        let r = self
+        return { s, n in Double(CGFloat(CTLineGetTypographicBounds(r.line(s, boldLength: n), nil, nil, nil)).rounded(.up) + 2 * r.padding) }
+    }
+
     /// 切塊寬度（px）：總和 = `ceil(width × scale)`，每塊 ≤ 紋理上限。
     public func tilePlan(width: Double, scale: CGFloat) -> [Int] {
         Tiling.tileWidths(totalPx: Int((CGFloat(width) * scale).rounded(.up)), limit: textureLimitPx)
@@ -106,14 +125,24 @@ public struct ItemBitmapRenderer: Sendable {
 
     /// 渲染一則訊息的顯示字串與時間粗體長度：`timeString` 為空（`showTime == false` 排入的訊息）時只有 `text`、不粗體。
     /// 粗體長度直接取自排入時就決定的 `timeString`（明確資訊，不偵測字串內容）。
+    /// 有標題時，標題接在時間之後（以空白分隔），粗體範圍涵蓋時間與標題；沒有標題與舊行為完全相同。
     static func displayParts(of item: PlacedItem) -> (text: String, boldLength: Int) {
-        item.timeString.isEmpty ? (item.text, 0) : (item.timeString + " " + item.text, item.timeString.utf16.count)
+        let head = [item.timeString, item.title].filter { !$0.isEmpty }.joined(separator: " ")
+        return head.isEmpty ? (item.text, 0) : (head + " " + item.text, head.utf16.count)
+    }
+
+    /// 重要訊息的標題在顯示字串中的範圍（UTF-16）；不重要或沒有標題為 nil。
+    static func titleRange(of item: PlacedItem) -> NSRange? {
+        guard item.important, !item.title.isEmpty else { return nil }
+        let loc = item.timeString.isEmpty ? 0 : item.timeString.utf16.count + 1
+        return NSRange(location: loc, length: item.title.utf16.count)
     }
 
     /// 渲染一則訊息。配色取自 `colors`（預設 live＝白底黑字、replay＝黑底白字）。
     public func render(_ item: PlacedItem, scale: CGFloat) -> [CGImage] {
         let parts = Self.displayParts(of: item)
-        let ln = line(parts.text, boldLength: parts.boldLength)
+        let accent = Self.titleRange(of: item).map { (range: $0, color: colors.importantTitle, base: item.style == .live ? colors.liveText : colors.replayText) }
+        let ln = line(parts.text, boldLength: parts.boldLength, accent: accent)
         var asc: CGFloat = 0, desc: CGFloat = 0
         _ = CTLineGetTypographicBounds(ln, &asc, &desc, nil)
         let hPx = Int((heightPt * scale).rounded(.up))

@@ -83,7 +83,7 @@ let itemJSON = #"{"source":"fastbull","id":"1","published_at_ms":1792832201957,"
     }
 
     @Test func extraFieldsRejected() {
-        #expect(reason(decode(#"{"v":1,"type":"items","items":[{"source":"a","id":"1","published_at_ms":1,"text":"x","important":true}]}"#)) == .schema)
+        #expect(reason(decode(#"{"v":1,"type":"items","items":[{"source":"a","id":"1","published_at_ms":1,"text":"x","priority":true}]}"#)) == .schema)
         #expect(reason(decode(#"{"v":1,"type":"items","items":[\#(itemJSON)],"extra":1}"#)) == .schema)
         #expect(reason(decode(#"{"v":1,"type":"status","source":"a","state":"ok","message":"","extra":1}"#)) == .schema)
     }
