@@ -107,6 +107,16 @@ curl -sS https://目標網域/robots.txt | head -40          # 有沒有 Disallo
 ```
 並閱讀網站的使用條款（Terms）。**把結果記在你的回報中**：robots 規則、條款是否禁止自動抓取、你怎麼判斷。條款禁止或 robots 明確禁止 → 停下來回報（第 5 章）。
 
+**條款在哪裡找**：看首頁頁尾連結（「使用條款」「用戶協議」「版權聲明」「About」「Terms」「Privacy」）；單頁應用（SPA）的連結常藏在 JS bundle 裡，可 `grep -o 'about[^"]*\|terms[^"]*\|agreement[^"]*'` 找路徑。
+
+**判準（誠實且保守）**：
+- robots.txt 只有註解、沒有 `Disallow`：視為沒有限制，但仍要讀條款。
+- 條款**明文禁止**自動抓取／機器存取 → 停止並回報。
+- 條款只有一般性的**版權聲明**（禁止轉載、複製、摘編）、沒有提到自動抓取：可以繼續做，**但必須在回報中標註「有版權聲明，是否合規請人類最終裁決」**，並維持：低頻（≥10 秒）、只顯示標題文字與連回原文的連結、不在 repo 內存放大量第三方內容。
+- 看不到任何條款：在回報中說明「找不到條款」，同樣標註風險，交由人類決定。
+
+**單頁應用（SPA）／沒有瀏覽器時如何找資料端點**：首頁 HTML 若只有 `<div id="app">` 之類空殼，資料是由 JS 呼叫 API 取得。沒有瀏覽器開發者工具時：`curl` 下載首頁，從 `<script src=...>` 取出該站自己的 JS bundle（只下載首頁引用的幾個檔案，算作勘查請求），用 `grep -o 'https\?://[^"'"'"' ]*api[^"'"'"' ]*\|/get_[a-z_]*\|/api/[a-zA-Z0-9_/]*'` 找 API 網域與路徑，再用 `curl` 試打一次確認回應是 JSON。勘查請求都要克制（個位數次）。
+
 接著看資料怎麼來。開瀏覽器開發者工具的 Network 分頁（或用 `curl`）找出載入清單的請求：
 
 ```sh
@@ -147,7 +157,7 @@ sed -e "s/{{id}}/$ID/g" -e "s/{{Type}}/$TYPE/g" $T/source_fetch_test.rs.tmpl > t
 mkdir -p tests/fixtures/$ID
 [ -e tests/fixtures/$ID/sample.json ] || cp $T/sample.json.tmpl tests/fixtures/$ID/sample.json   # 步驟 b 已存就不覆蓋
 ```
-產生的 `src/$ID.rs` 內有可運作的**玩具** JSON 實作與 `TODO(source)` 標記。接著做步驟 e 的登錄（否則還編不到），再回來做 d。
+產生的 `src/$ID.rs` 內有可運作的**玩具** JSON 實作與 `TODO(source)` 標記。**建議順序：a → b → c → e（只做登錄並編譯，確認 `--list-sources` 看得到新 id）→ d（先寫解析測試、先紅）→ f → g → h → i → j。** 步驟 c 產生的檔案要先在步驟 e 登錄才編得到，所以 e 排在 d 之前。
 
 ### 步驟 d：先寫解析測試（先紅）
 
@@ -159,7 +169,7 @@ cargo test --test ${ID}_parse        # 預期：失敗（紅），因為 parse_p
 再實作 `src/$ID.rs` 的 `parse_payload`（以及 `DEFAULT_URL`、`EXTRA_HEADERS`、時區）直到：
 
 ```sh
-cargo test --test ${ID}_parse        # 預期：6 passed（綠）
+cargo test --test ${ID}_parse        # 預期：全綠，數量至少 6（你可以多加案例；不要用「恰好 6 個」做機械比對）
 ```
 測試至少要涵蓋（範本已有骨架）：fixture 數量與唯一 id、新到舊、第一則精確值、輸出通過 `Protocol`、空／壞輸入 → 錯誤、壞元素被跳過、純函式。**時間欄位用 fixture 的真實值驗證**（例如 `published_at_ms > 1_000_000_000_000`）。
 
@@ -270,6 +280,13 @@ git status --short                                            # 只應有第 1 �
 11. **輪詢間隔下限 10 秒**：`DEFAULT_INTERVAL` < 10 秒會讓 `sources_registry` 測試失敗。逾時（連線 5 秒／總 8 秒）必須小於間隔。`--interval-ms` 只供本機測試用。
 12. **重新導向不跟隨**：`HttpFetcher` 把 3xx 當錯誤（`HttpStatus(302)`）。若目標網址會 301/302，直接把 `DEFAULT_URL` 改成最終網址，不要去改共用程式。
 13. **HTML 實體與標籤**：JSON 的 `text` 常夾 `<b>`、`&nbsp;`、`\n`。`scraper` 會解碼 HTML 實體；JSON 來源要自己去標籤並收斂空白。空字串（trim 後）要跳過，因為 `text` 不得為空。
+
+### 補充陷阱（來自冷啟動驗證）
+
+14. **過濾類元素**：來源清單裡常混有「合法但不是新聞」的元素：廣告（例如 `extras.ad: true`）、付費鎖定而內容為空的項目、只有圖片沒有文字的項目。原則：**略過這類元素，在 stderr 寫一行原因，且 fixture 必須包含這些元素的樣本、測試要斷言它們被略過且順序不受影響**；不要把它們當成錯誤，也不要輸出空 `text`（協定不允許）。因為每輪輪詢都會重複略過，stderr 會每輪重複同樣幾行，這是正常的。
+15. **固定標頭常數 vs. 憑證**：有些公開 API 要求前端固定送出的標頭（例如 `x-app-id`、`x-version`，值寫死在公開 JS 裡）。這類**公開、固定、不隨請求變化**的常數可以放進 `EXTRA_HEADERS`，並在回報中註明「這是公開的固定常數、不是憑證，以及你如何判斷」。**逐次產生的 token、簽章、cookie、登入狀態、驗證碼**才是第 5 章要停下來回報的情況。你若沒有測試「不帶該標頭是否可行」，要在回報中說明這是推測。
+16. **斷言額外標頭有送出**：`FakeServer.requests` 記錄每個請求的**原始請求頭文字**（請求行加所有標頭）。要驗證 `EXTRA_HEADERS` 真的送出，可斷言 `server.requests.lock().unwrap()[0].to_lowercase().contains("x-app-id: <值>")`。
+17. **時間欄位沒有時區標記**（例如 `"2026-10-25 20:18:06"`）：必須在回報中寫明你依什麼推定時區（網站的前端程式、頁面標示、與已知事件的對照），並用測試固定「這個字串 → 這個 UTC 毫秒」的對應；推定不是事實，要標註。
 
 ## 5. 何時停下來回報人類
 
