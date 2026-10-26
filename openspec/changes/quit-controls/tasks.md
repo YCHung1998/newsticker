@@ -1,11 +1,11 @@
 ## 1. 命中測試與路由（純邏輯，先紅後綠）
 
-- [ ] 1.1 `HitGeometry.quitSlotWidth`（預設 0）與 `HitTarget.quit`；優先序與邊界（半開區間、與迴紋針重疊時 ✕ 優先）；單元測試
-- [ ] 1.2 `NavigationInputRouter.onQuit`：mouse-up 才觸發、按下後移開取消、右鍵不觸發、點穿（停用）不觸發；單元測試
+- [x] 1.1 `HitGeometry.quitSlotWidth`（預設 0）與 `HitTarget.quit`；優先序與邊界（半開區間、與迴紋針重疊時 ✕ 優先）；單元測試
+- [x] 1.2 `NavigationInputRouter.onQuit`：mouse-up 才觸發、按下後移開取消、右鍵不觸發、點穿（停用）不觸發；單元測試
 
 ## 2. 畫面與設定面板
 
-- [ ] 2.1 `ShellConfig.quitSlotWidth = 28` 並接入 `hitGeometry`；`TickerView` 的 ✕ 圖層（疊加、hover 才顯示、點穿時隱藏、不改尺寸）；離屏測試
+- [x] 2.1 `ShellConfig.quitSlotWidth = 28` 並接入 `hitGeometry`；`TickerView` 的 ✕ 圖層（疊加、hover 才顯示、點穿時隱藏、不改尺寸）；離屏測試
 - [ ] 2.2 設定面板新指令 `.quitApp` 與「結束程式」按鈕（在「關閉」之前）；模型與控制器測試，「關閉」行為不變
 
 ## 3. 統一結束流程

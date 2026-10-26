@@ -6,6 +6,8 @@ public enum HitTarget: Equatable, Sendable {
     case previousButton
     case nextButton
     case link(seq: Int)
+    /// 結束 ✕（change quit-controls）：面板最右側 `quitSlotWidth` 寬、整條帶高。
+    case quit
     case drag
 }
 
@@ -29,17 +31,19 @@ public struct HitGeometry: Equatable, Sendable {
     public var linkSlotWidth: Double
     /// 迴紋針命中區每側外擴（pt）【假設：4】。
     public var hitSlop: Double
+    /// 結束 ✕ 區寬度（面板最右側）。預設 0＝沒有 ✕（既有直接建構的測試不受影響）。
+    public var quitSlotWidth: Double
     public init(panelSize: CGSize, labelWidth: Double, gearSlotWidth: Double = 0, strip: ControlStripLayout = ControlStripLayout(),
-                linkSlotWidth: Double, hitSlop: Double = HitTesting.defaultHitSlop) {
+                linkSlotWidth: Double, hitSlop: Double = HitTesting.defaultHitSlop, quitSlotWidth: Double = 0) {
         self.panelSize = panelSize; self.labelWidth = labelWidth; self.gearSlotWidth = gearSlotWidth; self.strip = strip
-        self.linkSlotWidth = linkSlotWidth; self.hitSlop = hitSlop
+        self.linkSlotWidth = linkSlotWidth; self.hitSlop = hitSlop; self.quitSlotWidth = quitSlotWidth
     }
 
     /// 控制列左側已被占用的寬度（單一偏移）＝ 齒輪槽 + 標籤。
     public var leftInset: Double { gearSlotWidth + labelWidth }
 }
 
-/// 命中測試（純函式）。優先序：齒輪／控制列按鈕 > 迴紋針 > 拖曳。
+/// 命中測試（純函式）。優先序：齒輪／控制列按鈕 > 結束 ✕ > 迴紋針 > 拖曳（✕ 與前兩者不重疊，實際只與迴紋針競爭）。
 /// 點為面板座標（x 向右、0 = 面板左緣；y 只用來判斷是否在面板內，迴紋針命中區為整條帶高）。
 public enum HitTesting {
     public static let defaultHitSlop = 4.0
@@ -60,6 +64,8 @@ public enum HitTesting {
         // 2. 標籤（控制列左側）：不是連結（被遮住者無效）。
         let tapeLeft = g.strip.tapeLeft(leftInset: inset)
         guard x >= tapeLeft else { return .drag }
+        // 2.5 結束 ✕（面板最右側）：優先於迴紋針；半開區間 [width − quitSlotWidth, width)，整條高度。
+        if g.quitSlotWidth > 0, x >= w - g.quitSlotWidth { return .quit }
         // 3. 可見帶子 [控制列右緣, 面板右緣) 內的迴紋針命中區（依陣列順序，先符合者為準）。
         guard g.linkSlotWidth > 0 else { return .drag }
         for item in items where item.hasLinkSlot {
