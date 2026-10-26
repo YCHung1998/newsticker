@@ -19,6 +19,8 @@ final class RecordingRenderer: TickerRenderer {
     var track = TrackModel()
     var offset = 0.0
     var paused = false
+    var removeAllCalls = 0
+    func removeAll() { removeAllCalls += 1; track = TrackModel() }
     func add(_ item: PlacedItem) {
         // 與 TickerView 同一套冪等邏輯：同一 seq 已在帶子上就略過。
         if track.add(seq: item.seq, tapeX: item.tapeX, width: item.width) { calls.append(.add(item.id)) } else { duplicateAdds += 1 }

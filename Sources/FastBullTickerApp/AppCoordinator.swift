@@ -45,16 +45,27 @@ public final class AppCoordinator {
     public private(set) var itemsReceived = 0
     public private(set) var itemsWithURL = 0
     private var lastReadingText = ""
+    /// 切換來源後、下一次 helper `started` 之前：丟棄舊 helper 送來的訊息（change source-switcher）。
+    public private(set) var isSwitchingSource = false
+    public private(set) var droppedDuringSwitch = 0
 
     public init(driver: TickerDriver, log: AppLog) {
         self.driver = driver; self.log = log
         modesSeen = [driver.mode]
     }
 
+    /// 開始切換來源：之後到下一個 `.started` 為止的訊息都屬於舊 helper，丟棄。
+    public func beginSourceSwitch() { isSwitchingSource = true }
+
     /// 在主執行緒呼叫。
     public func handle(_ event: FeedEvent) {
         switch event {
         case .message(let m):
+            if isSwitchingSource {
+                droppedDuringSwitch += 1
+                log.write("feed: dropped message from previous source")
+                return
+            }
             switch m {
             case .snapshot(let items):
                 snapshots += 1; count(items)
@@ -68,7 +79,7 @@ public final class AppCoordinator {
             noteMode()
         case .badLine(let e): badLines += 1; log.write("feed: badLine \(e.reason.rawValue)")
         case .oversizeLine(let n): log.write("feed: oversizeLine \(n)")
-        case .started(let g, let pid): helperStarts += 1; log.write("feed: helper started gen=\(g) pid=\(pid)")
+        case .started(let g, let pid): isSwitchingSource = false; helperStarts += 1; log.write("feed: helper started gen=\(g) pid=\(pid)")
         case .exited(let g, let st, let d): log.write("feed: helper exited gen=\(g) status=\(st) restartIn=\(d)")
         case .stuck(let g): log.write("feed: helper stuck gen=\(g)")
         case .fatal(let e): fatal = e; log.write("feed: FATAL \(e)")

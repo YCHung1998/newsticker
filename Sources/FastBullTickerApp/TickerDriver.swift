@@ -15,6 +15,12 @@ public protocol TickerRenderer: AnyObject {
     func applyRebase(delta: Double)
     /// 暫停／恢復逐幀工作（隱藏、被遮蔽時暫停）。
     func setPaused(_ paused: Bool)
+    /// 移除帶子上所有訊息圖層與座標模型（切換來源時）。預設不做事，讓既有的測試替身不必改。
+    func removeAll()
+}
+
+public extension TickerRenderer {
+    func removeAll() {}
 }
 
 /// 紋理切塊（純函式）：把總寬 `totalPx` 切成每塊不超過 `limit` 的寬度，總和等於原寬。
@@ -84,6 +90,14 @@ public final class TickerDriver {
     /// 套用執行期可變設定（速度、可視寬度、訊息量、時間顯示、量測函式）。已排入的訊息不動。
     public func reconfigure(_ tunables: SchedulerTunables, measurer: @escaping TextMeasurer, boldMeasurer: BoldAwareMeasurer? = nil) {
         scheduler.reconfigure(tunables, measurer: measurer, boldMeasurer: boldMeasurer)
+    }
+
+    /// 切換來源：清掉排程器與畫面上舊來源的一切（時間軸與序號不歸零）。
+    public func reset() {
+        scheduler.reset()
+        renderer.removeAll()
+        lastEvents = []
+        refreshControlStrip()
     }
 
     public var mode: TickerMode { scheduler.mode }

@@ -46,7 +46,7 @@ make helper app sign
 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
 ```
 
-為什麼不用 `open build/FastBullTicker.app`？`open` 也能啟動，但看不到任何輸出，出問題時難以判斷；直接執行比較容易確認。
+也可以用 `open build/FastBullTicker.app` 或在 Finder 雙擊（現在切換來源不需要環境變數了）；只是直接執行比較容易在終端機看到錯誤。要看資料來源是哪個、怎麼切換，見下面「切換資料來源」。
 
 **如果你已經有另一個 FastBullTicker 在執行**（例如上一次忘了關）：新啟動的會跳出對話框「FastBullTicker 已在執行／要關閉先前開啟的那個，改用這個嗎？」，按「關閉舊的並繼續」會**把舊的那個關掉**，按「取消」則新的退出。（對話框文字與按鈕來自原始碼；作者沒有在畫面上親眼看過對話框，只在日誌看到舊實例被關閉。）
 
@@ -108,73 +108,60 @@ date -r $((1792919416428 / 1000))        # 讓 shell 算；印出 Sun Oct 25 17:
 
 - 它會連到正式的 FastBull 網站，每 10 秒輪詢一次，請不要自行調得更短。
 
-## 改看金十數據（Jin10）
+## 切換資料來源（FastBull ↔ 金十）
 
-預設看的是 FastBull。[金十數據](https://www.jin10.com/) 是第二個資料來源，**24 小時都有快訊（含週末）**，所以想確認「資料真的在更新」時，用它比 FastBull 更容易看到新訊息。
+目前有兩個來源：**FastBull**（預設）和 [金十數據](https://www.jin10.com/)。**不用開終端機、不用改程式碼**：
 
-**狀態**：自動測試全過；已對真站實測一次（時間、標題、重要旗標、廣告略過都和網站畫面對得上），也有離屏渲染圖；**作者沒有在實機上長時間觀察過畫面**，請你看到後回報觀感。
+1. 點螢幕上方選單列的**報紙圖示**（或在跑馬燈帶子上按**右鍵**）。
+2. 選「**來源**」，會展開子選單：目前使用的有 ✓，點另一個就**即時切換**——抓取程式自動重啟、舊來源的訊息被清掉、左側標籤自動換成該來源的標籤（FastBull →「即時財經快訊」，金十 →「金十數據」）。
+3. 你的選擇會被記住，下次啟動（包括用 Finder 雙擊或 `open` 啟動）沿用上次選的。
 
-### 步驟
+**狀態**：切換流程已在真機實測一次（右鍵 → 來源 → 金十數據：標籤、抓取程式、`sources.json` 都正確更新，畫面顯示時間與標題粗體），也有自動測試（含真的 FeedClient 重啟）。**紅色重要標題的實機觀感與長時間穩定度作者還沒有看過**，請你看到後回報。
 
-先做完上面「3 分鐘看到資料」的前置需求與第 2 步建置（`make helper app sign`），然後：
+### 來源清單檔 `sources.json`
 
-```sh
-# 1. 先看有沒有舊的在跑；沒有輸出就跳過這步。有的話才關：
-pgrep -x FastBullTicker
-sh scripts/stop-old.sh     # 注意：這會停掉本機「所有」FastBullTicker（包含別的資料夾 build 的）
+位置：`~/Library/Application Support/FastBullTicker/sources.json`（第一次啟動會自動建立）。選單裡的「**開啟來源設定檔…**」會用你的預設編輯器打開它；改完存檔，**再點一次選單就看得到**，不用重啟。
 
-# 2. 用金十來源啟動（一定要直接執行；`open` 不會把環境變數傳給 App）
-NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
-
-# 3. 約 2 秒內確認資料有進來（日誌時間是 UTC，要比你剛啟動的時間晚）
-grep 'feed:' "$HOME/Library/Application Support/FastBullTicker/app.log" | tail -3
-#    看到 `feed: snapshot items=…` 就成功。金十一次約 15–20 則（廣告與鎖定快訊已被略過）。
-#    `withUrl=0` 或很小的數字是正常的：金十多數快訊沒有原文連結，那就不會有迴紋針。
+```json
+{
+  "version": 1,
+  "selected": "fastbull",
+  "sources": [
+    { "id": "fastbull", "name": "FastBull 快訊", "label": "即時財經快訊" },
+    { "id": "jin10",    "name": "金十數據",       "label": "金十數據" }
+  ]
+}
 ```
 
-**時間**：日誌是 UTC（結尾 `Z`），畫面上的時間是你的本機時區；兩者差一個時區，不是壞掉。
+- `id`：對應程式裡的連接器（小寫英數與底線）；`name`：選單裡顯示的名稱（1–24 字）；`label`（選填）：左側標籤文字（1–16 字），有寫就優先於 `style.json` 的 `labelText`，且不會改寫你的 `style.json`。順序就是選單順序。
+- **清單裡有、但程式沒有對應連接器的來源會顯示成灰色「（尚無連接器）」，點不動**。只貼網址不會產生新來源——每個新網站都要有人寫一個連接器，流程見 `docs/ADDING_A_SOURCE.md`。
+- 檔案寫壞了（不是合法 JSON、沒有任何合法來源）：App 會把原檔備份成 `sources.json.bak`、改用預設清單，並在選單顯示提示；不會當掉。
+- `selected` 指向不存在或沒有連接器的來源時，啟動會退回 FastBull（不改你的檔案）。
+- 開發／測試用：環境變數 `NEWSTICKER_SOURCE=jin10` 可臨時指定來源，**優先於檔案、而且不會寫入 `selected`**；`FASTBULL_TICKER_SOURCES=/tmp/s.json` 可改用別的清單檔路徑。
 
-### 你會看到什麼
+### 金十的畫面與注意事項
 
-- 螢幕上方中間的跑馬燈，每則是：**`HH:mm:ss`（粗體）→ 標題（粗體）→ 本文**。沒有標題的快訊只有時間與本文。
-- 來源標示為「重要」的快訊：**標題是紅色**，本文維持一般顏色。
-- 有原文連結的快訊最右側有迴紋針，點它會用預設瀏覽器開啟原文（連到第三方來源網站）。
+金十 24 小時都有快訊（含週末），想確認「資料真的在更新」時用它比 FastBull 容易。
+
+- 每則：**`HH:mm:ss`（粗體）→ 標題（粗體）→ 本文**。沒有標題的快訊只有時間與本文。來源標示為「重要」的快訊，**標題是紅色**。廣告（VIP 橫幅等）與鎖定的 PLUS 快訊會被自動略過。
 - **標題和重要訊息是少數**：一次約 15–20 則裡通常只有 1–3 則有標題、0–2 則是重要訊息，所以畫面上有時整段都看不到粗體標題或紅字。想確認功能有沒有在運作，可以直接看原始資料：
 
   ```sh
   (sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | grep -o '"title":"[^"]*"\|"important":true'
   ```
 
-  印得出 `"title":…` 就代表有標題；`"important":true` 代表有重要訊息（那則的標題在畫面上會是紅色）。
-- 內容是**簡體中文原文**，不轉繁體。
-
-### 想把左側標籤改成「金十數據」
-
-標籤文字不會隨來源自動改變。選單列報紙圖示 →「樣式」→「開啟樣式設定檔…」，在打開的 `style.json` 加上（只寫要改的欄位即可，存檔約 0.3 秒內生效）：
-
-```json
-{ "labelText": "金十數據" }
-```
-
-- 第一次打開時 `style.json` 若是新建的，內容可能已經是一整份設定（一個 `{ … }`）。**不要貼第二個 `{ }` 在後面**，那會變成不合法的 JSON；請把 `"labelText": "金十數據"` 這一行加進**已有的那個大括號裡面**（記得前一行末尾要有逗號），或直接把已有的 `labelText` 那一行的值改掉。
-- 存成不合法的 JSON 時，App 會保留舊樣式、在選單出現提示、日誌寫 `style: error …`，改回合法內容後自動恢復；不會壞掉。
-- 想先試而不動真正的設定：啟動時加環境變數 `FASTBULL_TICKER_STYLE=/tmp/my-style.json`，App 就會改用那個檔案（見進階章節的環境變數說明）。
+- `withUrl=0` 或很小的數字是正常的：金十多數快訊沒有原文連結，那就不會有迴紋針；有的話點迴紋針用預設瀏覽器開啟原文（連到第三方來源網站）。
+- 內容是**簡體中文原文**，不轉繁體。日誌（`app.log`）時間是 UTC，畫面上的時間是你的本機時區。
+- 這是金十網站前端使用的**非官方端點**，網站改版或擋用戶端就可能失效；日誌出現 `feed: status error` 持續不退，通常就是這個原因。本專案與金十無關，**使用條款沒有逐條閱讀**，請自行確認自用低頻輪詢（10 秒一次）是否可接受；只顯示文字並連回原文。
+- 想自己接別的網站：見 `docs/ADDING_A_SOURCE.md`。
 
 ### 想安全地試、不影響正在跑的 App
 
-多開一個實例要加 `FASTBULL_TICKER_ALLOW_MULTIPLE=1`（否則會跳「已在執行」並關掉舊的）；另外 `FASTBULL_TICKER_LOG=/tmp/x.log` 改日誌位置、`FASTBULL_TICKER_AUTOQUIT_SECONDS=40` 讓它 40 秒後自己結束。注意兩個實例會共用 `helper.pid`，彼此可能把對方的抓取程式當成殘留而結束，所以這只適合短時間試用，不適合長時間並行。
+多開一個實例要加 `FASTBULL_TICKER_ALLOW_MULTIPLE=1`（否則會跳「已在執行」並關掉舊的）；另外 `FASTBULL_TICKER_LOG=/tmp/x.log` 改日誌位置、`FASTBULL_TICKER_SOURCES=/tmp/s.json` 與 `FASTBULL_TICKER_STYLE=/tmp/st.json` 改用暫存的設定檔、`FASTBULL_TICKER_AUTOQUIT_SECONDS=40` 讓它 40 秒後自己結束。注意兩個實例會共用 `helper.pid`，彼此可能把對方的抓取程式當成殘留而結束，所以這只適合短時間試用。
 
-### 換回 FastBull、結束
+### 結束
 
-- 換回 FastBull：先 `sh scripts/stop-old.sh`，再用不帶環境變數的方式啟動（`build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`）。
-- 結束：選單列報紙圖示 →「結束」，或 `sh scripts/stop-old.sh`。
-- 只想看資料不開視窗：`(sleep 15) | ticker-connect/target/release/ticker-connect --source jin10 | head -c 800`。
-
-### 注意
-
-- 這是金十網站前端使用的**非官方端點**，網站改版或擋用戶端就可能失效；日誌出現 `feed: status error` 持續不退，通常就是這個原因。
-- 本專案與金十無關。**使用條款沒有逐條閱讀**，請自行確認自用低頻輪詢（10 秒一次）是否可接受；只顯示文字並連回原文。
-- 想自己接別的網站：見 `docs/ADDING_A_SOURCE.md`。
+選單列報紙圖示 →「結束」，或 `sh scripts/stop-old.sh`。
 
 ## 疑難排解
 
@@ -593,7 +580,7 @@ flowchart LR
 helper 與 App 以版本化的 stdout JSON-lines 協定（`protocol/`）切開，換資料來源只需要新增一個 Rust 連接器 + fixture + 測試，Swift 顯示端與協定零改動。**完整步驟、範本、陷阱與驗收表見 [`docs/ADDING_A_SOURCE.md`](docs/ADDING_A_SOURCE.md)**（寫給沒有背景的 agent，範本在 `docs/templates/`）。
 
 - helper：`ticker-connect --list-sources` 列出已登錄來源；`--source <id>` 選擇（預設 `fastbull`，行為不變）；未知 id 退出碼 2 並在 stderr 列出可用 id。登錄表在 `ticker-connect/src/sources.rs`。
-- App：以環境變數 `NEWSTICKER_SOURCE=<id>`【假設名稱】在啟動時傳給 helper 的 `--source`（未設定 = 與以前相同）；例：`NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`（`open` 不傳環境變數）。左側標籤文字不隨來源自動改變，請改 `style.json` 的 `labelText`。
+- App：以環境變數 `NEWSTICKER_SOURCE=<id>`【假設名稱】在啟動時傳給 helper 的 `--source`（未設定 = 與以前相同）；例：`NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &`（`open` 不傳環境變數）。現在一般使用者請用選單列「來源」子選單切換（見「切換資料來源」）；左側標籤文字會隨來源（`sources.json` 的 `label`）自動改變。
 
 ## 8. 功能規則
 

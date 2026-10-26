@@ -197,6 +197,26 @@ public struct TickerScheduler {
         return ReadingPosition(item: item, index: min(item.listIndex, total), total: total)
     }
 
+    // MARK: 切換來源（source-switcher）
+
+    /// 清掉歷史、即時佇列、已排入訊息、閱讀位置與基準，回到 REPLAY；之後的 `items` 在新的 `snapshot` 之前依既有規則被忽略。
+    /// 時間軸（`tapeTime`／`baseOffset`／捲動位移）、`seq` 與清單識別碼的計數、隱藏與指標狀態、設定與量測函式都不動，
+    /// 所以序號保持單調，新訊息從目前視窗右緣開始排。
+    public mutating func reset() {
+        mode = .replay
+        placed = []
+        history = []
+        liveQueue = []
+        replayCursor = 0
+        tailEnd = nil
+        replayListID = nil
+        openLiveListID = nil
+        openLivePlaced = 0
+        closedTotals = [:]
+        hasBaseline = false
+        holdRemaining = 0
+    }
+
     // MARK: 執行期重新設定
 
     /// 套用 `SchedulerTunables`（不重建排程器）。前置條件同建構時：`speed ≥ 0`、`viewportWidth > 0`、`1 ≤ replayCount ≤ historyLimit`、`seekHoldSeconds ≥ 0`（呼叫端先夾制）。

@@ -8,11 +8,12 @@ import AppKit
 @Suite struct StatusMenuTests {
     let cfg = ShellConfig.provisional
 
-    @Test func menuContainsFiveKindsWithExpectedTitles() {
+    @Test func menuContainsSixKindsWithExpectedTitles() {
         // ticker-style-settings 5.1：原本恰為四項（透明度、隱藏／顯示、點穿、結束），新增「樣式」後為五項，其餘順序與標題不變。
         let m = StatusMenuController(config: cfg, initialAlpha: 0.9)
-        #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .style, .quit])
-        #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "樣式", "結束"])
+        // change source-switcher：在「點穿模式」與「樣式」之間新增「來源」，共六項，其餘順序與標題不變。
+        #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .source, .style, .quit])
+        #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "來源", "樣式", "結束"])
         #expect(m.menu.items.contains { $0.view is NSView && $0.view?.subviews.contains { $0 is NSSlider } == true })
     }
 
