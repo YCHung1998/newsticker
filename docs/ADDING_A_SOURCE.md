@@ -252,7 +252,7 @@ App 只認協定，所以不用改 Swift。選來源用環境變數（`open` 不
 make helper app sign          # 組出含新 helper 的 build/FastBullTicker.app
 NEWSTICKER_SOURCE=jin10 build/FastBullTicker.app/Contents/MacOS/FastBullTicker &
 ```
-未設定 `NEWSTICKER_SOURCE` 時行為與以前相同（FastBull）。填了未登錄的 id，helper 會以退出碼 2 結束，App 會依既有退避機制反覆重啟，日誌在 `~/Library/Application Support/FastBullTicker/app.log`。
+未設定 `NEWSTICKER_SOURCE` 時，App 讀 `~/Library/Application Support/FastBullTicker/sources.json` 的 `selected`（預設 FastBull）。**新增連接器後，要讓它出現在選單列「來源」子選單，請在 `sources.json` 的 `sources` 加一筆 `{ "id": "<你的id>", "name": "顯示名稱", "label": "標籤文字" }`**（沒有連接器的 id 只會顯示成灰色停用）；預設清單在 `Sources/FastBullTickerApp/SourceRegistry.swift` 的 `SourceRegistry.default`，想讓所有人預設就看到，請一併加進去。填了未登錄的 id，helper 會以退出碼 2 結束，App 會依既有退避機制反覆重啟，日誌在 `~/Library/Application Support/FastBullTicker/app.log`。
 
 跑馬燈左側標籤預設寫「即時財經快訊」，與來源無關。要改成新來源的名稱，編輯 `~/Library/Application Support/FastBullTicker/style.json` 的 `labelText`（1–16 字；測試時用 `FASTBULL_TICKER_STYLE=/path/to/tmp.json` 指向暫存檔，不要動真實設定）。若你是 agent，**不要啟動 App**，把這段指令留給人類執行。
 

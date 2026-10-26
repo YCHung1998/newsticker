@@ -18,6 +18,6 @@
 
 ## 4. 整合與文件
 
-- [ ] 4.1 真機啟動驗證（`FASTBULL_TICKER_ALLOW_MULTIPLE` 隔離）：用 Finder 風格的 `open` 啟動、切換兩個來源、日誌與截圖證據
-- [ ] 4.2 README（快速開始改為「選單列切換」、`sources.json` 說明、如何新增來源）與 `CLAUDE.md` 若需要
-- [ ] 4.3 `swift test`、`cargo test`、`openspec validate --all --strict` 全綠
+- [x] 4.1 真機啟動驗證（`FASTBULL_TICKER_ALLOW_MULTIPLE` 隔離）：用 Finder 風格的 `open` 啟動、切換兩個來源、日誌與截圖證據
+- [x] 4.2 README（快速開始改為「選單列切換」、`sources.json` 說明、如何新增來源）與 `CLAUDE.md` 若需要
+- [x] 4.3 `swift test`、`cargo test`、`openspec validate --all --strict` 全綠
