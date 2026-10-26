@@ -22,6 +22,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsController: SettingsPanelController?
     private var settingsCoordinator: SettingsPanelCoordinator?
     private var feed: FeedClient?
+    private var sourceSwitcher: SourceSwitcher?
     private var wake: WakeObserver?
     private var saver: PlacementSaver?
     private var store: UserDefaultsStore?
@@ -223,14 +224,45 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         log.write("feed: helper=\(url.path)")
-        // 啟動參數由載入的樣式決定；之後輪詢間隔變更（熱重載／面板）由 `StyleApplier.onPollIntervalChange` 計畫性重啟 helper。
-        let source = FeedClientConfig.sourceID(environment: environment)
-        let args = FeedClientConfig.helperArguments(pollIntervalSeconds: styleStore?.style.pollIntervalSeconds ?? TickerStyle.default.pollIntervalSeconds, source: source)
+        // 來源（change source-switcher）：可用來源以 helper 的 `--list-sources` 為準；`NEWSTICKER_SOURCE` 優先且不寫檔；
+        // 其餘由 `sources.json` 的 `selected` 決定（不存在就建立、損毀就備份重置）。
+        let available = AvailableSources.fetch(helper: url) ?? {
+            log.write("sources: --list-sources failed or timed out, only fastbull is available")
+            return AvailableSources.fallback
+        }()
+        let initialPoll = styleStore?.style.pollIntervalSeconds ?? TickerStyle.default.pollIntervalSeconds
+        let applier = styleApplier
+        let switcher = SourceSwitcher(
+            store: SourceRegistryStore(url: SourceRegistryStore.defaultURL(environment: environment)),
+            available: available, environmentSource: FeedClientConfig.sourceID(environment: environment),
+            pollIntervalSeconds: { [weak self] in self?.styleStore?.style.pollIntervalSeconds ?? initialPoll },
+            log: log,
+            actions: SourceSwitcher.Actions(
+                beginSwitch: { [weak coordinator] in coordinator?.beginSourceSwitch() },
+                resetTicker: { [weak self] in self?.driver?.reset() },
+                restartHelper: { [weak self] args in self?.feed?.reconfigure(arguments: args) },
+                applyLabel: { [weak applier] in applier?.setLabelOverride($0) }))
+        sourceSwitcher = switcher
+        applier?.setLabelOverride(switcher.initialLabel)
+        if let sm = menu?.sourceMenu {
+            sm.provider = { [weak switcher] in switcher?.menuItems() ?? [] }
+            sm.onSelect = { [weak switcher] in _ = switcher?.select($0) }
+            let opener = WorkspaceFileOpener(onFailure: { [log] in log.write("sources: open file failed: \($0.localizedDescription)") })
+            let storeURL = switcher.storeURL
+            sm.onOpenFile = { [log] in
+                _ = SourceRegistryStore(url: storeURL).load()        // 保證檔案存在（不存在就建立預設）
+                log.write("sources: open file requested ok=\(opener.open(storeURL))")
+            }
+            sm.rebuild()
+        }
+        // 啟動參數由來源與載入的樣式決定；之後輪詢間隔變更（熱重載／面板）計畫性重啟 helper，沿用**目前**的來源。
+        let args = FeedClientConfig.helperArguments(pollIntervalSeconds: initialPoll, source: switcher.current)
         let client = FeedClient(config: FeedClientConfig(helperURL: url, arguments: args), onEvent: AppCoordinator.bridge(to: coordinator))
         feed = client
-        styleApplier?.onPollIntervalChange = { [weak self] seconds in
-            self?.log.write("feed: poll interval -> \(seconds)s, restarting helper")
-            self?.feed?.reconfigure(arguments: FeedClientConfig.helperArguments(pollIntervalSeconds: seconds, source: source))
+        styleApplier?.onPollIntervalChange = { [weak self, weak switcher] seconds in
+            guard let switcher else { return }
+            self?.log.write("feed: poll interval -> \(seconds)s, restarting helper (source=\(switcher.current))")
+            self?.feed?.reconfigure(arguments: FeedClientConfig.helperArguments(pollIntervalSeconds: seconds, source: switcher.current))
         }
         wake = WakeObserver(client: client)
         client.start()

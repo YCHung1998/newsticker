@@ -4,7 +4,7 @@ import AppKit
 /// 點穿狀態只存在記憶體（不經 `PersistenceStore`），因此每次啟動為關。
 @MainActor
 public final class StatusMenuController: NSObject {
-    public enum Kind: String, Sendable { case opacity, toggleVisibility, clickThrough, style, quit }
+    public enum Kind: String, Sendable { case opacity, toggleVisibility, clickThrough, source, style, quit }
     public struct ItemInfo: Equatable, Sendable { public var kind: Kind; public var title: String; public var checked: Bool }
 
     public let config: ShellConfig
@@ -25,6 +25,9 @@ public final class StatusMenuController: NSObject {
     private let quitItem = NSMenuItem()
     private let opacityItem = NSMenuItem()
     private let styleItem = NSMenuItem()
+    private let sourceItem = NSMenuItem()
+    /// 「來源」子選單（change source-switcher）：項目與動作由 App 接上。
+    public let sourceMenu = SourceMenuController()
     /// 「樣式」子選單（ticker-style-settings 5.1）：資料來源與動作由 App 接上；未接上時顯示預設樣式、操作無效果。
     public let styleMenu = StyleMenuController()
 
@@ -59,6 +62,10 @@ public final class StatusMenuController: NSObject {
         clickItem.target = self; clickItem.action = #selector(toggleClickThrough)
         menu.addItem(clickItem)
 
+        sourceItem.title = "來源"
+        sourceItem.submenu = sourceMenu.menu
+        menu.addItem(sourceItem)
+
         styleItem.title = "樣式"
         styleItem.submenu = styleMenu.menu
         menu.addItem(styleItem)
@@ -74,6 +81,7 @@ public final class StatusMenuController: NSObject {
         [ItemInfo(kind: .opacity, title: "透明度", checked: false),
          ItemInfo(kind: .toggleVisibility, title: hideItem.title, checked: false),
          ItemInfo(kind: .clickThrough, title: clickItem.title, checked: clickThrough),
+         ItemInfo(kind: .source, title: sourceItem.title, checked: false),
          ItemInfo(kind: .style, title: styleItem.title, checked: false),
          ItemInfo(kind: .quit, title: quitItem.title, checked: false)]
     }

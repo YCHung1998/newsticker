@@ -167,10 +167,10 @@ final class RecordingFileOpener: FileOpener {
         #expect(NSApp.windows.count == before)
     }
 
-    @Test func statusMenuHasFiveItemsAndStyleSubmenuIsTheSharedOne() {
+    @Test func statusMenuHasSixItemsAndStyleSubmenuIsTheSharedOne() {
         let m = StatusMenuController(config: .provisional, initialAlpha: 0.9)
-        #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .style, .quit])
-        #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "樣式", "結束"])
+        #expect(m.items.map(\.kind) == [.opacity, .toggleVisibility, .clickThrough, .source, .style, .quit])
+        #expect(m.items.map(\.title) == ["透明度", "隱藏帶子", "點穿模式", "來源", "樣式", "結束"])
         let styleItem = m.menu.items.first { $0.title == "樣式" }
         #expect(styleItem?.submenu === m.styleMenu.menu)
         #expect(m.menu.items.last?.title == "結束" && m.menu.items.firstIndex { $0.title == "樣式" }! < m.menu.items.firstIndex { $0.isSeparatorItem }!)

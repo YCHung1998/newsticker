@@ -11,7 +11,12 @@ public final class StyleApplier {
     private let driver: TickerDriver
     private let log: AppLog?
     private let timeZone: TimeZone
+    /// 實際生效的樣式（含來源標籤覆寫）。
     public private(set) var current: TickerStyle
+    /// 使用者樣式（`style.json`），不含覆寫；覆寫變更時用它重算生效樣式。
+    private var userStyle: TickerStyle
+    /// 目前來源的標籤（change source-switcher）。非 nil 時取代 `labelText`，且絕不寫回 `style.json`。
+    public private(set) var labelOverride: String?
     /// 實際套用（樣式有變）的次數；相同樣式不重套，不計。
     public private(set) var applyCount = 0
     public private(set) var lastReport: TickerView.StyleApplyReport?
@@ -23,7 +28,7 @@ public final class StyleApplier {
     public init(config: ShellConfig, view: TickerView, driver: TickerDriver, log: AppLog?,
                 initial: TickerStyle = .default, timeZone: TimeZone = .current) {
         self.config = config; self.view = view; self.driver = driver; self.log = log
-        self.current = initial; self.timeZone = timeZone
+        self.current = initial; self.userStyle = initial; self.timeZone = timeZone
     }
 
     /// 欄位差異（日誌用）。
@@ -48,9 +53,19 @@ public final class StyleApplier {
         return k
     }
 
+    /// 設定或清除來源標籤（nil = 回到 `style.json` 的 `labelText`）。
+    public func setLabelOverride(_ label: String?) {
+        guard label != labelOverride else { return }
+        labelOverride = label
+        apply(userStyle, source: "source")
+    }
+
     /// `source`：`startup`／`file`／`menu`（日誌用）。樣式與目前相同則不做事。
     @discardableResult
-    public func apply(_ style: TickerStyle, source: String) -> Bool {
+    public func apply(_ userStyle: TickerStyle, source: String) -> Bool {
+        self.userStyle = userStyle
+        var style = userStyle
+        if let l = labelOverride { style.labelText = l }
         guard style != current else { return false }
         let changed = Self.changedKeys(from: current, to: style)
         let pollChanged = style.pollIntervalSeconds != current.pollIntervalSeconds
