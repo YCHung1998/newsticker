@@ -15,6 +15,6 @@
 
 ## 4. 整合與文件
 
-- [ ] 4.1 真機驗證（`FASTBULL_TICKER_ALLOW_MULTIPLE` 隔離）：hover 出現 ✕、點 ✕ 結束、設定面板「結束程式」結束，附日誌與截圖
-- [ ] 4.2 README（快速開始「怎麼結束」與設定面板說明）更新
-- [ ] 4.3 `swift test`、`cargo test`、`openspec validate --all --strict` 全綠
+- [x] 4.1 真機驗證（`FASTBULL_TICKER_ALLOW_MULTIPLE` 隔離）：hover 出現 ✕、點 ✕ 結束、設定面板「結束程式」結束，附日誌與截圖
+- [x] 4.2 README（快速開始「怎麼結束」與設定面板說明）更新
+- [x] 4.3 `swift test`、`cargo test`、`openspec validate --all --strict` 全綠
