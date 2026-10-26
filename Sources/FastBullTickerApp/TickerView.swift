@@ -318,6 +318,14 @@ public final class TickerView: NSView, TickerRenderer {
         layers[seq] = container
     }
 
+    public func removeAll() {
+        CATransaction.begin(); CATransaction.setDisableActions(true)
+        for (_, layer) in layers { layer.removeFromSuperlayer() }
+        scrollLayer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        CATransaction.commit()
+        layers = [:]; placedBySeq = [:]; track = TrackModel()
+    }
+
     public func setScrollOffset(_ x: Double) {
         offset = x
         CATransaction.begin(); CATransaction.setDisableActions(true)

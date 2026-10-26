@@ -1,14 +1,14 @@
 ## 1. 清單檔（Core 純邏輯，先紅後綠）
 
-- [ ] 1.1 `SourceRegistry` 型別與解析：欄位規則、重複 id、單筆非法略過、未知鍵警告；單元測試
-- [ ] 1.2 預設內容、原子寫入、損毀備份、唯讀降級；測試（暫存目錄）
-- [ ] 1.3 `selected` 規則（記住、指向不存在退回 fastbull）；測試
+- [x] 1.1 `SourceRegistry` 型別與解析：欄位規則、重複 id、單筆非法略過、未知鍵警告；單元測試
+- [x] 1.2 預設內容、原子寫入、損毀備份、唯讀降級；測試（暫存目錄）
+- [x] 1.3 `selected` 規則（記住、指向不存在退回 fastbull）；測試
 
 ## 2. 可用來源與排程器重設
 
-- [ ] 2.1 `--list-sources` 取得器（逾時 5 秒、失敗退回 fastbull）；以假 helper 腳本測試
-- [ ] 2.2 `TickerScheduler.reset()`（歷史、佇列、帶子、閱讀位置、模式；`seq` 單調）；測試含 items-before-snapshot
-- [ ] 2.3 `TickerView`／driver 清空圖層與渲染快取；測試
+- [x] 2.1 `--list-sources` 取得器（逾時 5 秒、失敗退回 fastbull）；以假 helper 腳本測試
+- [x] 2.2 `TickerScheduler.reset()`（歷史、佇列、帶子、閱讀位置、模式；`seq` 單調）；測試含 items-before-snapshot
+- [x] 2.3 `TickerView`／driver 清空圖層與渲染快取；測試
 
 ## 3. 切換流程與選單
 
