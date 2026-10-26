@@ -25,7 +25,7 @@ fileprivate typealias TickerStyle = FastBullTickerApp.TickerStyle
 
     @Test func itemsAreInSpecOrder() {
         #expect(items().map(\.id) == ["fontSize", "scrollSpeed", "cornerRadius", "replayCount", "liveColors", "showTime", "showLabel",
-                                      "seekHold", "pollInterval", "launchAtLogin", "openFile", "reset", "close"])
+                                      "seekHold", "pollInterval", "launchAtLogin", "openFile", "reset", "quit", "close"])
     }
 
     @Test func defaultValuesMatchTheSpecScenario() throws {
@@ -109,6 +109,8 @@ fileprivate typealias TickerStyle = FastBullTickerApp.TickerStyle
         guard case .button(_, let ot, let oc) = try item("openFile"), case .button(_, let rt, let rc) = try item("reset"),
               case .button(_, let ct, let cc) = try item("close") else { Issue.record("button"); return }
         #expect(oc == .style(.openFile) && rc == .style(.resetToDefault) && cc == .close)
+        guard case .button(_, let qt, let qc) = try item("quit") else { Issue.record("quit button"); return }
+        #expect(qc == .quitApp && qt == "結束程式", "與只關閉面板的「關閉」不同（change quit-controls）")
         #expect(ot == "開啟樣式設定檔…" && rt == "重設為預設" && ct == "關閉")
         let menu = StyleMenuModel.entries(for: .default)
         #expect(menu.first { $0.id == "openFile" }?.title == ot && menu.first { $0.id == "reset" }?.title == rt, "按鈕標題與選單相同")
@@ -139,7 +141,7 @@ fileprivate typealias TickerStyle = FastBullTickerApp.TickerStyle
         guard case .launchAtLogin(_, let st) = try #require(items(launch: on).first(where: { $0.id == "launchAtLogin" })) else { Issue.record("launch"); return }
         #expect(st == on)
         #expect(M.Command.setLaunchAtLogin(true) != .style(.toggleShowTime))
-        #expect(M.Command.setLaunchAtLogin(true) != .style(.resetToDefault) && M.Command.openLoginSettings != .close)
+        #expect(M.Command.setLaunchAtLogin(true) != .style(.resetToDefault) && M.Command.openLoginSettings != .close && M.Command.quitApp != .close)
     }
 
     @Test func configProblemAddsTheSameNoticeFirst() {

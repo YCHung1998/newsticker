@@ -10,6 +10,8 @@ public final class SettingsPanelController {
     public var source: () -> (style: TickerStyle, hasConfigProblem: Bool) = { (.default, false) }
     public var onStyleAction: (StyleMenuAction) -> Void = { _ in }
     public var onClose: () -> Void = {}
+    /// 「結束程式」：由 App 接到統一的結束流程（change quit-controls）。
+    public var onQuitApp: () -> Void = {}
 
     public init(content: SettingsPanelContentView, launch: LaunchAtLoginController) {
         self.content = content; self.launch = launch
@@ -38,6 +40,8 @@ public final class SettingsPanelController {
             refresh()
         case .openLoginSettings:
             launch.openSystemSettings()
+        case .quitApp:
+            onQuitApp()
         case .close:
             onClose()
         }

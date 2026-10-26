@@ -49,6 +49,8 @@ public struct ShellConfig: Sendable {
     public var hitSlop: Double = HitTesting.defaultHitSlop
     /// 齒輪槽寬度（pt）【假設：28】，位於面板最左側，不受 `showLabel` 影響（settings-gear）。
     public var gearSlotWidth: Double = 28
+    /// 結束 ✕ 區寬度（pt）【假設：28】，疊在帶子最右緣、hover 才顯示，**不計入面板寬度**（change quit-controls）。
+    public var quitSlotWidth: Double = 28
 
     /// 帶子可視寬度的設計值（使用者於 nav-layout-tweaks 確認的 370pt）。
     public static let designTapeViewport: Double = 370
@@ -90,7 +92,7 @@ public struct ShellConfig: Sendable {
 
     /// 命中測試用的幾何（與 `TickerView` 的圖層版面同源）；標籤隱藏時標籤寬為 0。
     public func makeHitGeometry(showLabel: Bool) -> HitGeometry {
-        HitGeometry(panelSize: panelSize, labelWidth: showLabel ? Double(labelWidth) : 0, gearSlotWidth: gearSlotWidth, strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop)
+        HitGeometry(panelSize: panelSize, labelWidth: showLabel ? Double(labelWidth) : 0, gearSlotWidth: gearSlotWidth, strip: strip, linkSlotWidth: linkSlotWidth, hitSlop: hitSlop, quitSlotWidth: quitSlotWidth)
     }
     public var hitGeometry: HitGeometry { makeHitGeometry(showLabel: true) }
 

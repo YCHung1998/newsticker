@@ -22,6 +22,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsController: SettingsPanelController?
     private var settingsCoordinator: SettingsPanelCoordinator?
     private var feed: FeedClient?
+    private var quitCoordinator: QuitCoordinator?
     private var sourceSwitcher: SourceSwitcher?
     private var wake: WakeObserver?
     private var saver: PlacementSaver?
@@ -104,7 +105,6 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
             self.log.write("menu: hidden=\(hidden)")
         }
         menu.onClickThroughChanged = { [weak self] on in self?.panel?.ignoresMouseEvents = on; self?.view?.router.isEnabled = !on; self?.log.write("menu: clickThrough=\(on)") }
-        menu.onQuit = { NSApp.terminate(nil) }
         let runner = StyleActionRunner(store: styleStore, opener: WorkspaceFileOpener(onFailure: { log.write("style: open file failed: \($0.localizedDescription)") }), log: log)
         self.styleRunner = runner
 
@@ -120,6 +120,15 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         self.settingsPanel = settingsPanel; self.settingsController = settings.controller; self.settingsCoordinator = settings.coordinator
         StyleWiring.connect(store: styleStore, applier: applier, menu: menu.styleMenu, runner: runner, onApplied: settings.refreshIfOpen)
         styleStore.startWatching()
+        // 結束（change quit-controls）：帶子上的 ✕、設定面板的「結束程式」、選單列／右鍵選單的「結束」共用同一個流程：
+        // 先收起設定面板與帶子（畫面立刻消失），再 `NSApp.terminate`（`applicationShouldTerminate` 優雅關閉 helper）。
+        let quit = QuitCoordinator(hideTicker: { [weak self] in self?.panel?.orderOut(nil) },
+                                   hideSettings: { [weak self] in self?.settingsCoordinator?.close() },
+                                   terminate: { NSApp.terminate(nil) }, log: self.log)
+        self.quitCoordinator = quit
+        menu.onQuit = { quit.request(from: "menu") }
+        view.router.onQuit = { quit.request(from: "x-button") }
+        settings.controller.onQuitApp = { quit.request(from: "settings-panel") }
         menu.install()
         view.contextMenu = menu.menu
         self.menu = menu

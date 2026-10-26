@@ -9,6 +9,7 @@ public enum SettingsPanelModel {
         case style(StyleMenuAction)
         case setLaunchAtLogin(Bool)         // 經 `LaunchAtLoginController`，不寫 style.json
         case openLoginSettings              // 需要核准時的「開啟系統設定」
+        case quitApp                        // 結束整個程式（change quit-controls）；與只關閉面板的 `.close` 不同
         case close
     }
 
@@ -59,7 +60,7 @@ public enum SettingsPanelModel {
         }
     }
 
-    /// 全部項目，順序見 spec `settings-panel`：字級、速度、圓角、訊息量、即時配色、顯示時間、顯示標籤、停留、輪詢、開機啟動、開啟檔案、重設、關閉。
+    /// 全部項目，順序見 spec `settings-panel`：字級、速度、圓角、訊息量、即時配色、顯示時間、顯示標籤、停留、輪詢、開機啟動、開啟檔案、重設、結束程式、關閉。
     public static func items(style: TickerStyle, hasConfigProblem: Bool, launch: LaunchAtLoginViewState) -> [Item] {
         var out: [Item] = []
         if hasConfigProblem { out.append(.notice(StyleMenuModel.configProblemNotice)) }
@@ -91,6 +92,7 @@ public enum SettingsPanelModel {
         out.append(.launchAtLogin(title: "開機自動啟動", state: launch))
         out.append(.button(id: "openFile", title: "開啟樣式設定檔…", command: .style(.openFile)))
         out.append(.button(id: "reset", title: "重設為預設", command: .style(.resetToDefault)))
+        out.append(.button(id: "quit", title: "結束程式", command: .quitApp))
         out.append(.button(id: "close", title: "關閉", command: .close))
         return out
     }

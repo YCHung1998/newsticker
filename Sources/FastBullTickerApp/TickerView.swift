@@ -59,6 +59,10 @@ public final class TickerView: NSView, TickerRenderer {
     private let previousChevron = CAShapeLayer()
     private let nextChevron = CAShapeLayer()
     private let indicatorLayer = CALayer()
+    // 結束 ✕（change quit-controls）：疊在帶子最右緣，只在指標位於面板內（且未點穿）時顯示。底層壓暗下方內容，符號是白色 ✕。
+    private let quitBackLayer = CALayer()
+    private let quitGlyphLayer = CAShapeLayer()
+    public private(set) var isPointerInside = false
     private var indicatorString = ""
     private var track = TrackModel()
     private var layers: [Int: CALayer] = [:]
@@ -91,6 +95,7 @@ public final class TickerView: NSView, TickerRenderer {
         self.router = NavigationInputRouter(geometry: config.makeHitGeometry(showLabel: style.showLabel))
         super.init(frame: NSRect(origin: .zero, size: config.panelSize))
         wantsLayer = true
+        router.onEnabledChange = { [weak self] in self?.updateQuitVisibility() }
         buildLayers()
         applyStaticStyle()
         layoutStyleLayers()
@@ -137,6 +142,28 @@ public final class TickerView: NSView, TickerRenderer {
         labelText.contentsScale = 2
         layer?.addSublayer(labelText)
         setControlStrip(ControlStripState.from(position: nil))
+
+        // 結束 ✕ 最後加入＝最上層（蓋住標籤與帶子）。外觀【假設】：半透明黑底＋白色 ✕，待使用者目視。
+        quitBackLayer.backgroundColor = CGColor(gray: 0, alpha: 0.72)
+        quitGlyphLayer.fillColor = nil
+        quitGlyphLayer.strokeColor = CGColor(gray: 1, alpha: 1)
+        quitGlyphLayer.lineWidth = 1.8
+        quitGlyphLayer.lineCap = .round
+        quitBackLayer.isHidden = true; quitGlyphLayer.isHidden = true
+        layer?.addSublayer(quitBackLayer)
+        layer?.addSublayer(quitGlyphLayer)
+    }
+
+    /// ✕ 是否可見：指標在面板內，且滑鼠事件未被停用（點穿模式）。
+    public var isQuitVisible: Bool { isPointerInside && router.isEnabled }
+    public var quitFrame: CGRect { quitBackLayer.frame }
+    public var quitHidden: Bool { quitBackLayer.isHidden }
+
+    private func updateQuitVisibility() {
+        CATransaction.begin(); CATransaction.setDisableActions(true)
+        quitBackLayer.isHidden = !isQuitVisible
+        quitGlyphLayer.isHidden = !isQuitVisible
+        CATransaction.commit()
     }
 
     /// 與樣式無關的顏色之外，會隨樣式改變的圖層屬性（顏色、圓角、標籤文字）。
@@ -155,6 +182,15 @@ public final class TickerView: NSView, TickerRenderer {
     private func layoutStyleLayers() {
         let h = config.panelSize.height, lw = labelW, gw = gearW
         CATransaction.begin(); CATransaction.setDisableActions(true)
+        let qw = CGFloat(config.quitSlotWidth)
+        let qFrame = CGRect(x: config.panelSize.width - qw, y: 0, width: qw, height: h)
+        quitBackLayer.frame = qFrame
+        quitGlyphLayer.frame = qFrame
+        let c = CGPoint(x: qw / 2, y: h / 2), r: CGFloat = 5
+        let x = CGMutablePath()
+        x.move(to: CGPoint(x: c.x - r, y: c.y - r)); x.addLine(to: CGPoint(x: c.x + r, y: c.y + r))
+        x.move(to: CGPoint(x: c.x - r, y: c.y + r)); x.addLine(to: CGPoint(x: c.x + r, y: c.y - r))
+        quitGlyphLayer.path = x
         gearSlotLayer.frame = CGRect(x: 0, y: 0, width: gw, height: h)
         gearLayer.frame = CGRect(x: 0, y: 0, width: gw, height: h)
         gearLayer.path = GearGlyph.path(in: gearLayer.bounds)
@@ -411,6 +447,8 @@ public final class TickerView: NSView, TickerRenderer {
     public override func mouseExited(with event: NSEvent) { pointerChanged(false) }
     public override func mouseMoved(with event: NSEvent) { pointerMoved(to: convert(event.locationInWindow, from: nil)) }
     public func pointerChanged(_ inside: Bool) {
+        isPointerInside = inside
+        updateQuitVisibility()
         if !inside { setGearHover(false) }                       // 離開面板復原齒輪高亮
         onPointerInside?(inside)
     }

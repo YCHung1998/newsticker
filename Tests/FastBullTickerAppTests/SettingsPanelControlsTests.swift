@@ -75,7 +75,7 @@ private final class Rig {
         #expect(r.content.slider("seekHold")?.doubleValue == 1 && r.content.valueText("seekHold") == "1.0 秒")
         #expect(r.content.segmented("pollInterval")?.selectedSegment == 0)
         #expect(r.content.toggle("launchAtLogin")?.state == .off && r.content.detailText == "未啟用")
-        #expect(r.content.button("openFile") != nil && r.content.button("reset") != nil && r.content.button("close") != nil)
+        #expect(r.content.button("openFile") != nil && r.content.button("reset") != nil && r.content.button("close") != nil && r.content.button("quit") != nil)
     }
 
     @Test func controlOptionsAreTheSharedSteps() {
@@ -175,6 +175,32 @@ private final class Rig {
         r.controller.onClose = { closed += 1 }
         r.press("close")
         #expect(closed == 1)
+    }
+
+    @Test func quitButtonReportsQuitAppAndDoesNotJustClose() {
+        let r = Rig()
+        var quits = 0, closed = 0
+        r.controller.onQuitApp = { quits += 1 }
+        r.controller.onClose = { closed += 1 }
+        r.press("quit")
+        #expect(quits == 1 && closed == 0, "「結束程式」不是「關閉」")
+        r.press("close")
+        #expect(quits == 1 && closed == 1, "「關閉」維持只關閉設定面板")
+    }
+
+    @Test func quitIsRightBeforeCloseAndAllButtonsFitInsideThePanel() {
+        let r = Rig()
+        let q = r.content.button("quit")!, c = r.content.button("close")!
+        #expect(q.title == "結束程式" && c.title == "關閉")
+        let row = q.superview as? NSStackView
+        #expect(row != nil && row === c.superview, "「結束程式」與「關閉」同一列")
+        let views = row?.arrangedSubviews ?? []
+        #expect(views.firstIndex(of: q) == (views.firstIndex(of: c) ?? 0) - 1, "結束程式緊接在關閉之前")
+        _ = r.content.contentSize
+        for b in ["openFile", "reset", "quit", "close"].compactMap({ r.content.button($0) }) {
+            let f = b.convert(b.bounds, to: r.content)
+            #expect(f.minX >= 0 && f.maxX <= SettingsPanelContentView.panelWidth, "\(b.title) 超出面板：\(f)")
+        }
     }
 
     @Test func configProblemShowsTheNoticeAndClearsWhenFixed() {
