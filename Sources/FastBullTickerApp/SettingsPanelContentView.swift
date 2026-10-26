@@ -121,6 +121,8 @@ public final class SettingsPanelContentView: NSView {
                 }
             case .button(let id, let title, _):
                 let b = makeButton(id, title)
+                // 四個按鈕一列放不下（面板寬 330）：「結束程式」另起一列，與「關閉」同列。
+                if id == "quit" { buttonRow = nil }
                 if buttonRow == nil {
                     let r = NSStackView()
                     r.orientation = .horizontal; r.spacing = 8; r.alignment = .centerY
